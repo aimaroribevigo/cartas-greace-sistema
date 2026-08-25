@@ -7,6 +7,12 @@ if (-not (Test-Path .env)) {
   Write-Host "Creado .env desde .env.example — revisa contraseñas y puertos."
 }
 
+Write-Host ""
+Write-Host "Primera vez en esta PC: Docker crea MySQL y carga docker/mysql/init/02_seed_data.sql"
+Write-Host "(2520 cartas, hilos, usuarios). No hace falta Excel para arrancar."
+Write-Host "Para reimportar Excel: copialo a data/Control_de_Cartas_2025_HLP_Mejorado.xlsx"
+Write-Host ""
+
 docker compose up --build -d
 
 $envFile = Get-Content .env | Where-Object { $_ -match '^\s*WEB_HOST_PORT=' }

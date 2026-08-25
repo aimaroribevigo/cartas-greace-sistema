@@ -8,6 +8,11 @@ if [[ ! -f .env ]]; then
   echo "Creado .env desde .env.example — revisa contraseñas y puertos."
 fi
 
+echo ""
+echo "Primera vez: MySQL carga docker/mysql/init/02_seed_data.sql (cartas + usuarios)."
+echo "Excel opcional en data/Control_de_Cartas_2025_HLP_Mejorado.xlsx para reimportar."
+echo ""
+
 docker compose up --build -d
 echo "Web:  http://localhost:${WEB_HOST_PORT:-5080}"
 echo "MySQL host port: ${MYSQL_HOST_PORT:-3307}"

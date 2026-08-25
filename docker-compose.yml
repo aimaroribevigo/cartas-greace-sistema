@@ -58,6 +58,7 @@ services:
       NOTIFY_SECRET: ${NOTIFY_SECRET:-}
       AUTO_IMPORT_EXCEL: ${AUTO_IMPORT_EXCEL:-1}
       EXCEL_PATH: /app/data/Control_de_Cartas_2025_HLP_Mejorado.xlsx
+      # Con datos en docker/mysql/init/02_seed_data.sql el import se omite si ya hay cartas.
       CARTA_VENCIDA_DIAS: ${CARTA_VENCIDA_DIAS:-15}
       CARTA_POR_VENCER_DIAS: ${CARTA_POR_VENCER_DIAS:-10}
       HILO_PLAZO_DIAS: ${HILO_PLAZO_DIAS:-5}
@@ -71,7 +72,8 @@ services:
       FORCE_PASSWORD_ROTATION: ${FORCE_PASSWORD_ROTATION:-1}
       MIN_PASSWORD_LEN: ${MIN_PASSWORD_LEN:-8}
     volumes:
-      - ./Control_de_Cartas_2025_HLP_Mejorado.xlsx:/app/data/Control_de_Cartas_2025_HLP_Mejorado.xlsx:ro
+      # Copia el Excel a ./data/ si quieres reimportar (opcional; el clone trae seed MySQL).
+      - ./data:/app/data:ro
       - ./dashboard.html:/app/dashboard.html:ro
     ports:
       - "${WEB_HOST_PORT:-5080}:5000"

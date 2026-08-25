@@ -2,6 +2,9 @@
 *.xls
 *.xlsm
 _excel_*
+data/*.xlsx
+data/*.xls
+data/*.xlsm
 
 # Secretos y entorno local
 .env
