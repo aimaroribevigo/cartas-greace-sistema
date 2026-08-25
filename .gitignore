@@ -1,0 +1,17 @@
+*.xlsx
+*.xls
+*.xlsm
+_excel_*
+
+# Secretos y entorno local
+.env
+.env.local
+
+# Datos / caché local
+consultas.db
+_c.json
+__pycache__/
+*.pyc
+.pytest_cache/
+.cursor/
+.playwright-mcp/

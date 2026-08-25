@@ -1,0 +1,88 @@
+# Proyecto Docker independiente: SistemaGreace
+# No comparte red ni volúmenes con otros compose del host.
+name: sistemagreace
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: sistemagreace-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-greace_root_change_me}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sistemagreace}
+      MYSQL_USER: ${MYSQL_USER:-greace}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-greace_pass_change_me}
+    ports:
+      # Puerto host distinto al MySQL típico (3306) para no chocar con otro proyecto
+      - "${MYSQL_HOST_PORT:-3307}:3306"
+    volumes:
+      - sistemagreace_mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-greace_root_change_me}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - sistemagreace_net
+
+  web:
+    build: .
+    container_name: sistemagreace-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLASK_DEBUG: ${FLASK_DEBUG:-0}
+      APP_HOST: 0.0.0.0
+      APP_PORT: 5000
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sistemagreace}
+      MYSQL_USER: ${MYSQL_USER:-greace}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-greace_pass_change_me}
+      MYSQL_WAIT_SECONDS: ${MYSQL_WAIT_SECONDS:-60}
+      WHATSAPP_ENABLED: ${WHATSAPP_ENABLED:-0}
+      WHATSAPP_PROVIDER: ${WHATSAPP_PROVIDER:-callmebot}
+      WHATSAPP_TO: ${WHATSAPP_TO:-}
+      CALLMEBOT_APIKEY: ${CALLMEBOT_APIKEY:-}
+      META_WA_TOKEN: ${META_WA_TOKEN:-}
+      META_WA_PHONE_NUMBER_ID: ${META_WA_PHONE_NUMBER_ID:-}
+      WHATSAPP_INTERVAL_MINUTES: ${WHATSAPP_INTERVAL_MINUTES:-180}
+      WHATSAPP_NOTIFY_ON_START: ${WHATSAPP_NOTIFY_ON_START:-0}
+      WHATSAPP_DIGEST_MODE: ${WHATSAPP_DIGEST_MODE:-debo}
+      WHATSAPP_DEBO_TOP: ${WHATSAPP_DEBO_TOP:-10}
+      WHATSAPP_DEBO_ESP: ${WHATSAPP_DEBO_ESP:-5}
+      NOTIFY_SECRET: ${NOTIFY_SECRET:-}
+      AUTO_IMPORT_EXCEL: ${AUTO_IMPORT_EXCEL:-1}
+      EXCEL_PATH: /app/data/Control_de_Cartas_2025_HLP_Mejorado.xlsx
+      CARTA_VENCIDA_DIAS: ${CARTA_VENCIDA_DIAS:-15}
+      CARTA_POR_VENCER_DIAS: ${CARTA_POR_VENCER_DIAS:-10}
+      HILO_PLAZO_DIAS: ${HILO_PLAZO_DIAS:-5}
+      HILO_VERDE_HASTA: ${HILO_VERDE_HASTA:-3}
+      HILO_AMARILLO_DIA: ${HILO_AMARILLO_DIA:-4}
+      HILO_LEGADO_DIAS: ${HILO_LEGADO_DIAS:-60}
+      HILO_OPERATIVO_MAX_DIAS: ${HILO_OPERATIVO_MAX_DIAS:-15}
+      AUTH_REQUIRED: ${AUTH_REQUIRED:-1}
+      SECRET_KEY: ${SECRET_KEY:-sistemagreace-dev-change-me-in-prod}
+      DEFAULT_USER_PASSWORD: ${DEFAULT_USER_PASSWORD:-greace2026}
+      FORCE_PASSWORD_ROTATION: ${FORCE_PASSWORD_ROTATION:-1}
+      MIN_PASSWORD_LEN: ${MIN_PASSWORD_LEN:-8}
+    volumes:
+      - ./Control_de_Cartas_2025_HLP_Mejorado.xlsx:/app/data/Control_de_Cartas_2025_HLP_Mejorado.xlsx:ro
+      - ./dashboard.html:/app/dashboard.html:ro
+    ports:
+      - "${WEB_HOST_PORT:-5080}:5000"
+    networks:
+      - sistemagreace_net
+
+volumes:
+  sistemagreace_mysql_data:
+    name: sistemagreace_mysql_data
+
+networks:
+  sistemagreace_net:
+    name: sistemagreace_net
+    driver: bridge
