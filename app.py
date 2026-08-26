@@ -14,9 +14,10 @@ import pymysql
 from flask import Flask, g, jsonify, request, send_from_directory, session
 from pymysql.cursors import DictCursor
 
+from backfill_cartas import backfill_cartas
 from import_excel import import_excel_to_db
 from plazos import build_whatsapp_message, classify_cartas, plazos_config
-from normalizers import normalize_especialidad, normalize_estado, refresh_normalized_fields
+from normalizers import normalize_especialidad, normalize_estado, normalize_referencias_antecedentes, refresh_normalized_fields, carta_matches_especialidad
 from clasificacion import (
     ACTORES,
     build_pendientes,
@@ -83,6 +84,7 @@ CARTA_FIELDS = [
     "especialidad",
     "estado",
     "referencias",
+    "referencia",
     "folios",
     "cd",
     "dirigido_a",
@@ -234,6 +236,7 @@ def init_db(conn=None):
                     estado VARCHAR(120) NULL,
                     estado_norm VARCHAR(120) NULL,
                     referencias TEXT NULL,
+                    referencia VARCHAR(255) NULL,
                     folios VARCHAR(50) NULL,
                     cd VARCHAR(20) NULL,
                     dirigido_a VARCHAR(255) NULL,
@@ -265,6 +268,15 @@ def init_db(conn=None):
                 cur.execute(
                     "ALTER TABLE cartas ADD COLUMN hilo_id INT NULL, "
                     "ADD KEY idx_cartas_hilo (hilo_id)"
+                )
+            cur.execute("SHOW COLUMNS FROM cartas LIKE 'referencia'")
+            if not cur.fetchone():
+                cur.execute(
+                    "ALTER TABLE cartas ADD COLUMN referencia VARCHAR(255) NULL "
+                    "AFTER referencias"
+                )
+                cur.execute(
+                    "ALTER TABLE cartas ADD KEY idx_cartas_referencia (referencia(80))"
                 )
             # Migración: índices compuestos para acelerar filtros y consultas
             cur.execute("SHOW INDEX FROM cartas")
@@ -381,6 +393,8 @@ def _prepare_carta_payload(d: dict) -> dict:
         data["sentido"] = "recibida" if str(ban).startswith("recibida") else "emitida"
     data["estado_norm"] = normalize_estado(data.get("estado"))
     data["especialidad_norm"] = normalize_especialidad(data.get("especialidad"))
+    if data.get("referencias") not in (None, ""):
+        data["referencias"] = normalize_referencias_antecedentes(data.get("referencias"))
     if data.get("fecha") == "":
         data["fecha"] = None
     if data.get("fecha_respuesta") == "":
@@ -426,6 +440,7 @@ def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
         ("especialidad", 150, "La especialidad"),
         ("estado", 80, "El estado"),
         ("referencias", 2000, "Las referencias"),
+        ("referencia", 255, "La referencia"),
         ("folios", 100, "El campo folios"),
         ("cd", 150, "El campo anexos / CD"),
         ("dirigido_a", 250, "El destinatario"),
@@ -437,6 +452,15 @@ def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
         val = d.get(field)
         if val is not None and len(str(val)) > max_len:
             return {}, f"{label} no puede superar los {max_len} caracteres"
+
+    area = str(d.get("area") or "").strip()
+    if len(area) > 150:
+        return {}, "El especialista responsable no puede superar los 150 caracteres"
+    if str(ban).startswith("recibida") and not area:
+        return {}, (
+            "Las cartas recibidas requieren asignar el especialista responsable interno "
+            "(Área / Especialista de tu equipo de Residencia)"
+        )
 
     return _prepare_carta_payload(d), None
 
@@ -756,17 +780,20 @@ def api_cartas_list():
         sql += " AND estado_norm=%s"
         params.append(estado)
     if esp and esp != "all":
-        sql += " AND especialidad_norm=%s"
-        params.append(esp)
+        sql += " AND (especialidad LIKE %s OR especialidad_norm LIKE %s OR especialidad_norm = 'MIXTA')"
+        like = f"%{esp}%"
+        params.extend([like, like])
     if qtext:
-        sql += " AND (n_documento LIKE %s OR asunto LIKE %s OR referencias LIKE %s)"
+        sql += " AND (n_documento LIKE %s OR asunto LIKE %s OR referencias LIKE %s OR referencia LIKE %s OR especialidad LIKE %s)"
         like = f"%{qtext}%"
-        params.extend([like, like, like])
+        params.extend([like, like, like, like, like])
     sql += " ORDER BY fecha IS NULL, fecha DESC, id DESC"
     with db.cursor() as cur:
         cur.execute(sql, params)
         rows = [row_to_dict(r) for r in cur.fetchall()]
     rows = filter_cartas_for_user(rows, u)
+    if esp and esp != "all":
+        rows = [r for r in rows if carta_matches_especialidad(r, esp)]
 
     def match_class(c):
         cl = c.get("clasificacion") or {}
@@ -967,7 +994,7 @@ def api_cartas_edit(cid):
     u = current_user()
     # Si el usuario es un ingeniero (no tiene can_edit_formal), solo puede actualizar datos operativos
     if u and not u.get("can_edit_formal"):
-        allowed_ops = {"especialidad", "estado", "referencias", "observacion", "area"}
+        allowed_ops = {"especialidad", "estado", "referencias", "referencia", "observacion", "area"}
         d = {k: v for k, v in d.items() if k in allowed_ops}
         merged = {**existing, **d}
     else:
@@ -1103,6 +1130,31 @@ def api_import_excel():
             result["hilos_error"] = str(exc)
     code = 200 if result.get("ok") else 500
     return jsonify(result), code
+
+
+@app.route("/api/backfill/cartas", methods=["POST"])
+@require_perm("can_import")
+def api_backfill_cartas():
+    if NOTIFY_SECRET:
+        body = request.get_json(silent=True) or {}
+        if request.headers.get("X-Notify-Secret") != NOTIFY_SECRET and body.get("secret") != NOTIFY_SECRET:
+            return jsonify({"error": "No autorizado"}), 401
+    body = request.get_json(silent=True) or {}
+    dry_run = bool(body.get("dry_run"))
+    fill_missing = body.get("fill_missing", True)
+    fix_areas = body.get("fix_areas", True)
+    db = get_db()
+    result = backfill_cartas(
+        db,
+        dry_run=dry_run,
+        fill_missing=bool(fill_missing),
+        fix_areas=bool(fix_areas),
+    )
+    if result.get("ok") and not dry_run:
+        norms = refresh_normalized_fields(db)
+        result["normalize"] = norms
+        invalidate_cartas_cache()
+    return jsonify(result)
 
 
 @app.route("/api/normalize", methods=["POST"])

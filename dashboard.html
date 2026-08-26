@@ -393,6 +393,25 @@ table.data-table tbody tr.row-rendered,
 .ref-trace-tag.in{background:rgba(42,122,120,.15);color:var(--teal)}
 .ref-trace-doc{font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ref-trace-meta{font-size:11px;color:var(--text-muted);white-space:nowrap}
+.ref-ant-wrap{background:#FAF9F6;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.ref-ant-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:24px;margin-bottom:8px}
+.ref-ant-chips:empty::before{content:'Sin antecedentes — agrega uno abajo';font-size:11px;color:var(--text-muted);font-style:italic;line-height:24px}
+.ref-ant-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;font-size:11.5px;font-weight:600;padding:5px 8px 5px 10px;border-radius:7px;background:#FFFFFF;border:1px solid #E8E4DC;color:var(--text-primary);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.ref-ant-chip-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(460px,72vw)}
+.ref-ant-chip-x{border:none;background:transparent;color:var(--text-muted);cursor:pointer;padding:0 2px;font-size:15px;line-height:1;flex-shrink:0}
+.ref-ant-chip-x:hover{color:var(--rose)}
+.ref-ant-add-row{display:flex;gap:8px;align-items:center}
+.ref-ant-add-row input{flex:1;min-width:0;font-family:var(--font-body);font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:#fff}
+.ref-ant-add-row input:focus{outline:none;border-color:var(--accent)}
+.ref-ant-suggest{margin-top:6px;display:none;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto}
+.ref-ant-suggest.open{display:flex}
+.ref-ant-suggest-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;font-family:var(--font-body);font-size:12px;padding:7px 10px;border:1px solid #E8E4DC;border-radius:6px;background:#FFFFFF;color:var(--text-primary);cursor:pointer}
+.ref-ant-suggest-btn:hover{border-color:var(--accent);background:var(--accent-light)}
+.ref-ant-suggest-btn small{font-size:10.5px;color:var(--text-muted);white-space:nowrap}
+.ref-ant-pending{font-size:11px;color:var(--teal);margin-top:4px;display:none;align-items:center;gap:4px}
+.ref-ant-pending.visible{display:flex}
+.ref-ant-list{display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--text-muted);margin-top:2px;line-height:1.35}
+.ref-ant-list span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btn-jump-ref{background:#FFFFFF;border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .12s}
 .btn-jump-ref:hover{background:var(--accent);color:#FFFFFF;border-color:var(--accent)}
 .flujo-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
@@ -768,7 +787,7 @@ body.app-locked .app-layout{visibility:hidden}
 <nav class="filter-bar" id="filterBar">
   <div class="filter-panel" id="filterPanel">
     <div class="filter-row">
-      <input class="filter-input filter-search" id="filterQ" type="search" placeholder="Buscar N° doc, asunto, referencias…" aria-label="Búsqueda">
+      <input class="filter-input filter-search" id="filterQ" type="search" placeholder="N° informe, N° carta, asunto, especialidad, referencia…" aria-label="Búsqueda">
       <span class="filter-search-hint" id="filterSearchHint"></span>
       <select class="filter-select" id="filterBandeja" aria-label="Bandeja"><option value="all">Todas las bandejas</option></select>
       <select class="filter-select" id="filterEstado" aria-label="Estado"><option value="all">Todos los estados</option></select>
@@ -970,13 +989,13 @@ body.app-locked .app-layout{visibility:hidden}
         <div class="cartas-table-bar">
           <div class="cartas-search-wrap">
             <i class="ri-search-line" aria-hidden="true"></i>
-            <input type="search" id="cartasTableQ" placeholder="Buscar N° doc, asunto, referencias…" aria-label="Buscar cartas" autocomplete="off">
+            <input type="search" id="cartasTableQ" placeholder="N° informe, N° carta, asunto, especialidad, referencia…" aria-label="Buscar cartas" autocomplete="off">
             <button type="button" class="cartas-search-clear" id="cartasTableQClear" aria-label="Limpiar búsqueda"><i class="ri-close-line"></i></button>
           </div>
           <span class="cartas-search-hint" id="cartasSearchHint"></span>
         </div>
         <table class="data-table"><thead><tr>
-          <th>N° doc</th><th>Fecha</th><th>Flujo</th><th>Especialidad</th><th>Resp. Respuesta</th><th>Referencia / Antecedente</th><th>Estado</th><th>Deuda</th><th>Asunto</th><th>Plazo</th><th class="col-acc">Acciones</th>
+          <th>N° doc</th><th>Fecha</th><th>Flujo</th><th>Especialidad</th><th>Responsable</th><th>Referencia</th><th>Estado</th><th>Deuda</th><th>Asunto</th><th>Plazo</th><th class="col-acc">Acciones</th>
         </tr></thead><tbody id="tableBody"></tbody></table>
       </div>
     </div>
@@ -1165,18 +1184,47 @@ body.app-locked .app-layout{visibility:hidden}
         </div>
 
         <!-- SECCIÓN 4: Migración y Datos Históricos -->
-        <div class="user-sec" style="background:#FFFFFF;margin-top:20px;border:1px dashed #D0CBC0">
-          <div class="user-sec-title" style="color:var(--text-secondary)"><i class="ri-database-2-line"></i> Migración Inicial de Datos Históricos</div>
-          <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.4">
-            Herramienta administrativa para realizar la carga inicial de datos desde el archivo Excel del servidor. <strong>No necesaria para el uso diario</strong>, ya que todas las cartas se gestionan directamente desde el sistema.
+        <div class="user-sec" id="cfgMaintenanceSec" style="background:#FFFFFF;margin-top:20px;border:1px dashed #D0CBC0">
+          <div class="user-sec-title" style="color:var(--text-secondary)"><i class="ri-database-2-line"></i> Mantenimiento de Datos Históricos</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;line-height:1.5">
+            Herramientas administrativas para completar <strong>referencias</strong>, asignar <strong>especialistas responsables</strong> en recibidas
+            y corregir etiquetas genéricas (<em>OFICINA TECNICA</em>, <em>ESTR. PARA RESPUESTA</em>, etc.) según la especialidad técnica de cada carta.
           </p>
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-            <span style="font-size:11.5px;color:var(--text-secondary)">
-              ⚠️ Reemplaza los registros de cartas con la versión base del Excel montado.
-            </span>
-            <button type="button" class="btn-reimport" id="btnReimportConfig" style="font-size:12px;padding:8px 14px">
-              <i class="ri-file-excel-2-line"></i> Reimportar Base desde Excel
-            </button>
+
+          <div style="background:#FAF9F6;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <i class="ri-history-line" style="color:var(--teal)"></i> Backfill histórico de cartas
+            </div>
+            <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.45">
+              Genera referencias buscables (ej. «Informe 34 de Pinturas»), completa responsables faltantes en recibidas
+              y normaliza asignaciones legacy del Excel hacia el catálogo del equipo (Especialista Estructuras, Arquitectura, etc.).
+            </p>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <button type="button" class="btn-reimport" id="btnBackfillHistorico" style="font-size:12px;padding:8px 14px">
+                <i class="ri-magic-line"></i> Ejecutar backfill histórico
+              </button>
+              <button type="button" class="btn-cancel" id="btnBackfillPreview" style="font-size:12px;padding:8px 12px">
+                <i class="ri-eye-line"></i> Vista previa (sin guardar)
+              </button>
+              <span id="cfg_backfill_status" style="font-size:11.5px;color:var(--text-muted)"></span>
+            </div>
+          </div>
+
+          <div style="background:#FFF8F6;border:1px solid #E8D4CE;border-radius:10px;padding:14px 16px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <i class="ri-file-excel-2-line" style="color:var(--accent)"></i> Reimportación desde Excel
+            </div>
+            <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.45">
+              Carga inicial o reset completo desde el archivo Excel del servidor. <strong>No necesaria para el uso diario.</strong>
+            </p>
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <span style="font-size:11.5px;color:var(--rose)">
+                Reemplaza todos los registros de cartas con la versión base del Excel montado.
+              </span>
+              <button type="button" class="btn-reimport" id="btnReimportConfig" style="font-size:12px;padding:8px 14px">
+                <i class="ri-file-excel-2-line"></i> Reimportar Base desde Excel
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -1196,7 +1244,7 @@ body.app-locked .app-layout{visibility:hidden}
   <div class="modal-card carta-modal-card">
     <div class="modal-header">
       <div>
-        <h2 id="modalTitle" style="font-size:20px;margin:0">Nueva Carta</h2>
+        <h2 id="modalTitle" style="font-size:20px;margin:0" tabindex="-1">Nueva Carta</h2>
         <p id="modalSub" style="font-size:12px;color:var(--text-muted);margin:2px 0 0">Registra un nuevo documento con su bandeja, plazos y referencias</p>
       </div>
     </div>
@@ -1241,6 +1289,11 @@ body.app-locked .app-layout{visibility:hidden}
               <input type="date" id="f_fecha" min="1990-01-01" max="2099-12-31">
             </div>
             <div class="form-group full-width">
+              <label>Referencia operativa <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(búsqueda rápida)</span></label>
+              <input type="text" id="f_referencia" maxlength="255" placeholder="Ej: Informe 34 de Pinturas, Carta 015 Arquitectura…" autocomplete="off">
+              <span style="font-size:11px;color:var(--text-muted);margin-top:3px">Etiqueta corta para encontrar el trámite al buscar «Informe 34», «Carta 015», etc.</span>
+            </div>
+            <div class="form-group full-width">
               <label>Bandeja y Sentido <span class="req">*</span></label>
               <select id="f_bandeja" required style="font-weight:600"></select>
               <span style="font-size:11.5px;color:var(--text-muted);margin-top:4px" id="f_bandeja_hint">Selecciona la bandeja de procedencia o destino del documento.</span>
@@ -1261,8 +1314,8 @@ body.app-locked .app-layout{visibility:hidden}
               <select id="f_estado" style="font-weight:600"></select>
             </div>
             <div class="form-group">
-              <label>Especialidad Técnica</label>
-              <input type="text" id="f_especialidad" maxlength="150" placeholder="Ej: ESTRUCTURAS, ARQUITECTURA, BIM…" autocomplete="off">
+              <label>Especialidad Técnica <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(tema del documento)</span></label>
+              <input type="text" id="f_especialidad" maxlength="150" placeholder="Ej: PINTURAS, ESTRUCTURAS, ARQUITECTURA…" autocomplete="off">
             </div>
           </div>
           <div style="margin-top:10px">
@@ -1281,7 +1334,7 @@ body.app-locked .app-layout{visibility:hidden}
             </div>
           </div>
           <div class="form-group full-width" id="f_area_wrap" style="margin-top:12px">
-            <label id="f_area_label">Especialidad / Área Responsable Interna <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Quién dentro del equipo de campo debe responder)</span></label>
+            <label id="f_area_label">Especialista Responsable <span class="req" id="f_area_req" style="display:none">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Quién dentro del equipo de campo debe responder)</span></label>
             <input type="text" id="f_area" maxlength="150" placeholder="Ej: Especialista de Arquitectura, Especialista de Sanitarias, Oficina Técnica…" autocomplete="off">
             <div id="f_area_hint_out" style="display:none;font-size:11.5px;color:var(--text-muted);margin-top:4px;background:#F8F7F4;padding:6px 10px;border-radius:6px;border:1px dashed #E8E4DC">
               📤 <em>Documento emitido hacia afuera: La respuesta formal le corresponde a la entidad externa destinataria (Supervisión / Entidad).</em>
@@ -1291,6 +1344,11 @@ body.app-locked .app-layout{visibility:hidden}
               <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA SANITARIAS">+ ESP. SANITARIAS</button>
               <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ESTRUCTURAS">+ ESP. ESTRUCTURAS</button>
               <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ELECTRICAS">+ ESP. ELÉCTRICAS</button>
+              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA GEOTECNIA">+ ESP. GEOTECNIA</button>
+              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ADM. CONTRATOS">+ ADM. CONTRATOS</button>
+              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA COSTOS">+ COSTOS</button>
+              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA BIM">+ BIM</button>
+              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA CAMPO">+ ESP. CAMPO</button>
               <button type="button" class="esp-chip-btn" data-area="OFICINA TECNICA">+ OFICINA TÉCNICA</button>
               <button type="button" class="esp-chip-btn" data-area="RESIDENCIA">+ RESIDENCIA</button>
               <button type="button" class="esp-chip-btn" data-area="EQUIPAMIENTO">+ EQUIPAMIENTO</button>
@@ -1330,8 +1388,17 @@ body.app-locked .app-layout{visibility:hidden}
           <div class="user-sec-title"><i class="ri-git-branch-line"></i> Trazabilidad y Cierre de Trámite</div>
           <div class="form-group">
             <label>Documentos de Referencia / Antecedentes</label>
-            <input type="text" id="f_referencias" maxlength="2000" placeholder="Ej: CARTA N° 012-2026-CSLP, INFORME N° 034-2025-ARQ…">
-            <span style="font-size:11px;color:var(--text-muted);margin-top:3px">Permite vincular automáticamente con qué carta formal salió tu informe o qué antecedente se está respondiendo.</span>
+            <div class="ref-ant-wrap" id="refAntecedentesWrap">
+              <div class="ref-ant-chips" id="refAntecedentesChips"></div>
+              <div class="ref-ant-add-row">
+                <input type="text" id="refAntecedentesInput" maxlength="500" placeholder="Busca o escribe el N° completo — luego Enter o Agregar" autocomplete="off">
+                <button type="button" class="btn-cancel" id="refAntecedentesAddBtn" style="font-size:12px;padding:6px 12px;white-space:nowrap"><i class="ri-add-line"></i> Agregar</button>
+              </div>
+              <div class="ref-ant-pending" id="refAntPending"><i class="ri-information-line"></i> Pulsa <strong>Enter</strong> o <strong>Agregar</strong> para confirmar el antecedente arriba.</div>
+              <div class="ref-ant-suggest" id="refAntSuggest" role="listbox" aria-label="Cartas sugeridas"></div>
+            </div>
+            <textarea id="f_referencias" maxlength="2000" style="display:none" aria-hidden="true"></textarea>
+            <span style="font-size:11px;color:var(--text-muted);margin-top:6px;display:block;line-height:1.45">Cada antecedente se muestra como <strong>etiqueta separada</strong>. Pega texto del Excel y el sistema separa los N° automáticamente. No confundir con «Referencia operativa» (arriba).</span>
             <!-- Contenedor dinámico de detección de cartas vinculadas / trazabilidad -->
             <div id="refTraceLinksContainer" class="ref-trace-wrap" style="display:none"></div>
           </div>
@@ -1506,11 +1573,11 @@ body.app-locked .app-layout{visibility:hidden}
 const OPEN_STATES=new Set(['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','SIN RESPUESTA','REINGRESO']);
 let VENCIDA_DIAS=15,POR_VENCER_DIAS=10;
 const PAGE_SIZE=20,DRAFT_KEY='sistemagreace_nueva_carta_draft';
-const FORM_FIELDS=['bandeja','fecha','n_documento','asunto','especialidad','estado','referencias','folios','cd','dirigido_a','receptor','cargo','observacion','area'];
+const FORM_FIELDS=['bandeja','fecha','n_documento','referencia','asunto','especialidad','estado','referencias','folios','cd','dirigido_a','receptor','cargo','observacion','area'];
 const ESTADO_OPTS=['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','SIN RESPUESTA','REINGRESO','CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','ANULADA','PARA CONOCIMIENTO'];
 const BANDEJA_IDS=['residente','rl','recibida_sup','recibida_pronis','recibida_mpsc','recibida_otros'];
 const PALETTE=['#C45B3E','#4A7C7E','#7A8B6F','#7B6E8A','#C49A3E','#A0525C','#5C6370','#6E9EAF','#8B9E6F','#B87045'];
-let ALL_CARTAS=[],STATS={},PENDIENTES={},SALDOS={},STATUS_SUP={},HILOS={hilos:[],counts:{}},filtered=[],charts={},editingId=null,deleteId=null,confirmAction=null,currentView='reportes',currentPage=1,activeBandeja='all',BANDEJAS_META={},ACTORES_META={},modalClosing=false,qTimer=null,pendMode='debo',pendActor='all',hiloExpanded=null,hiloFoco='operativo',hilosLoadToken=0,cartasSearchObserver=null,CURRENT_USER=null,AUTH_REQUIRED=true,USERS_ADMIN=[],editingUserId=null,userModalClosing=false;
+let ALL_CARTAS=[],STATS={},PENDIENTES={},SALDOS={},STATUS_SUP={},HILOS={hilos:[],counts:{}},filtered=[],charts={},editingId=null,deleteId=null,confirmAction=null,switchEditTargetId=null,cartaFormSnapshot=null,currentView='reportes',currentPage=1,activeBandeja='all',BANDEJAS_META={},ACTORES_META={},modalClosing=false,qTimer=null,pendMode='debo',pendActor='all',hiloExpanded=null,hiloFoco='operativo',hilosLoadToken=0,cartasSearchObserver=null,CURRENT_USER=null,AUTH_REQUIRED=true,USERS_ADMIN=[],editingUserId=null,userModalClosing=false;
 
 async function apiFetch(url, opts={}){
   const o={credentials:'same-origin',...opts};
@@ -1585,8 +1652,34 @@ function hidePwdGate(){
   document.getElementById('pwdError').textContent='';
 }
 
+function userPerm(user,key){
+  if(!user)return false;
+  if(user[key]!=null)return!!user[key];
+  const rol=String(user.rol||'').toLowerCase();
+  const byRol={
+    can_create_cartas:rol==='admin'||rol==='residente',
+    can_delete_cartas:rol==='admin'||rol==='residente',
+    can_edit_formal:rol==='admin'||rol==='residente',
+    can_import:rol==='admin'||rol==='residente',
+    can_notify:rol==='admin'||rol==='residente',
+    can_manage_users:rol==='admin',
+    can_see_all:rol==='admin'||rol==='residente',
+    vista_parcial:rol==='ingeniero'
+  };
+  return byRol[key]??false;
+}
+
 function applyUserChrome(user){
-  CURRENT_USER=user;
+  CURRENT_USER=user?{...user,
+    can_create_cartas:userPerm(user,'can_create_cartas'),
+    can_delete_cartas:userPerm(user,'can_delete_cartas'),
+    can_edit_formal:userPerm(user,'can_edit_formal'),
+    can_import:userPerm(user,'can_import'),
+    can_notify:userPerm(user,'can_notify'),
+    can_manage_users:userPerm(user,'can_manage_users'),
+    can_see_all:userPerm(user,'can_see_all'),
+    vista_parcial:userPerm(user,'vista_parcial')
+  }:null;
   const chip=document.getElementById('userChip');
   const ban=document.getElementById('scopeBanner');
   const tabU=document.getElementById('tabUsuarios');
@@ -1614,8 +1707,10 @@ function applyUserChrome(user){
   const reimpF=document.getElementById('btnReimportFooter');
   if(reimp)reimp.style.display=user.can_import?'':'none';
   if(reimpF)reimpF.style.display=user.can_import?'':'none';
+  const cfgMaint=document.getElementById('cfgMaintenanceSec');
+  if(cfgMaint)cfgMaint.style.display=user.can_import?'':'none';
   const btnNew = document.getElementById('btnNewCarta');
-  if(btnNew) btnNew.style.display = user.can_create_cartas ? '' : 'none';
+  if(btnNew) btnNew.style.display = userPerm(user,'can_create_cartas') ? '' : 'none';
   document.querySelectorAll('.btn-whatsapp').forEach(b=>{b.style.display=user.can_notify?'':'none';});
   if(tabU)tabU.style.display=user.can_manage_users?'flex':'none';
   if(tabC)tabC.style.display=user.can_manage_users?'flex':'none';
@@ -1686,7 +1781,60 @@ function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'
 function bandejaLabel(id){return BANDEJAS_META[id]||id||'—';}
 function monthLabel(m){if(!m)return'';const mo=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];const[y,mn]=m.split('-');return mo[parseInt(mn,10)-1]+' '+y;}
 
-function classif(c){return c.clasificacion||{};}
+function normalizeFlujoCode(raw){
+  return String(raw||'').toUpperCase().replace(/[\u2794\u279C\u2192\u27A1➔➡→\s]/g,'').replace(/-/g,'');
+}
+
+function inferClasificacion(c){
+  const ban=String(c.bandeja||'');
+  const sentido=c.sentido||(ban.startsWith('recibida')?'recibida':'emitida');
+  const estado=(c.estado_norm||c.estado||'').toUpperCase();
+  const abierta=OPEN_STATES.has(estado);
+  const traslado=/TRASLAD/i.test([c.asunto,c.n_documento,c.observacion,c.referencias].join(' '));
+  let naturaleza='respuesta', deuda='ninguna';
+  if(estado==='PARA CONOCIMIENTO'||(sentido==='recibida'&&traslado)){
+    naturaleza='comunicacion'; deuda='ninguna';
+  }else if(!abierta){
+    deuda='ninguna';
+  }else if(sentido==='recibida'){
+    deuda='debo';
+  }else{
+    deuda='me_deben';
+  }
+  const emisor=sentido==='recibida'?'SUP':'RO';
+  const dest=sentido==='recibida'?'RO':'SUP';
+  return{
+    sentido,
+    deuda,
+    naturaleza,
+    contraparte: ban==='recibida_sup'?'supervisor':(ban.startsWith('recibida_pronis')?'entidad':'supervisor'),
+    contraparte_label: ban==='recibida_sup'?'Supervisión':'Supervisión',
+    emisor_code: emisor,
+    dest_code: dest,
+    flujo_code:`${emisor}\u2794${dest}`,
+    flujo_label:`${emisor} \u2794 ${dest}`,
+    abierta,
+    solo_comunicacion:naturaleza==='comunicacion'
+  };
+}
+
+function classif(c){
+  const cl=c.clasificacion;
+  if(cl&&cl.deuda!=null&&cl.flujo_code)return cl;
+  return inferClasificacion(c);
+}
+
+function cartaMatchesFlujo(c,selected){
+  if(!selected||selected==='all')return true;
+  const cl=classif(c);
+  if(normalizeFlujoCode(cl.flujo_code)===normalizeFlujoCode(selected))return true;
+  const ban=String(c.bandeja||'');
+  const sel=normalizeFlujoCode(selected);
+  if(sel==='SUPRO'&&(ban==='recibida_sup'||ban.startsWith('recibida_otros')))return true;
+  if(sel==='ROSUP'&&(ban==='residente'||ban==='rl'))return true;
+  if(sel==='PRONISRO'&&ban.startsWith('recibida_pronis'))return true;
+  return false;
+}
 function debtBadge(c){
   const cl=classif(c);
   if(cl.solo_comunicacion||cl.naturaleza==='comunicacion')return{cls:'comunicacion',label:'Traslado / comunicación'};
@@ -1828,15 +1976,44 @@ function initBandejas(){
 function splitEspecialidades(raw){
   if(!raw)return['SIN ESPECIALIDAD'];
   const parts=String(raw).split(/[,/;\+]|\s+Y\s+/i).map(s=>s.trim().toUpperCase()).filter(Boolean);
-  return parts.length?parts:['SIN ESPECIALIDAD'];
+  const norms=parts.filter(p=>p!=='MIXTA');
+  return norms.length?norms:['SIN ESPECIALIDAD'];
+}
+
+function getCartaEspecialidades(c){
+  const raw=String(c.especialidad||'').trim();
+  if(raw)return splitEspecialidades(raw);
+  const norm=String(c.especialidad_norm||'').trim();
+  if(norm&&norm!=='MIXTA')return splitEspecialidades(norm);
+  return splitEspecialidades(norm||'');
+}
+
+function getCartaReferencia(c){
+  const ref=String(c.referencia||'').trim();
+  if(ref)return ref;
+  const doc=String(c.n_documento||'').trim();
+  if(!doc)return'';
+  const skip=new Set(['RO','RL','SUP','PRONIS','MUNI','OTRO','RESIDENTE','RESIDENCIA','CAMPO','MIXTA','SIN ESPECIALIDAD']);
+  const esp=getCartaEspecialidades(c).find(e=>!skip.has(e))||'';
+  const m=doc.match(/\bINFORME\s*N[°º.]?\s*0*(\d+)/i);
+  if(m){
+    const num=parseInt(m[1],10);
+    return esp?`Informe ${num} de ${esp}`:`Informe ${num}`;
+  }
+  const mc=doc.match(/\bCARTA\s*N[°º.]?\s*0*(\d+)/i);
+  if(mc){
+    const num=parseInt(mc[1],10);
+    return esp?`Carta ${num} de ${esp}`:`Carta ${num}`;
+  }
+  return'';
 }
 
 function cartaMatchesEsp(c,selectedEsp){
   if(!selectedEsp||selectedEsp==='all')return true;
   const sel=selectedEsp.trim().toUpperCase();
-  const list=splitEspecialidades(c.especialidad_norm||c.especialidad);
-  if(list.some(e=>e===sel||e.includes(sel)||sel.includes(e)))return true;
-  if(sel==='MIXTA'&&(list.length>1||String(c.especialidad||'').toUpperCase().includes('MIXTA')))return true;
+  const list=getCartaEspecialidades(c);
+  if(list.some(e=>e===sel))return true;
+  if(sel==='MIXTA'&&list.length>1)return true;
   return false;
 }
 
@@ -1844,15 +2021,24 @@ function initFilters(){
   const espSet=new Set(),estSet=new Set();
   ALL_CARTAS.forEach(c=>{
     if(c.estado_norm)estSet.add(c.estado_norm);
-    const esps=splitEspecialidades(c.especialidad_norm||c.especialidad);
-    esps.forEach(e=>{if(e&&e!=='SIN ESPECIALIDAD')espSet.add(e);});
+    getCartaEspecialidades(c).forEach(e=>{if(e&&e!=='SIN ESPECIALIDAD')espSet.add(e);});
   });
   const selE=document.getElementById('filterEstado');
+  const prevEst=selE?.value||'all';
   while(selE.options.length>1)selE.remove(1);
   [...estSet].sort().forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;selE.appendChild(o);});
+  if(prevEst==='all'){
+    selE.value='all';
+  }else if([...selE.options].some(o=>o.value===prevEst)){
+    selE.value=prevEst;
+  }else{
+    selE.value='all';
+  }
   const selEsp=document.getElementById('filterEsp');
+  const prevEsp=selEsp?.value||'all';
   while(selEsp.options.length>1)selEsp.remove(1);
   [...espSet].sort().forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;selEsp.appendChild(o);});
+  if(prevEsp!=='all'&&[...selEsp.options].some(o=>o.value===prevEsp))selEsp.value=prevEsp;
   const fEst=document.getElementById('f_estado');
   fEst.innerHTML='<option value="">—</option>';
   ESTADO_OPTS.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;fEst.appendChild(o);});
@@ -1865,8 +2051,9 @@ function getRespRespuestaLabel(c){
     const destName=cl.contraparte_label||(cl.dest_code==='SUP'?'Supervisión':(cl.dest_code==='PRONIS'?'PRONIS':(cl.dest_code==='MUNI'?'Municipalidad':'Entidad Externa')));
     return `<span class="badge-soft" style="font-size:11px;font-weight:600;background:rgba(196,91,62,.08);color:var(--accent)" title="Respuesta formal a cargo de la entidad externa">🏛️ ${escapeHtml(destName)}</span>`;
   }else{
-    const internalArea=c.area||c.especialidad_norm||c.especialidad||'Oficina Técnica';
-    return `<span class="badge-soft" style="font-size:11px;font-weight:700;background:rgba(42,122,120,.08);color:var(--teal)" title="Atención interna por equipo de Residencia">👷 ${escapeHtml(internalArea)}</span>`;
+    const internalArea=String(c.area||'').trim();
+    const label=internalArea||'Sin asignar';
+    return `<span class="badge-soft" style="font-size:11px;font-weight:700;background:rgba(42,122,120,.08);color:var(--teal)" title="Especialista interno de Residencia que debe elaborar la respuesta">${internalArea?'👷':'⚠️'} ${escapeHtml(label)}</span>`;
   }
 }
 
@@ -1888,10 +2075,13 @@ function prepareCartasSearchCache(cartas){
     const cl=classif(c);
     const blob=[
       c.n_documento||'',
+      getCartaReferencia(c)||'',
+      c.referencia||'',
       c.asunto||'',
       c.referencias||'',
-      c.especialidad_norm||'',
       c.especialidad||'',
+      c.especialidad_norm||'',
+      ...(getCartaEspecialidades(c)),
       c.area||'',
       c.dirigido_a||'',
       c.receptor||'',
@@ -1914,7 +2104,7 @@ function cartaMatchesSearch(c,q){
   if(!q)return true;
   if(!c._searchBlob){
     const cl=classif(c);
-    c._searchBlob=[c.n_documento||'',c.asunto||'',c.referencias||'',c.especialidad_norm||'',c.especialidad||'',c.area||'',c.dirigido_a||'',c.receptor||'',c.cargo||'',c.estado_norm||'',c.estado||'',cl.emisor_code||'',cl.dest_code||'',cl.flujo_code||'',cl.flujo_label||'',bandejaLabel(c.bandeja)].join(' ').toLowerCase();
+    c._searchBlob=[c.n_documento||'',getCartaReferencia(c)||'',c.referencia||'',c.asunto||'',c.referencias||'',c.especialidad||'',c.especialidad_norm||'',...getCartaEspecialidades(c),c.area||'',c.dirigido_a||'',c.receptor||'',c.cargo||'',c.estado_norm||'',c.estado||'',cl.emisor_code||'',cl.dest_code||'',cl.flujo_code||'',cl.flujo_label||'',bandejaLabel(c.bandeja)].join(' ').toLowerCase();
     c._searchNorm=c._searchBlob.replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ');
   }
 
@@ -1983,6 +2173,8 @@ function setCartasSearchQuery(value){
 }
 
 function applyFilters(){
+  const bandeja=document.getElementById('filterBandeja')?.value||activeBandeja||'all';
+  activeBandeja=bandeja;
   const estado=document.getElementById('filterEstado').value;
   const esp=document.getElementById('filterEsp').value;
   const flujo=document.getElementById('filterFlujo')?.value||'all';
@@ -1993,10 +2185,13 @@ function applyFilters(){
   const naturaleza=document.getElementById('filterNaturaleza').value;
   filtered=ALL_CARTAS.filter(c=>{
     const cl=classif(c);
-    if(activeBandeja!=='all'&&c.bandeja!==activeBandeja)return false;
-    if(estado!=='all'&&(c.estado_norm||'')!==estado)return false;
+    if(bandeja!=='all'&&c.bandeja!==bandeja)return false;
+    if(estado!=='all'){
+      const en=String(c.estado_norm||c.estado||'').trim().toUpperCase();
+      if(en!==estado)return false;
+    }
     if(esp!=='all'&&!cartaMatchesEsp(c,esp))return false;
-    if(flujo!=='all'&&(cl.flujo_code||'')!==flujo)return false;
+    if(!cartaMatchesFlujo(c,flujo))return false;
     if(q&&!cartaMatchesSearch(c,q))return false;
     if(!matchesPlazo(c,plazo))return false;
     if(deuda!=='all'){
@@ -2017,7 +2212,7 @@ function applyFilters(){
     if(fa&&fb&&fa.getTime()!==fb.getTime())return fb-fa;
     return(b.id||0)-(a.id||0);
   });
-  const has=estado!=='all'||esp!=='all'||flujo!=='all'||q||plazo!=='all'||activeBandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
+  const has=estado!=='all'||esp!=='all'||flujo!=='all'||q||plazo!=='all'||bandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
   document.getElementById('btnReset').classList.toggle('visible',has);
   document.getElementById('filterActiveTag').classList.toggle('visible',has);
   const moreActive=contraparte!=='all'||naturaleza!=='all';
@@ -2032,6 +2227,10 @@ function applyFilters(){
   }
   currentPage=1;updateAll();
   syncCartasSearchUI();
+  if(!filtered.length&&has&&ALL_CARTAS.length){
+    const hint=document.getElementById('cartasSearchHint');
+    if(hint&&currentView==='cartas')hint.textContent='0 resultados — prueba quitar Flujo o Deuda, o pulsa Limpiar';
+  }
 }
 
 function resetFilters(){
@@ -2211,7 +2410,7 @@ function agg(field){
   const m={};
   filtered.forEach(c=>{
     if(field==='especialidad_norm'||field==='especialidad'){
-      const esps=splitEspecialidades(c.especialidad_norm||c.especialidad);
+      const esps=getCartaEspecialidades(c);
       esps.forEach(e=>{m[e]=(m[e]||0)+1;});
     }else{
       const k=c[field]||'—';
@@ -2337,9 +2536,9 @@ function updateTable(){
       <td class="cell-wrap">${escapeHtml(c.n_documento||'—')}</td>
       <td>${escapeHtml(c.fecha||'—')}</td>
       <td>${flujoBadge(c)}</td>
-      <td class="cell-wrap">${escapeHtml(c.especialidad_norm||c.especialidad||'—')}</td>
+      <td class="cell-wrap">${escapeHtml(c.especialidad||c.especialidad_norm||'—')}</td>
       <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
-      <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary)"><span style="font-weight:600;color:var(--text-primary)">${escapeHtml(c.referencias||'—')}</span></td>
+      <td class="cell-wrap" style="font-size:11.5px"><span style="font-weight:600;color:var(--text-primary)">${escapeHtml(getCartaReferencia(c)||'—')}</span>${c.referencias?`<span class="ref-ant-list" title="${escapeHtml(formatReferenciasAntecedentes(c.referencias))}">${formatReferenciasAntecedentesListHtml(c.referencias)}</span>`:''}</td>
       <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
       <td><span class="debt-badge ${db.cls}">${escapeHtml(db.label)}</span></td>
       <td class="cell-wrap">${escapeHtml(c.asunto||'—')}</td>
@@ -2918,9 +3117,33 @@ function updatePagination(start,shown){
 
 async function refreshData(){await loadData();}
 
-function collectForm(){const d={};FORM_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);d[f]=el?el.value.trim():'';});return d;}
-function formHasContent(d){if(!d)return false;const meaningful=['n_documento','asunto','especialidad','referencias','folios','cd','dirigido_a','receptor','cargo','observacion'];return meaningful.some(f=>String(d[f]||'').trim()!=='');}
-function applyForm(d){FORM_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(!el)return;let v=d&&d[f]!=null?String(d[f]):'';if(el.type==='date'&&v)v=v.slice(0,10);el.value=v;});}
+function collectForm(){syncRefAntecedentesField();const d={};FORM_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);d[f]=el?el.value.trim():'';});return d;}
+function snapshotCartaForm(){
+  syncRefAntecedentesField();
+  cartaFormSnapshot=JSON.stringify(collectForm());
+}
+function cartaFormIsDirty(){
+  if(!document.getElementById('modalOverlay')?.classList.contains('active'))return false;
+  syncRefAntecedentesField();
+  return cartaFormSnapshot!==JSON.stringify(collectForm());
+}
+function getCurrentEditingLabel(){
+  if(editingId){
+    const c=ALL_CARTAS.find(x=>x.id===editingId);
+    return c?.n_documento||('ID '+editingId);
+  }
+  const doc=document.getElementById('f_n_documento')?.value?.trim();
+  return doc||'carta nueva (sin guardar)';
+}
+function focusCartaModalHeader(){
+  const title=document.getElementById('modalTitle');
+  if(title){
+    title.focus({preventScroll:true});
+    title.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+function formHasContent(d){if(!d)return false;const meaningful=['n_documento','referencia','asunto','especialidad','referencias','folios','cd','dirigido_a','receptor','cargo','observacion'];return meaningful.some(f=>String(d[f]||'').trim()!=='');}
+function applyForm(d){FORM_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(!el)return;let v=d&&d[f]!=null?String(d[f]):'';if(el.type==='date'&&v)v=v.slice(0,10);el.value=v;});loadRefAntecedentesFromField();}
 function saveDraft(){const d=collectForm();if(!formHasContent(d)){localStorage.removeItem(DRAFT_KEY);return false;}localStorage.setItem(DRAFT_KEY,JSON.stringify({savedAt:new Date().toISOString(),data:d}));return true;}
 function loadDraft(){try{const r=localStorage.getItem(DRAFT_KEY);if(!r)return null;const p=JSON.parse(r);return p&&p.data?p.data:null;}catch{return null;}}
 function clearDraft(){localStorage.removeItem(DRAFT_KEY);}
@@ -2957,12 +3180,16 @@ function updateBandejaHint(){
     // Ocultamos la asignación de especialista interno porque no aplica.
     if(areaWrap) areaWrap.style.display = 'none';
     if(chipPicker) chipPicker.style.display = 'none';
+    const areaReq=document.getElementById('f_area_req');
+    if(areaReq)areaReq.style.display='none';
   }else{
     // Cuando la Supervisión/Entidad nos envía hacia la Residencia (SUP ➔ RO):
     // Asignamos qué especialista de MI EQUIPO de Residencia elaborará el informe/respuesta.
     if(areaWrap) areaWrap.style.display = 'block';
     if(chipPicker) chipPicker.style.display = 'flex';
-    if(areaLabel) areaLabel.innerHTML = 'Especialista Responsable de mi Equipo (Residencia) <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Quién dentro del equipo de campo debe responder)</span>';
+    const areaReq=document.getElementById('f_area_req');
+    if(areaReq)areaReq.style.display='inline';
+    if(areaLabel) areaLabel.innerHTML = 'Especialista Responsable de mi Equipo (Residencia) <span class="req" id="f_area_req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Obligatorio en cartas recibidas — quién elabora la respuesta)</span>';
     if(areaInput) areaInput.placeholder = 'Ej: Especialista de Arquitectura, Especialista de Sanitarias, Oficina Técnica…';
   }
 }
@@ -2992,9 +3219,13 @@ function openNewModal(){
     if(fFecha&&!fFecha.value)fFecha.value=today;
   }
   if(activeBandeja!=='all')document.getElementById('f_bandeja').value=activeBandeja;
+  loadRefAntecedentesFromField();
+  hideRefAntSuggest();
+  updateRefAntPendingHint();
   syncCartaEspChips();
   updateBandejaHint();
   updateRefTraceUI();
+  snapshotCartaForm();
   showModal();
 }
 
@@ -3011,6 +3242,9 @@ async function openEditModal(id){
     const sumEl = document.getElementById('cartaReadonlySummary');
     const secFormals = document.querySelectorAll('.sec-formal');
 
+    const docLabel = c.n_documento || ('ID ' + id);
+    const estadoLabel = c.estado_norm || c.estado || '—';
+
     if (!canEditFormal) {
       // Modo Especialista / Ingeniero: Interfaz simplificada y directa
       if (sumEl) {
@@ -3023,23 +3257,23 @@ async function openEditModal(id){
         if (espBadge) espBadge.textContent = '👷 ' + espTxt;
         const espField = document.getElementById('csum_area_text');
         if (espField) espField.textContent = espTxt;
-        document.getElementById('csum_doc').textContent = c.n_documento || ('ID ' + id);
+        document.getElementById('csum_doc').textContent = docLabel;
         document.getElementById('csum_fecha').textContent = fmtDate(c.fecha) || '—';
         document.getElementById('csum_destinatario').textContent = c.dirigido_a || c.receptor || '—';
         document.getElementById('csum_asunto').textContent = c.asunto || 'Sin asunto registrado';
       }
       secFormals.forEach(s => s.style.display = 'none');
-      document.getElementById('modalTitle').innerHTML = '<i class="ri-file-text-line" style="color:var(--accent)"></i> Seguimiento Técnico';
+      document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
-      if (sub) sub.textContent = `Registra tu avance, referencias y observaciones para: ${c.n_documento || ('ID ' + id)}`;
+      if (sub) sub.textContent = `Seguimiento técnico · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
       document.getElementById('btnSaveForm').innerHTML = '<i class="ri-check-line"></i> Guardar Seguimiento';
     } else {
       // Modo Completo: Administrador / Residente
       if (sumEl) sumEl.style.display = 'none';
       secFormals.forEach(s => s.style.display = '');
-      document.getElementById('modalTitle').textContent = 'Editar Carta';
+      document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
-      if (sub) sub.textContent = `Modificando documento: ${c.n_documento || ('ID ' + id)}`;
+      if (sub) sub.textContent = `Editando · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
       document.getElementById('btnSaveForm').innerHTML = '<i class="ri-save-line"></i> Actualizar Carta';
     }
 
@@ -3049,7 +3283,9 @@ async function openEditModal(id){
     syncCartaEspChips();
     updateBandejaHint();
     updateRefTraceUI();
+    snapshotCartaForm();
     showModal();
+    focusCartaModalHeader();
   } catch (err) {
     console.error('Error en openEditModal:', err);
     showToast(err.message || 'Error al abrir la carta', 'error');
@@ -3059,16 +3295,18 @@ async function openEditModal(id){
 function closeModal(opts={}){
   const isNew=editingId==null;
   if(isNew&&!opts.fromSave&&saveDraft())showToast('Borrador guardado. Al abrir Nueva Carta lo verás de nuevo.','info');
-  hideModal(()=>{editingId=null;});
+  hideModal(()=>{editingId=null;cartaFormSnapshot=null;});
 }
 
 async function handleSave(){
+  syncRefAntecedentesField();
   const canEditFormal = CURRENT_USER && CURRENT_USER.can_edit_formal;
   const doc = document.getElementById('f_n_documento').value.trim();
   const ban = document.getElementById('f_bandeja').value;
   const fecha = document.getElementById('f_fecha').value;
   const asunto = document.getElementById('f_asunto').value.trim();
   const esp = document.getElementById('f_especialidad').value.trim();
+  const refLabel = document.getElementById('f_referencia').value.trim();
   const ref = document.getElementById('f_referencias').value.trim();
   const folios = document.getElementById('f_folios').value.trim();
   const cd = document.getElementById('f_cd').value.trim();
@@ -3076,6 +3314,8 @@ async function handleSave(){
   const receptor = document.getElementById('f_receptor').value.trim();
   const cargo = document.getElementById('f_cargo').value.trim();
   const obs = document.getElementById('f_observacion').value.trim();
+  const area = document.getElementById('f_area').value.trim();
+  const isRecibida = String(ban || '').startsWith('recibida');
 
   // En modo formal o creación nueva, validar datos obligatorios
   if (canEditFormal || editingId == null) {
@@ -3098,7 +3338,15 @@ async function handleSave(){
   }
 
   // Validaciones de campos operativos
+  if (isRecibida && !area) {
+    showToast('Las cartas recibidas requieren asignar el especialista responsable interno (Área / Especialista)', 'error');
+    document.getElementById('f_area')?.focus();
+    updateBandejaHint();
+    return;
+  }
+  if (area.length > 150) { showToast('El especialista responsable no puede superar los 150 caracteres', 'error'); return; }
   if (esp.length > 150) { showToast('La especialidad no puede superar los 150 caracteres', 'error'); return; }
+  if (refLabel.length > 255) { showToast('La referencia no puede superar los 255 caracteres', 'error'); return; }
   if (ref.length > 2000) { showToast('Las referencias no pueden superar los 2,000 caracteres', 'error'); return; }
   if (obs.length > 3000) { showToast('Las observaciones no pueden superar los 3,000 caracteres', 'error'); return; }
 
@@ -3148,8 +3396,10 @@ let toggleTargetUser=null,toggleTargetActivo=false;
 
 function closeConfirm(){
   document.getElementById('confirmOverlay').classList.remove('active');
+  document.getElementById('confirmOverlay').style.zIndex='';
   deleteId=null;
   confirmAction=null;
+  switchEditTargetId=null;
   toggleTargetUser=null;
   const okBtn=document.getElementById('btnConfirmOk');
   if(okBtn)okBtn.style.background='';
@@ -3178,6 +3428,53 @@ async function executeReimport(){
   }catch(e){showToast('Error reimport: '+e.message,'error');showCartasLoading(false);}
   finally{buttons.forEach(b=>{b.disabled=false;});}
 }
+
+function formatBackfillSummary(d){
+  const parts=[];
+  if(d.fill){
+    if(d.fill.referencia_updated)parts.push(`${d.fill.referencia_updated} referencias`);
+    if(d.fill.area_updated)parts.push(`${d.fill.area_updated} áreas nuevas`);
+  }
+  if(d.areas){
+    if(d.areas.areas_fixed)parts.push(`${d.areas.areas_fixed} responsables corregidos`);
+    if(d.areas.oficina_tecnica_remaining!=null)parts.push(`OT restante: ${d.areas.oficina_tecnica_remaining}`);
+  }
+  return parts.length?parts.join(' · '):'Sin cambios pendientes';
+}
+
+async function runBackfillHistorico(dryRun=false){
+  const btns=[document.getElementById('btnBackfillHistorico'),document.getElementById('btnBackfillPreview')].filter(Boolean);
+  const status=document.getElementById('cfg_backfill_status');
+  btns.forEach(b=>{b.disabled=true;});
+  if(status)status.textContent=dryRun?'Analizando…':'Ejecutando backfill…';
+  showToast(dryRun?'Analizando backfill (vista previa)…':'Backfill histórico en curso…','info');
+  try{
+    const r=await apiFetch('/api/backfill/cartas',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({dry_run:!!dryRun,fill_missing:true,fix_areas:true})
+    });
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.ok)throw new Error(d.error||'Fallo en backfill');
+    const summary=formatBackfillSummary(d);
+    if(status)status.textContent=summary;
+    if(dryRun){
+      showToast(`Vista previa: ${summary}`,'info');
+      if(d.areas?.samples?.length){
+        console.info('Backfill preview samples',d.areas.samples);
+      }
+    }else{
+      showToast(`Backfill aplicado: ${summary}`,'success');
+      await refreshData();
+    }
+  }catch(e){
+    if(status)status.textContent='';
+    showToast('Error backfill: '+e.message,'error');
+  }finally{
+    btns.forEach(b=>{b.disabled=false;});
+  }
+}
+
 function confirmToggleUser(user, activo){
   toggleTargetUser=user;
   toggleTargetActivo=activo;
@@ -3237,11 +3534,58 @@ async function executeLogout(){
     await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
   }catch(_){}
 }
+async function executeSwitchCarta(){
+  const id=switchEditTargetId;
+  if(!id){closeConfirm();return;}
+  closeConfirm();
+  closeRefPreview();
+  try{
+    await openEditModal(id);
+    const c=ALL_CARTAS.find(x=>x.id===id);
+    showToast('Editando: '+(c?.n_documento||('ID '+id)),'info');
+  }catch(e){
+    showToast(e.message||'No se pudo abrir la carta','error');
+  }
+}
+
+function confirmOpenCartaInEditor(targetId){
+  const target=ALL_CARTAS.find(x=>x.id===targetId);
+  const targetLabel=target?.n_documento||('ID '+targetId);
+
+  if(editingId===targetId){
+    closeRefPreview();
+    focusCartaModalHeader();
+    return;
+  }
+
+  const modalOpen=document.getElementById('modalOverlay')?.classList.contains('active');
+  if(!modalOpen){
+    closeRefPreview();
+    openEditModal(targetId).then(()=>{
+      showToast('Editando: '+targetLabel,'info');
+    }).catch(e=>showToast(e.message||'Error al abrir','error'));
+    return;
+  }
+
+  switchEditTargetId=targetId;
+  confirmAction='switch_carta';
+  document.getElementById('confirmTitle').textContent='¿Cambiar de carta?';
+  const leavingLabel=getCurrentEditingLabel();
+  const dirtyNote=cartaFormIsDirty()?' Los cambios sin guardar se perderán.':'';
+  document.getElementById('confirmMsg').textContent=`Estás editando «${leavingLabel}». ¿Abrir «${targetLabel}» en el editor?${dirtyNote}`;
+  document.getElementById('btnConfirmOk').textContent='Abrir carta';
+  document.getElementById('btnConfirmOk').style.background='var(--accent)';
+  const overlay=document.getElementById('confirmOverlay');
+  overlay.style.zIndex='100001';
+  overlay.classList.add('active');
+}
+
 async function handleConfirmOk(){
   if(confirmAction==='reimport')return executeReimport();
   if(confirmAction==='delete')return executeDelete();
   if(confirmAction==='user_toggle')return executeToggleUser();
   if(confirmAction==='logout')return executeLogout();
+  if(confirmAction==='switch_carta')return executeSwitchCarta();
 }
 
 async function sendWhatsapp(){
@@ -3266,11 +3610,14 @@ async function sendWhatsapp(){
 function filterVencidas(go){document.getElementById('filterPlazo').value='vencida';applyFilters();if(go)goToCartasWithFilters();else showToast('Filtro: cartas vencidas','info');}
 
 function exportCSV(){
-  const headers=['N° doc','Fecha','Bandeja','Especialidad','Estado','Deuda','Asunto','Dirigido a','Plazo','Días'];
+  const headers=['N° doc','Fecha','Bandeja','Especialidad','Responsable','Referencia','Estado','Deuda','Asunto','Dirigido a','Plazo','Días'];
   const rows=filtered.map(c=>{
     const st=deadlineStatus(c);
     const db=debtBadge(c);
-    return[c.n_documento||'',c.fecha||'',bandejaLabel(c.bandeja),c.especialidad_norm||'',c.estado_norm||'',db.label||'',c.asunto||'',c.dirigido_a||'',st.label,st.days??''];
+    const cl=classif(c);
+    const isOut=c.sentido==='emitida'||String(c.bandeja||'').startsWith('emitida')||c.bandeja==='residente'||c.bandeja==='rl';
+    const resp=isOut?(cl.contraparte_label||cl.dest_code||'Entidad Externa'):((c.area||'').trim()||'Sin asignar');
+    return[c.n_documento||'',c.fecha||'',bandejaLabel(c.bandeja),c.especialidad||c.especialidad_norm||'',resp,getCartaReferencia(c)||'',c.estado_norm||'',db.label||'',c.asunto||'',c.dirigido_a||'',st.label,st.days??''];
   });
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
@@ -3339,19 +3686,16 @@ function previewRefCarta(id){
   document.getElementById('prev_doc').textContent=c.n_documento||('ID '+id);
   document.getElementById('prev_fecha').textContent=fmtDate(c.fecha)||'—';
   document.getElementById('prev_estado').innerHTML=`<span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span>`;
-  document.getElementById('prev_especialidad').textContent=c.especialidad_norm||c.especialidad||'—';
-  document.getElementById('prev_area').textContent=c.area||c.especialidad_norm||'—';
+  document.getElementById('prev_especialidad').textContent=c.especialidad||c.especialidad_norm||'—';
+  document.getElementById('prev_area').textContent=(c.area||'').trim()||'Sin asignar';
   document.getElementById('prev_bandeja').textContent=bandejaLabel(c.bandeja);
   document.getElementById('prev_destinatario').textContent=c.dirigido_a||c.receptor||'—';
   document.getElementById('prev_asunto').textContent=c.asunto||'Sin asunto registrado';
-  document.getElementById('prev_referencias').textContent=c.referencias||'Ninguna';
+  document.getElementById('prev_referencias').textContent=formatReferenciasAntecedentes(c.referencias)||'Ninguna';
 
   const btnOpen=document.getElementById('btnPrevOpenEdit');
   if(btnOpen){
-    btnOpen.onclick=()=>{
-      closeRefPreview();
-      openEditModal(id);
-    };
+    btnOpen.onclick=()=>confirmOpenCartaInEditor(id);
   }
 
   document.getElementById('refPreviewOverlay')?.classList.add('active');
@@ -3362,6 +3706,212 @@ function closeRefPreview(){
 }
 
 let refTraceTimer=null;
+let refAntecedentesList=[];
+
+const REF_ANT_DOC_RE=/(?:CARTA|INFORME|OFICIO|ASIENTO|CONTRATO)(?:\s+DE\s+(?:[^N°]+?))?\s*N[°º.]?\s*[A-Z0-9\-/.()]+(?:\s*\([^)]*\))?/gi;
+
+function parseReferenciasAntecedentes(raw){
+  const s=String(raw||'').replace(/\t/g,' ').trim();
+  if(!s)return [];
+  const seen=new Set();
+  const out=[];
+  const push=t=>{
+    const x=String(t).replace(/\s+/g,' ').trim();
+    if(x.length<3)return;
+    const k=x.toLowerCase();
+    if(seen.has(k))return;
+    seen.add(k);
+    out.push(x);
+  };
+  REF_ANT_DOC_RE.lastIndex=0;
+  let m;
+  while((m=REF_ANT_DOC_RE.exec(s))!==null)push(m[0]);
+  if(!out.length){
+    s.split(/[,;\n\r]+|\s+Y\s+/i).forEach(part=>{
+      part.split(/\s{2,}/).forEach(push);
+      if(part.trim())push(part);
+    });
+  }
+  if(!out.length&&s)push(s);
+  return out;
+}
+
+function serializeReferenciasAntecedentes(parts){
+  return parts.map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean).join(', ');
+}
+
+function formatReferenciasAntecedentes(raw){
+  return serializeReferenciasAntecedentes(parseReferenciasAntecedentes(raw));
+}
+
+function formatReferenciasAntecedentesListHtml(raw){
+  const parts=parseReferenciasAntecedentes(raw);
+  if(!parts.length)return '';
+  const max=3;
+  const shown=parts.slice(0,max);
+  let html=shown.map(p=>`<span>↳ ${escapeHtml(p)}</span>`).join('');
+  if(parts.length>max)html+=`<span>↳ +${parts.length-max} más…</span>`;
+  return html;
+}
+
+function syncRefAntecedentesField(){
+  const el=document.getElementById('f_referencias');
+  if(el)el.value=serializeReferenciasAntecedentes(refAntecedentesList);
+}
+
+function renderRefAntecedentesChips(){
+  const box=document.getElementById('refAntecedentesChips');
+  if(!box)return;
+  box.innerHTML=refAntecedentesList.map((t,i)=>`
+    <span class="ref-ant-chip" title="${escapeHtml(t)}">
+      <span class="ref-ant-chip-text">${escapeHtml(t)}</span>
+      <button type="button" class="ref-ant-chip-x" data-idx="${i}" aria-label="Quitar antecedente">&times;</button>
+    </span>`).join('');
+  box.querySelectorAll('.ref-ant-chip-x').forEach(btn=>{
+    btn.onclick=()=>{
+      refAntecedentesList.splice(+btn.dataset.idx,1);
+      syncRefAntecedentesField();
+      renderRefAntecedentesChips();
+      debouncedUpdateRefTraceUI();
+    };
+  });
+}
+
+function loadRefAntecedentesFromField(){
+  const el=document.getElementById('f_referencias');
+  refAntecedentesList=parseReferenciasAntecedentes(el?.value||'');
+  syncRefAntecedentesField();
+  renderRefAntecedentesChips();
+}
+
+function addRefAntecedentesFromInput(raw){
+  const parts=parseReferenciasAntecedentes(raw);
+  if(!parts.length){
+    const t=String(raw||'').replace(/\s+/g,' ').trim();
+    if(t.length>=3)parts.push(t);
+  }
+  if(!parts.length)return false;
+  const seen=new Set(refAntecedentesList.map(x=>x.toLowerCase()));
+  let added=0;
+  parts.forEach(p=>{
+    const k=p.toLowerCase();
+    if(!seen.has(k)){seen.add(k);refAntecedentesList.push(p);added++;}
+  });
+  if(added){
+    syncRefAntecedentesField();
+    renderRefAntecedentesChips();
+    debouncedUpdateRefTraceUI();
+  }
+  return added>0;
+}
+
+let refAntSuggestTimer=null;
+function updateRefAntPendingHint(){
+  const inp=document.getElementById('refAntecedentesInput');
+  const hint=document.getElementById('refAntPending');
+  if(!inp||!hint)return;
+  hint.classList.toggle('visible',!!inp.value.trim()&&!inp.value.includes('\n'));
+}
+function hideRefAntSuggest(){
+  const box=document.getElementById('refAntSuggest');
+  if(box){box.classList.remove('open');box.innerHTML='';}
+}
+function searchCartasForAntecedente(q){
+  const term=String(q||'').trim().toLowerCase();
+  if(term.length<2)return [];
+  const norm=term.replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ');
+  const curId=editingId;
+  const hits=[];
+  ALL_CARTAS.forEach(c=>{
+    if(curId&&c.id===curId)return;
+    const doc=c.n_documento||'';
+    const blob=[doc,c.referencia||'',c.asunto||''].join(' ').toLowerCase();
+    const blobNorm=blob.replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ');
+    if(blob.includes(term)||blobNorm.includes(norm))hits.push(c);
+  });
+  hits.sort((a,b)=>{
+    const da=(a.n_documento||'').toLowerCase();
+    const db=(b.n_documento||'').toLowerCase();
+    const aDoc=da.startsWith(term)?0:1;
+    const bDoc=db.startsWith(term)?0:1;
+    if(aDoc!==bDoc)return aDoc-bDoc;
+    return da.localeCompare(db);
+  });
+  return hits.slice(0,8);
+}
+function renderRefAntSuggest(){
+  const inp=document.getElementById('refAntecedentesInput');
+  const box=document.getElementById('refAntSuggest');
+  if(!inp||!box)return;
+  const q=inp.value.trim();
+  updateRefAntPendingHint();
+  if(q.length<2){hideRefAntSuggest();return;}
+  const hits=searchCartasForAntecedente(q);
+  if(!hits.length){hideRefAntSuggest();return;}
+  box.classList.add('open');
+  box.innerHTML=hits.map(c=>`
+    <button type="button" class="ref-ant-suggest-btn" data-cid="${c.id}" role="option">
+      <span>${escapeHtml(c.n_documento||('ID '+c.id))}</span>
+      <small>${escapeHtml(c.estado_norm||c.estado||'')} · ${escapeHtml(fmtDate(c.fecha)||'—')}</small>
+    </button>`).join('');
+  box.querySelectorAll('.ref-ant-suggest-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      const c=ALL_CARTAS.find(x=>x.id===+btn.dataset.cid);
+      addRefAntecedentesFromInput(c?.n_documento||'');
+      inp.value='';
+      hideRefAntSuggest();
+      updateRefAntPendingHint();
+      inp.focus();
+    };
+  });
+}
+function debouncedRefAntSuggest(){
+  clearTimeout(refAntSuggestTimer);
+  refAntSuggestTimer=setTimeout(renderRefAntSuggest,120);
+}
+
+function normalizeRefDocKey(raw){
+  return String(raw||'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/n[°º.]/g,' n ')
+    .replace(/\./g,'')
+    .replace(/[\/\-_]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function docKeysFromAntecedente(tok){
+  const keys=[];
+  const seen=new Set();
+  const add=s=>{
+    const k=normalizeRefDocKey(s);
+    if(k.length<6||seen.has(k))return;
+    seen.add(k);
+    keys.push(k);
+  };
+  REF_ANT_DOC_RE.lastIndex=0;
+  let m;
+  while((m=REF_ANT_DOC_RE.exec(tok))!==null)add(m[0]);
+  if(!keys.length){
+    const t=String(tok||'').replace(/\s+/g,' ').trim();
+    if(t.length>=10)add(t);
+  }
+  return keys;
+}
+
+function cartaMatchesAntecedenteKey(c, searchKeys){
+  const docKey=normalizeRefDocKey(c.n_documento);
+  if(!docKey||!searchKeys.length)return false;
+  return searchKeys.some(k=>{
+    if(!k||k.length<6)return false;
+    if(docKey===k)return true;
+    if(k.length>=10&&docKey.includes(k))return true;
+    if(docKey.length>=10&&k.includes(docKey))return true;
+    return false;
+  });
+}
+
 function debouncedUpdateRefTraceUI(){
   clearTimeout(refTraceTimer);
   refTraceTimer=setTimeout(updateRefTraceUI,140);
@@ -3370,6 +3920,7 @@ function debouncedUpdateRefTraceUI(){
 function updateRefTraceUI(){
   const container=document.getElementById('refTraceLinksContainer');
   if(!container)return;
+  syncRefAntecedentesField();
   const refVal=(document.getElementById('f_referencias')?.value||'').trim();
   const currentDoc=(document.getElementById('f_n_documento')?.value||'').trim();
   const currentId=editingId;
@@ -3382,44 +3933,37 @@ function updateRefTraceUI(){
     return;
   }
 
-  const rawParts=refVal.split(/[,;\n\r]|\s+Y\s+/i).map(s=>s.trim()).filter(s=>s.length>=3);
-  const searchTokens=[...rawParts];
-  if(currentDoc&&currentDoc.length>=3)searchTokens.push(currentDoc);
+  const rawParts=parseReferenciasAntecedentes(refVal);
+  const searchKeys=[];
+  const seenKeys=new Set();
+  rawParts.forEach(part=>{
+    docKeysFromAntecedente(part).forEach(k=>{
+      if(!seenKeys.has(k)){seenKeys.add(k);searchKeys.push(k);}
+    });
+  });
 
   const matched=[];
   const seenIds=new Set();
   if(currentId)seenIds.add(currentId);
 
-  searchTokens.forEach(tok=>{
-    const tokNorm=tok.toLowerCase().replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ').trim();
-    if(tokNorm.length<3)return;
-
+  if(searchKeys.length){
     ALL_CARTAS.forEach(c=>{
       if(seenIds.has(c.id))return;
-      const docNorm=(c.n_documento||'').toLowerCase().replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ').trim();
-      const cRefNorm=(c.referencias||'').toLowerCase().replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ').trim();
-      const asuNorm=(c.asunto||'').toLowerCase().replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ').trim();
-
-      const isDocMatch=docNorm&&(docNorm.includes(tokNorm)||tokNorm.includes(docNorm));
-      const isRefMatch=cRefNorm&&(cRefNorm.includes(tokNorm)||(currentDoc&&currentDoc.length>=3&&cRefNorm.includes(currentDoc.toLowerCase())));
-      const isAsuMatch=asuNorm&&asuNorm.includes(tokNorm);
-
-      if(isDocMatch||isRefMatch||isAsuMatch){
-        seenIds.add(c.id);
-        const isOut=c.sentido==='emitida'||String(c.bandeja||'').startsWith('emitida');
-        matched.push({
-          id:c.id,
-          doc:c.n_documento||('ID '+c.id),
-          bandeja:bandejaLabel(c.bandeja),
-          sentido:isOut?'emitida':'recibida',
-          fecha:fmtDate(c.fecha)||'Sin fecha',
-          estado:c.estado_norm||c.estado||'—',
-          asunto:c.asunto||'',
-          especialidad:c.especialidad_norm||c.especialidad||'—'
-        });
-      }
+      if(!cartaMatchesAntecedenteKey(c,searchKeys))return;
+      seenIds.add(c.id);
+      const isOut=c.sentido==='emitida'||String(c.bandeja||'').startsWith('emitida');
+      matched.push({
+        id:c.id,
+        doc:c.n_documento||('ID '+c.id),
+        bandeja:bandejaLabel(c.bandeja),
+        sentido:isOut?'emitida':'recibida',
+        fecha:fmtDate(c.fecha)||'Sin fecha',
+        estado:c.estado_norm||c.estado||'—',
+        asunto:c.asunto||'',
+        especialidad:c.especialidad_norm||c.especialidad||'—'
+      });
     });
-  });
+  }
 
   const sumSalida=document.getElementById('csum_salida_text');
   if(sumSalida){
@@ -3439,9 +3983,12 @@ function updateRefTraceUI(){
   if(!matched.length){
     if(refVal.length>=4){
       container.style.display='block';
+      const noKeyMsg=rawParts.length&&!searchKeys.length
+        ? ' Los antecedentes no tienen un N° reconocible (CARTA N°, INFORME N°, etc.). Usa el N° completo.'
+        : '';
       container.innerHTML=`
         <div style="font-size:11px;color:var(--text-muted);background:#F8F7F4;border:1px dashed #E8E4DC;padding:6px 10px;border-radius:6px">
-          <i class="ri-information-line"></i> Referencia registrada: <strong>${escapeHtml(refVal)}</strong>. (Al emitir una carta que cite este informe, se enlazará automáticamente aquí).
+          <i class="ri-information-line"></i> Referencia registrada: <strong>${escapeHtml(formatReferenciasAntecedentes(refVal))}</strong>.${noKeyMsg} (Se enlazará cuando el N° coincida con una carta en el sistema).
         </div>`;
     }else{
       container.style.display='none';
@@ -3451,11 +3998,15 @@ function updateRefTraceUI(){
   }
 
   container.style.display='flex';
+  const MAX_TRACE=12;
+  const shown=matched.slice(0,MAX_TRACE);
+  const extra=matched.length-shown.length;
   container.innerHTML=`
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-top:4px;margin-bottom:2px;display:flex;align-items:center;gap:4px">
+    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-top:4px;margin-bottom:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
       <i class="ri-link-m" style="color:var(--accent)"></i> Trazabilidad Detectada (${matched.length} documento${matched.length>1?'s':''}):
+      ${extra>0?`<span style="font-weight:500;color:var(--text-muted)">mostrando ${shown.length}</span>`:''}
     </div>
-    ${matched.map(m=>`
+    ${shown.map(m=>`
       <div class="ref-trace-card">
         <div class="ref-trace-info">
           <span class="ref-trace-tag ${m.sentido==='emitida'?'out':'in'}">
@@ -3469,11 +4020,39 @@ function updateRefTraceUI(){
         </button>
       </div>
     `).join('')}
+    ${extra>0?`<div style="font-size:11px;color:var(--text-muted);padding:2px 4px">+ ${extra} documento${extra>1?'s':''} más. Si la lista es incorrecta, revisa que cada chip tenga el N° completo.</div>`:''}
   `;
 }
 
-document.getElementById('f_referencias')?.addEventListener('input',debouncedUpdateRefTraceUI);
 document.getElementById('f_n_documento')?.addEventListener('input',debouncedUpdateRefTraceUI);
+document.getElementById('refAntecedentesAddBtn')?.addEventListener('click',()=>{
+  const inp=document.getElementById('refAntecedentesInput');
+  if(!inp)return;
+  const ok=addRefAntecedentesFromInput(inp.value);
+  if(!ok&&inp.value.trim())showToast('Escribe al menos 3 caracteres o el N° completo del documento','error');
+  else if(ok){inp.value='';hideRefAntSuggest();updateRefAntPendingHint();inp.focus();}
+});
+document.getElementById('refAntecedentesInput')?.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();document.getElementById('refAntecedentesAddBtn')?.click();}
+  if(e.key==='Escape')hideRefAntSuggest();
+});
+document.getElementById('refAntecedentesInput')?.addEventListener('input',()=>{
+  debouncedRefAntSuggest();
+  updateRefAntPendingHint();
+});
+document.getElementById('refAntecedentesInput')?.addEventListener('blur',()=>{
+  setTimeout(hideRefAntSuggest,180);
+});
+document.getElementById('refAntecedentesInput')?.addEventListener('paste',e=>{
+  const text=(e.clipboardData||window.clipboardData)?.getData('text')||'';
+  if(!text||text.length<8)return;
+  const parts=parseReferenciasAntecedentes(text);
+  if(parts.length>1){
+    e.preventDefault();
+    addRefAntecedentesFromInput(text);
+    e.target.value='';
+  }
+});
 document.getElementById('f_especialidad')?.addEventListener('input',syncCartaEspChips);
 document.querySelectorAll('#cartaEspChipPicker .esp-chip-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -3484,6 +4063,8 @@ document.getElementById('btnConfirmCancel').addEventListener('click',closeConfir
 document.getElementById('btnConfirmOk').addEventListener('click',handleConfirmOk);
 document.getElementById('btnCSV').addEventListener('click',exportCSV);
 document.getElementById('btnReimportConfig')?.addEventListener('click',confirmReimport);
+document.getElementById('btnBackfillHistorico')?.addEventListener('click',()=>runBackfillHistorico(false));
+document.getElementById('btnBackfillPreview')?.addEventListener('click',()=>runBackfillHistorico(true));
 document.getElementById('filterFlujo')?.addEventListener('change',applyFilters);
 document.querySelectorAll('#areaRespChipPicker .esp-chip-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -3493,6 +4074,7 @@ document.querySelectorAll('#areaRespChipPicker .esp-chip-btn').forEach(btn=>{
     input.focus();
   });
 });
+document.getElementById('filterEstado').addEventListener('change',applyFilters);
 document.getElementById('filterEsp').addEventListener('change',applyFilters);
 document.getElementById('filterPlazo').addEventListener('change',applyFilters);
 document.getElementById('filterDeuda').addEventListener('change',applyFilters);

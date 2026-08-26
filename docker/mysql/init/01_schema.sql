@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS cartas (
     estado VARCHAR(120) NULL,
     estado_norm VARCHAR(120) NULL,
     referencias TEXT NULL,
+    referencia VARCHAR(255) NULL,
     folios VARCHAR(50) NULL,
     cd VARCHAR(20) NULL,
     dirigido_a VARCHAR(255) NULL,

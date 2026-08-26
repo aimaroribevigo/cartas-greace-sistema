@@ -12,7 +12,7 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py plazos.py whatsapp_notify.py normalizers.py import_excel.py clasificacion.py hilos.py auth.py dashboard.html ./
+COPY app.py plazos.py whatsapp_notify.py normalizers.py import_excel.py clasificacion.py hilos.py auth.py backfill_cartas.py dashboard.html ./
 
 EXPOSE 5000
 

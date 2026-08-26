@@ -8,6 +8,7 @@ import re
 from functools import wraps
 
 from flask import g, jsonify, session
+from normalizers import split_especialidades
 from werkzeug.security import check_password_hash, generate_password_hash
 
 AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") in ("1", "true", "True", "yes")
@@ -328,10 +329,12 @@ def carta_in_scope(carta: dict, user: dict | None) -> bool:
     esps = {e.upper() for e in (user.get("especialidades") or [])}
     if not esps:
         return False
-    norm = (carta.get("especialidad_norm") or "").strip().upper()
-    if norm in esps:
+    carta_esps = set(split_especialidades(
+        carta.get("especialidad"), carta.get("especialidad_norm")
+    ))
+    if carta_esps & esps:
         return True
-    if INCLUDE_MIXTA_FOR_ING and norm == "MIXTA":
+    if INCLUDE_MIXTA_FOR_ING and len(carta_esps) > 1:
         return True
     raw = (carta.get("especialidad") or "").upper()
     return any(e in raw for e in esps)

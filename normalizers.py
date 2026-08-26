@@ -181,22 +181,99 @@ def _normalize_esp_token(key: str) -> str:
     return key[:60] if key else "SIN ESPECIALIDAD"
 
 
-def normalize_especialidad(raw) -> str:
-    if raw is None:
-        return "SIN ESPECIALIDAD"
-    s = str(raw).replace("\n", " ").strip()
+def split_especialidades(raw, norm_fallback=None) -> list[str]:
+    """Lista estable de especialidades normalizadas (admite multi-valor)."""
+    s = str(raw or "").replace("\n", " ").strip()
+    norm_s = str(norm_fallback or "").replace("\n", " ").strip()
     if not s:
-        return "SIN ESPECIALIDAD"
-    # multi-valor → tomar el primero reconocible o MIXTA
-    parts = re.split(r"[,/]| {2,}", s)
+        s = norm_s
+    if not s:
+        return ["SIN ESPECIALIDAD"]
+    if _fold(s) == "MIXTA" and norm_s and _fold(norm_s) != "MIXTA":
+        s = norm_s
+    parts = re.split(r"[,/;\+]|\s+Y\s+", s, flags=re.I)
     parts = [p.strip() for p in parts if p.strip()]
-    norms = []
+    norms: list[str] = []
     for p in parts:
-        norms.append(_normalize_esp_token(_fold(p)))
+        key = _fold(p)
+        if key == "MIXTA":
+            continue
+        norms.append(_normalize_esp_token(key))
     norms = list(dict.fromkeys(norms))
+    return norms if norms else ["SIN ESPECIALIDAD"]
+
+
+def carta_matches_especialidad(carta: dict, selected: str) -> bool:
+    """True si la carta incluye la especialidad indicada (multi-valor incluido)."""
+    sel = _fold(selected)
+    if not sel or sel == "ALL":
+        return True
+    esps = split_especialidades(
+        carta.get("especialidad"), carta.get("especialidad_norm")
+    )
+    if sel in esps:
+        return True
+    if sel == "MIXTA":
+        return len(esps) > 1
+    return False
+
+
+def normalize_especialidad(raw) -> str:
+    norms = split_especialidades(raw)
     if len(norms) > 1:
-        return "MIXTA"
-    return norms[0] if norms else "SIN ESPECIALIDAD"
+        return ", ".join(norms)
+    return norms[0]
+
+
+_REF_ANT_DOC_RE = re.compile(
+    r"(?:CARTA|INFORME|OFICIO|ASIENTO|CONTRATO)"
+    r"(?:\s+DE\s+(?:[^N°]+?))?"
+    r"\s*N[°º.]?\s*[A-Z0-9\-/.()]+(?:\s*\([^)]*\))?",
+    re.I,
+)
+
+
+def parse_referencias_antecedentes(raw) -> list[str]:
+    """Separa antecedentes citados aunque vengan del Excel con tabulaciones o espacios largos."""
+    s = re.sub(r"\t", " ", str(raw or "")).strip()
+    if not s:
+        return []
+    seen: set[str] = set()
+    out: list[str] = []
+
+    def _push(part: str) -> None:
+        p = re.sub(r"\s+", " ", part).strip()
+        if len(p) < 3:
+            return
+        key = p.lower()
+        if key in seen:
+            return
+        seen.add(key)
+        out.append(p)
+
+    for m in _REF_ANT_DOC_RE.finditer(s):
+        _push(m.group(0))
+
+    if not out:
+        for chunk in re.split(r"[,;\n\r]+|\s+Y\s+", s, flags=re.I):
+            for piece in re.split(r"\s{2,}", chunk):
+                _push(piece)
+            if chunk.strip():
+                _push(chunk)
+
+    if not out and s:
+        _push(s)
+    return out
+
+
+def normalize_referencias_antecedentes(raw) -> str | None:
+    if raw is None:
+        return None
+    parts = parse_referencias_antecedentes(raw)
+    if not parts:
+        collapsed = re.sub(r"\s+", " ", str(raw)).strip()
+        return collapsed or None
+    return ", ".join(parts)
 
 
 def refresh_normalized_fields(conn) -> dict:
