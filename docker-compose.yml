@@ -69,7 +69,7 @@ services:
       AUTH_REQUIRED: ${AUTH_REQUIRED:-1}
       SECRET_KEY: ${SECRET_KEY:-sistemagreace-dev-change-me-in-prod}
       DEFAULT_USER_PASSWORD: ${DEFAULT_USER_PASSWORD:-greace2026}
-      FORCE_PASSWORD_ROTATION: ${FORCE_PASSWORD_ROTATION:-1}
+      FORCE_PASSWORD_ROTATION: ${FORCE_PASSWORD_ROTATION:-0}
       MIN_PASSWORD_LEN: ${MIN_PASSWORD_LEN:-8}
     volumes:
       # Copia el Excel a ./data/ si quieres reimportar (opcional; el clone trae seed MySQL).
