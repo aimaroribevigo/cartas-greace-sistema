@@ -65,6 +65,9 @@ def ensure_usuarios_table(cur) -> None:
     cur.execute("SHOW COLUMNS FROM usuarios LIKE 'password_changed_at'")
     if not cur.fetchone():
         cur.execute("ALTER TABLE usuarios ADD COLUMN password_changed_at DATETIME NULL")
+    cur.execute("SHOW COLUMNS FROM usuarios LIKE 'intentos_fallidos'")
+    if not cur.fetchone():
+        cur.execute("ALTER TABLE usuarios ADD COLUMN intentos_fallidos INT NOT NULL DEFAULT 0")
 
 
 def seed_usuarios(conn) -> dict:
@@ -156,9 +159,20 @@ def _parse_esps(raw) -> list[str]:
 
 
 def _normalize_username(raw: str) -> str:
-    s = (raw or "").strip().lower()
-    s = re.sub(r"[^a-z0-9._-]", "", s)
-    return s[:80]
+    return (raw or "").strip().lower()
+
+
+def validate_username(raw: str) -> tuple[str | None, str | None]:
+    if not raw or not str(raw).strip():
+        return None, "El nombre de usuario es obligatorio"
+    s = str(raw).strip().lower()
+    if len(s) < 3:
+        return None, "El usuario debe tener al menos 3 caracteres"
+    if len(s) > 60:
+        return None, "El usuario no puede superar los 60 caracteres"
+    if not re.match(r"^[a-z0-9._-]+$", s):
+        return None, "El usuario solo puede contener letras (a-z), números (0-9), puntos, guiones y sin espacios"
+    return s, None
 
 
 def validate_password(password: str, username: str | None = None) -> str | None:
@@ -166,12 +180,14 @@ def validate_password(password: str, username: str | None = None) -> str | None:
     pw = password or ""
     if len(pw) < MIN_PASSWORD_LEN:
         return f"La contraseña debe tener al menos {MIN_PASSWORD_LEN} caracteres"
+    if len(pw) > 128:
+        return "La contraseña no puede superar los 128 caracteres"
     if DEFAULT_PASSWORD and pw == DEFAULT_PASSWORD:
         return "No puedes usar la contraseña por defecto del sistema"
     if username and pw.lower() == username.lower():
         return "La contraseña no puede ser igual al usuario"
     if pw.isdigit() or pw.isalpha():
-        return "Usa letras y números (o símbolos)"
+        return "La contraseña debe combinar letras y números (o símbolos)"
     return None
 
 
@@ -198,6 +214,9 @@ def user_from_row(r: dict | None) -> dict | None:
         "can_import": rol in ("admin", "residente"),
         "can_notify": rol in ("admin", "residente"),
         "can_manage_users": rol == "admin",
+        "can_create_cartas": rol in ("admin", "residente"),
+        "can_delete_cartas": rol in ("admin", "residente"),
+        "can_edit_formal": rol in ("admin", "residente"),
         "vista_parcial": rol == "ingeniero",
     }
 
@@ -215,17 +234,52 @@ def fetch_user_by_id(conn, uid: int) -> dict | None:
     return user_from_row(fetch_user_row(conn, uid, only_active=True))
 
 
-def verify_login(conn, username: str, password: str) -> dict | None:
+def verify_login(conn, username: str, password: str) -> tuple[dict | None, str | None]:
+    clean_user = (username or "").strip().lower()
+    if not clean_user:
+        return None, "Ingresa tu nombre de usuario"
+    if not password:
+        return None, "Ingresa tu contraseña"
+
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT * FROM usuarios WHERE username=%s AND activo=1 LIMIT 1",
-            ((username or "").strip(),),
+            "SELECT * FROM usuarios WHERE username=%s LIMIT 1",
+            (clean_user,),
         )
         row = cur.fetchone()
     if not row:
-        return None
+        return None, "Usuario o contraseña incorrectos"
+
+    if not bool(row.get("activo", 1)):
+        return None, "Tu cuenta ha sido desactivada por seguridad. Contacta al Administrador para reactivarla."
+
     if not check_password_hash(row["password_hash"], password or ""):
-        return None
+        intentos = int(row.get("intentos_fallidos") or 0) + 1
+        if intentos >= 3:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE usuarios SET intentos_fallidos=%s, activo=0 WHERE id=%s",
+                    (intentos, row["id"]),
+                )
+            conn.commit()
+            return None, "Has superado el límite de 3 intentos fallidos. Tu cuenta ha sido desactivada por seguridad. Contacta al Administrador para reactivarla."
+        else:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE usuarios SET intentos_fallidos=%s WHERE id=%s",
+                    (intentos, row["id"]),
+                )
+            conn.commit()
+            restantes = 3 - intentos
+            plur = "intento" if restantes == 1 else "intentos"
+            return None, f"Contraseña incorrecta. Te queda {restantes} {plur} antes del bloqueo de cuenta."
+
+    # Login exitoso: reiniciar contador de intentos fallidos
+    if int(row.get("intentos_fallidos") or 0) > 0:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE usuarios SET intentos_fallidos=0 WHERE id=%s", (row["id"],))
+        conn.commit()
+
     u = user_from_row(row)
     # Si entra con password por defecto, forzar rotación en caliente
     if (
@@ -241,7 +295,7 @@ def verify_login(conn, username: str, password: str) -> dict | None:
             )
         conn.commit()
         u["must_change_password"] = True
-    return u
+    return u, None
 
 
 def public_user(u: dict | None) -> dict | None:
@@ -260,6 +314,9 @@ def public_user(u: dict | None) -> dict | None:
         "can_import": u.get("can_import", False),
         "can_notify": u.get("can_notify", False),
         "can_manage_users": u.get("can_manage_users", False),
+        "can_create_cartas": u.get("can_create_cartas", False),
+        "can_delete_cartas": u.get("can_delete_cartas", False),
+        "can_edit_formal": u.get("can_edit_formal", False),
         "vista_parcial": u.get("vista_parcial", False),
         "auth_required": AUTH_REQUIRED,
     }
@@ -383,41 +440,59 @@ def create_usuario(
     especialidades: list[str] | None = None,
     must_change_password: bool = True,
 ) -> tuple[dict | None, str | None]:
-    uname = _normalize_username(username)
-    if len(uname) < 3:
-        return None, "Usuario inválido (mín. 3 caracteres, a-z 0-9 ._-)"
+    uname, err_u = validate_username(username)
+    if err_u:
+        return None, err_u
+
+    nom = (nombre or "").strip()
+    if not nom:
+        return None, "El nombre y cargo son obligatorios"
+    if len(nom) > 100:
+        return None, "El nombre y cargo no pueden superar los 100 caracteres"
+
     rol = (rol or "ingeniero").strip().lower()
     if rol not in VALID_ROLES:
         return None, f"Rol inválido. Use: {', '.join(VALID_ROLES)}"
-    err = validate_password(password, uname)
-    if err:
-        return None, err
+
+    err_p = validate_password(password, uname)
+    if err_p:
+        return None, err_p
+
     esps = especialidades or []
+    if any(len(str(e).strip()) > 80 for e in esps):
+        return None, "Cada especialidad no puede superar los 80 caracteres"
+    if len(json.dumps(esps, ensure_ascii=False)) > 1500:
+        return None, "El listado de especialidades supera el límite permitido"
+
     if rol == "ingeniero" and not esps:
-        return None, "Ingeniero requiere al menos una especialidad"
+        return None, "El rol Ingeniero requiere al menos una especialidad"
     if rol in ("admin", "residente"):
         esps = []
+
     with conn.cursor() as cur:
         cur.execute("SELECT id FROM usuarios WHERE username=%s", (uname,))
         if cur.fetchone():
-            return None, "Ese usuario ya existe"
-        cur.execute(
-            """
-            INSERT INTO usuarios
-            (username, password_hash, nombre, rol, especialidades_json, activo, must_change_password)
-            VALUES (%s,%s,%s,%s,%s,1,%s)
-            """,
-            (
-                uname,
-                generate_password_hash(password),
-                (nombre or uname).strip()[:120],
-                rol,
-                json.dumps(esps, ensure_ascii=False),
-                1 if must_change_password else 0,
-            ),
-        )
-        new_id = cur.lastrowid
-    conn.commit()
+            return None, "Ese nombre de usuario ya está registrado"
+        try:
+            cur.execute(
+                """
+                INSERT INTO usuarios
+                (username, password_hash, nombre, rol, especialidades_json, activo, must_change_password)
+                VALUES (%s,%s,%s,%s,%s,1,%s)
+                """,
+                (
+                    uname,
+                    generate_password_hash(password),
+                    nom[:120],
+                    rol,
+                    json.dumps(esps, ensure_ascii=False),
+                    1 if must_change_password else 0,
+                ),
+            )
+            new_id = cur.lastrowid
+            conn.commit()
+        except pymysql.err.DataError:
+            return None, "Uno de los campos supera la capacidad de almacenamiento de la base de datos"
     return public_user(user_from_row(fetch_user_row(conn, new_id, only_active=False))), None
 
 
@@ -433,18 +508,36 @@ def update_usuario(
     row = fetch_user_row(conn, uid, only_active=False)
     if not row:
         return None, "Usuario no encontrado"
-    new_nombre = (nombre if nombre is not None else row["nombre"]).strip()[:120]
+
+    if nombre is not None:
+        nom = nombre.strip()
+        if not nom:
+            return None, "El nombre y cargo no pueden estar vacíos"
+        if len(nom) > 100:
+            return None, "El nombre y cargo no pueden superar los 100 caracteres"
+        new_nombre = nom[:120]
+    else:
+        new_nombre = row["nombre"]
+
     new_rol = (rol if rol is not None else row["rol"]).strip().lower()
     if new_rol not in VALID_ROLES:
         return None, f"Rol inválido. Use: {', '.join(VALID_ROLES)}"
+
     if especialidades is not None:
         esps = especialidades
     else:
         esps = _parse_esps(row.get("especialidades_json"))
+
+    if any(len(str(e).strip()) > 80 for e in esps):
+        return None, "Cada especialidad no puede superar los 80 caracteres"
+    if len(json.dumps(esps, ensure_ascii=False)) > 1500:
+        return None, "El listado de especialidades supera el límite permitido"
+
     if new_rol == "ingeniero" and not esps:
-        return None, "Ingeniero requiere al menos una especialidad"
+        return None, "El rol Ingeniero requiere al menos una especialidad"
     if new_rol in ("admin", "residente"):
         esps = []
+
     new_activo = row["activo"] if activo is None else (1 if activo else 0)
     # No desactivar el último admin activo
     if row["rol"] == "admin" and not new_activo:
@@ -455,16 +548,30 @@ def update_usuario(
             )
             if (cur.fetchone() or {}).get("c", 0) < 1:
                 return None, "No puedes desactivar el último administrador activo"
+
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            UPDATE usuarios
-            SET nombre=%s, rol=%s, especialidades_json=%s, activo=%s
-            WHERE id=%s
-            """,
-            (new_nombre, new_rol, json.dumps(esps, ensure_ascii=False), new_activo, uid),
-        )
-    conn.commit()
+        try:
+            if new_activo:
+                cur.execute(
+                    """
+                    UPDATE usuarios
+                    SET nombre=%s, rol=%s, especialidades_json=%s, activo=%s, intentos_fallidos=0
+                    WHERE id=%s
+                    """,
+                    (new_nombre, new_rol, json.dumps(esps, ensure_ascii=False), new_activo, uid),
+                )
+            else:
+                cur.execute(
+                    """
+                    UPDATE usuarios
+                    SET nombre=%s, rol=%s, especialidades_json=%s, activo=%s
+                    WHERE id=%s
+                    """,
+                    (new_nombre, new_rol, json.dumps(esps, ensure_ascii=False), new_activo, uid),
+                )
+            conn.commit()
+        except pymysql.err.DataError:
+            return None, "Uno de los campos supera la capacidad de almacenamiento de la base de datos"
     return public_user(user_from_row(fetch_user_row(conn, uid, only_active=False))), None
 
 
@@ -482,7 +589,7 @@ def admin_set_password(
             cur.execute(
                 """
                 UPDATE usuarios
-                SET password_hash=%s, must_change_password=1
+                SET password_hash=%s, must_change_password=1, intentos_fallidos=0
                 WHERE id=%s
                 """,
                 (generate_password_hash(new_password), uid),
@@ -491,7 +598,7 @@ def admin_set_password(
             cur.execute(
                 """
                 UPDATE usuarios
-                SET password_hash=%s, must_change_password=0, password_changed_at=NOW()
+                SET password_hash=%s, must_change_password=0, password_changed_at=NOW(), intentos_fallidos=0
                 WHERE id=%s
                 """,
                 (generate_password_hash(new_password), uid),

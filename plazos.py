@@ -27,8 +27,15 @@ def _as_date(v) -> date | None:
         return None
 
 
-def deadline_status(c: dict, today: date | None = None) -> dict:
+def deadline_status(
+    c: dict,
+    today: date | None = None,
+    vencida_dias: int | None = None,
+    por_vencer_dias: int | None = None,
+) -> dict:
     today = today or date.today()
+    v_dias = vencida_dias if vencida_dias is not None else VENCIDA_DIAS
+    pv_dias = por_vencer_dias if por_vencer_dias is not None else POR_VENCER_DIAS
     estado = c.get("estado_norm") or normalize_estado(c.get("estado"))
     if is_solo_comunicacion(c):
         fecha = _as_date(c.get("fecha"))
@@ -58,7 +65,7 @@ def deadline_status(c: dict, today: date | None = None) -> dict:
             "open": True,
         }
     days_open = (today - fecha).days
-    if days_open >= VENCIDA_DIAS:
+    if days_open >= v_dias:
         return {
             "kind": "vencida",
             "days": -days_open,
@@ -66,8 +73,8 @@ def deadline_status(c: dict, today: date | None = None) -> dict:
             "date": fecha.isoformat(),
             "open": True,
         }
-    if days_open >= POR_VENCER_DIAS:
-        rest = VENCIDA_DIAS - days_open
+    if days_open >= pv_dias:
+        rest = v_dias - days_open
         return {
             "kind": "por_vencer",
             "days": rest,
@@ -77,33 +84,42 @@ def deadline_status(c: dict, today: date | None = None) -> dict:
         }
     return {
         "kind": "ok",
-        "days": VENCIDA_DIAS - days_open,
+        "days": v_dias - days_open,
         "label": f"En gestión ({days_open}d)",
         "date": fecha.isoformat(),
         "open": True,
     }
 
 
-def plazos_config() -> dict:
+def plazos_config(vencida_dias: int | None = None, por_vencer_dias: int | None = None) -> dict:
+    v_dias = vencida_dias if vencida_dias is not None else VENCIDA_DIAS
+    pv_dias = por_vencer_dias if por_vencer_dias is not None else POR_VENCER_DIAS
     return {
-        "vencida_dias": VENCIDA_DIAS,
-        "por_vencer_dias": POR_VENCER_DIAS,
+        "vencida_dias": v_dias,
+        "por_vencer_dias": pv_dias,
         "nota": (
             "Alerta por edad del documento en cartas abiertas "
-            f"(≥{POR_VENCER_DIAS}d riesgo, ≥{VENCIDA_DIAS}d vencida). "
+            f"(≥{pv_dias}d riesgo, ≥{v_dias}d vencida). "
             "No usa días hábiles contractuales OSCE; calibrar con la obra."
         ),
     }
 
 
-def classify_cartas(rows: list[dict], today: date | None = None) -> dict:
+def classify_cartas(
+    rows: list[dict],
+    today: date | None = None,
+    vencida_dias: int | None = None,
+    por_vencer_dias: int | None = None,
+) -> dict:
     today = today or date.today()
+    v_dias = vencida_dias if vencida_dias is not None else VENCIDA_DIAS
+    pv_dias = por_vencer_dias if por_vencer_dias is not None else POR_VENCER_DIAS
     vencidas, por_vencer = [], []
     sin_plazo = []
     abiertas_ok = []
     for raw in rows:
         c = dict(raw)
-        st = deadline_status(c, today=today)
+        st = deadline_status(c, today=today, vencida_dias=v_dias, por_vencer_dias=pv_dias)
         c["_plazo"] = st
         if st["kind"] == "vencida":
             vencidas.append(c)
@@ -121,7 +137,7 @@ def classify_cartas(rows: list[dict], today: date | None = None) -> dict:
         "por_vencer": por_vencer,
         "sin_plazo": sin_plazo,
         "abiertas_ok": abiertas_ok,
-        "thresholds": plazos_config(),
+        "thresholds": plazos_config(v_dias, pv_dias),
         "counts": {
             "vencidas": len(vencidas),
             "por_vencer": len(por_vencer),

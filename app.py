@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """SistemaGreace — Control de Cartas (Flask + MySQL + import Excel)."""
+import gzip
 import hashlib
 import json
+import logging
 import os
 import threading
 import time
@@ -120,6 +122,7 @@ app.config["GET_CURRENT_USER"] = current_user
 AUTH_OPEN_PATHS = {
     "/api/health",
     "/health",
+    "/api/config",
     "/api/auth/login",
     "/api/auth/logout",
     "/api/auth/me",
@@ -152,6 +155,16 @@ def _gate_password_rotation():
             403,
         )
     return None
+
+
+_RAW_CARTAS_CACHE = None
+_CACHE_VERSION = int(time.time() * 1000)
+
+
+def invalidate_cartas_cache():
+    global _RAW_CARTAS_CACHE, _CACHE_VERSION
+    _RAW_CARTAS_CACHE = None
+    _CACHE_VERSION = int(time.time() * 1000)
 
 
 def scoped_cartas(db=None):
@@ -253,6 +266,21 @@ def init_db(conn=None):
                     "ALTER TABLE cartas ADD COLUMN hilo_id INT NULL, "
                     "ADD KEY idx_cartas_hilo (hilo_id)"
                 )
+            # Migración: índices compuestos para acelerar filtros y consultas
+            cur.execute("SHOW INDEX FROM cartas")
+            existing_idx = {r.get("Key_name") for r in cur.fetchall() if isinstance(r, dict)}
+            idx_defs = [
+                ("idx_cartas_bandeja_fecha", "ADD KEY idx_cartas_bandeja_fecha (bandeja, fecha)"),
+                ("idx_cartas_estado_fecha", "ADD KEY idx_cartas_estado_fecha (estado_norm, fecha)"),
+                ("idx_cartas_esp_fecha", "ADD KEY idx_cartas_esp_fecha (especialidad_norm, fecha)"),
+                ("idx_cartas_sentido_fecha", "ADD KEY idx_cartas_sentido_fecha (sentido, fecha)")
+            ]
+            for iname, isql in idx_defs:
+                if iname not in existing_idx:
+                    try:
+                        cur.execute(f"ALTER TABLE cartas {isql}")
+                    except Exception as e:
+                        logging.warning("No se pudo crear indice %s: %s", iname, e)
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS whatsapp_alert_log (
@@ -290,6 +318,30 @@ def init_db(conn=None):
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """
             )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS configuracion_sistema (
+                    id INT NOT NULL PRIMARY KEY DEFAULT 1,
+                    nombre_sistema VARCHAR(120) NOT NULL DEFAULT 'SistemaGreace',
+                    subtitulo_proyecto VARCHAR(200) NOT NULL DEFAULT 'Hospital Leoncio Prado (PRONIS/MINSA)',
+                    logo_url MEDIUMTEXT NULL,
+                    favicon_url MEDIUMTEXT NULL,
+                    dias_vencida INT NOT NULL DEFAULT 15,
+                    dias_por_vencer INT NOT NULL DEFAULT 10,
+                    dias_hilo INT NOT NULL DEFAULT 5,
+                    actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                        ON UPDATE CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                """
+            )
+            cur.execute("SELECT id FROM configuracion_sistema WHERE id=1")
+            if not cur.fetchone():
+                cur.execute(
+                    """
+                    INSERT INTO configuracion_sistema (id, nombre_sistema, subtitulo_proyecto, dias_vencida, dias_por_vencer, dias_hilo)
+                    VALUES (1, 'SistemaGreace', 'Hospital Leoncio Prado (PRONIS/MINSA)', 15, 10, 5)
+                    """
+                )
             ensure_usuarios_table(cur)
         conn.commit()
         seed_usuarios(conn)
@@ -343,6 +395,71 @@ def _prepare_carta_payload(d: dict) -> dict:
     return data
 
 
+def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
+    if not isinstance(d, dict):
+        return {}, "Cuerpo de datos inválido"
+    doc = str(d.get("n_documento") or "").strip()
+    ban = str(d.get("bandeja") or "").strip()
+    if not doc:
+        return {}, "El N° de Documento es obligatorio"
+    if len(doc) > 250:
+        return {}, "El N° de Documento no puede superar los 250 caracteres"
+    if not ban:
+        return {}, "La bandeja es obligatoria"
+    if len(ban) > 80:
+        return {}, "La bandeja supera la longitud máxima permitida"
+
+    fecha = d.get("fecha")
+    if fecha not in (None, ""):
+        f_str = str(fecha).strip().split("T")[0]
+        try:
+            parts = [int(p) for p in f_str.split("-")]
+            if len(parts) != 3 or parts[0] < 1990 or parts[0] > 2099:
+                return {}, "La fecha debe estar entre los años 1990 y 2099"
+            date(parts[0], parts[1], parts[2])
+            d["fecha"] = f_str
+        except Exception:
+            return {}, "Formato de fecha inválido. Usa el formato AAAA-MM-DD"
+
+    field_limits = [
+        ("asunto", 5000, "El asunto"),
+        ("especialidad", 150, "La especialidad"),
+        ("estado", 80, "El estado"),
+        ("referencias", 2000, "Las referencias"),
+        ("folios", 100, "El campo folios"),
+        ("cd", 150, "El campo anexos / CD"),
+        ("dirigido_a", 250, "El destinatario"),
+        ("receptor", 150, "El receptor"),
+        ("cargo", 150, "El cargo"),
+        ("observacion", 3000, "Las observaciones"),
+    ]
+    for field, max_len, label in field_limits:
+        val = d.get(field)
+        if val is not None and len(str(val)) > max_len:
+            return {}, f"{label} no puede superar los {max_len} caracteres"
+
+    return _prepare_carta_payload(d), None
+
+
+@app.after_request
+def compress_and_cache_headers(response):
+    if response.direct_passthrough:
+        return response
+    accept_encoding = request.headers.get("Accept-Encoding", "")
+    if (
+        "gzip" in accept_encoding
+        and response.status_code == 200
+        and response.mimetype in ("application/json", "text/html", "text/css", "application/javascript")
+        and len(response.data) > 500
+        and "Content-Encoding" not in response.headers
+    ):
+        compressed_data = gzip.compress(response.data, compresslevel=6)
+        response.set_data(compressed_data)
+        response.headers["Content-Encoding"] = "gzip"
+        response.headers["Content-Length"] = len(compressed_data)
+    return response
+
+
 @app.route("/api/health")
 def api_health():
     try:
@@ -381,11 +498,18 @@ def api_auth_login():
     body = request.get_json(silent=True) or {}
     username = (body.get("username") or "").strip()
     password = body.get("password") or ""
-    if not username or not password:
-        return jsonify({"error": "Usuario y contraseña requeridos"}), 400
-    user = verify_login(get_db(), username, password)
-    if not user:
-        return jsonify({"error": "Credenciales inválidas"}), 401
+    if not username:
+        return jsonify({"error": "Ingresa tu nombre de usuario"}), 400
+    if len(username) > 60:
+        return jsonify({"error": "El nombre de usuario no puede superar los 60 caracteres"}), 400
+    if not password:
+        return jsonify({"error": "Ingresa tu contraseña"}), 400
+    if len(password) > 128:
+        return jsonify({"error": "La contraseña no puede superar los 128 caracteres"}), 400
+
+    user, err = verify_login(get_db(), username, password)
+    if err:
+        return jsonify({"error": err}), 401
     login_user(user)
     return jsonify({"ok": True, "user": public_user(user)})
 
@@ -488,6 +612,103 @@ def api_auth_users_set_password(uid):
     return jsonify({"ok": True, "must_change_password": bool(body.get("must_change_password", True))})
 
 
+@app.route("/api/config", methods=["GET"])
+def api_get_config():
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        row = cur.fetchone()
+        if not row:
+            row = {
+                "id": 1,
+                "nombre_sistema": "SistemaGreace",
+                "subtitulo_proyecto": "Hospital Leoncio Prado (PRONIS/MINSA)",
+                "logo_url": None,
+                "favicon_url": None,
+                "dias_vencida": 15,
+                "dias_por_vencer": 10,
+                "dias_hilo": 5,
+            }
+    return jsonify({"ok": True, "config": row})
+
+
+@app.route("/api/config", methods=["PUT"])
+@require_perm("can_manage_users")
+def api_update_config():
+    body = request.get_json(silent=True) or {}
+    nombre_raw = body.get("nombre_sistema")
+    if not nombre_raw or not str(nombre_raw).strip():
+        return jsonify({"error": "El nombre del sistema es obligatorio"}), 400
+    nombre = str(nombre_raw).strip()
+    if len(nombre) > 100:
+        return jsonify({"error": "El nombre del sistema no puede superar los 100 caracteres"}), 400
+
+    subtitulo_raw = body.get("subtitulo_proyecto")
+    if not subtitulo_raw or not str(subtitulo_raw).strip():
+        return jsonify({"error": "El subtítulo del proyecto es obligatorio"}), 400
+    subtitulo = str(subtitulo_raw).strip()
+    if len(subtitulo) > 180:
+        return jsonify({"error": "El subtítulo del proyecto no puede superar los 180 caracteres"}), 400
+
+    logo_url = body.get("logo_url")
+    favicon_url = body.get("favicon_url")
+    
+    # Validaciones estrictas de tamaño de payload de imágenes
+    if logo_url and len(str(logo_url)) > 2500000:
+        return jsonify({"error": "El logo excede el tamaño máximo permitido (1.5 MB)"}), 400
+    if favicon_url and len(str(favicon_url)) > 600000:
+        return jsonify({"error": "El favicon excede el tamaño máximo permitido (256 KB)"}), 400
+
+    try:
+        if body.get("dias_vencida") is None or body.get("dias_por_vencer") is None or body.get("dias_hilo") is None:
+            return jsonify({"error": "Todos los parámetros de días son obligatorios"}), 400
+        dias_vencida = int(body.get("dias_vencida"))
+        dias_por_vencer = int(body.get("dias_por_vencer"))
+        dias_hilo = int(body.get("dias_hilo"))
+        if dias_vencida < 1:
+            return jsonify({"error": "Los días para carta vencida deben ser mayores o iguales a 1"}), 400
+        if dias_por_vencer < 1:
+            return jsonify({"error": "Los días de alerta preventiva (por vencer) deben ser mayores o iguales a 1"}), 400
+        if dias_hilo < 1:
+            return jsonify({"error": "El plazo para hilos de respuesta debe ser mayor o igual a 1"}), 400
+        if dias_vencida > 99999 or dias_por_vencer > 99999 or dias_hilo > 99999:
+            return jsonify({"error": "El valor de días no puede superar el límite de 99,999 días"}), 400
+        if dias_por_vencer >= dias_vencida:
+            return jsonify({"error": "Los días de alerta preventiva (por vencer) deben ser menores a los días de carta vencida"}), 400
+    except (ValueError, TypeError):
+        return jsonify({"error": "Parámetros de días inválidos. Ingresa números válidos."}), 400
+
+    db = get_db()
+    try:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO configuracion_sistema
+                    (id, nombre_sistema, subtitulo_proyecto, logo_url, favicon_url, dias_vencida, dias_por_vencer, dias_hilo)
+                VALUES (1, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    nombre_sistema=VALUES(nombre_sistema),
+                    subtitulo_proyecto=VALUES(subtitulo_proyecto),
+                    logo_url=VALUES(logo_url),
+                    favicon_url=VALUES(favicon_url),
+                    dias_vencida=VALUES(dias_vencida),
+                    dias_por_vencer=VALUES(dias_por_vencer),
+                    dias_hilo=VALUES(dias_hilo)
+                """,
+                (nombre, subtitulo, logo_url, favicon_url, dias_vencida, dias_por_vencer, dias_hilo),
+            )
+        db.commit()
+    except pymysql.err.DataError:
+        return jsonify({"error": "El valor de días supera el rango permitido de la base de datos (Máx. 99,999 días)"}), 400
+    invalidate_cartas_cache()
+
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        fresh = cur.fetchone()
+
+    return jsonify({"ok": True, "config": fresh, "message": "Configuración guardada correctamente"})
+
+
 @app.route("/api/meta/bandejas")
 @require_auth
 def api_bandejas():
@@ -501,7 +722,8 @@ def api_bandejas():
 @app.route("/api/cartas", methods=["GET"])
 @require_auth
 def api_cartas_list():
-    db = get_db()
+    u = current_user()
+    uid = u.get("id") if u else 0
     bandeja = request.args.get("bandeja")
     estado = request.args.get("estado")
     esp = request.args.get("especialidad")
@@ -510,6 +732,21 @@ def api_cartas_list():
     contraparte = request.args.get("contraparte")
     naturaleza = request.args.get("naturaleza")
     actor = request.args.get("actor")
+
+    has_filters = any(
+        x and x != "all" for x in (bandeja, estado, esp, qtext, deuda, contraparte, naturaleza, actor)
+    )
+    if not has_filters:
+        etag = f'W/"cartas_{_CACHE_VERSION}_{uid}"'
+        if request.headers.get("If-None-Match") == etag:
+            return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
+        rows = scoped_cartas()
+        resp = jsonify(rows)
+        resp.headers["ETag"] = etag
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
+    db = get_db()
     sql = "SELECT * FROM cartas WHERE 1=1"
     params = []
     if bandeja and bandeja != "all":
@@ -529,7 +766,7 @@ def api_cartas_list():
     with db.cursor() as cur:
         cur.execute(sql, params)
         rows = [row_to_dict(r) for r in cur.fetchall()]
-    rows = filter_cartas_for_user(rows, current_user())
+    rows = filter_cartas_for_user(rows, u)
 
     def match_class(c):
         cl = c.get("clasificacion") or {}
@@ -551,8 +788,16 @@ def api_cartas_list():
 @app.route("/api/pendientes", methods=["GET"])
 @require_auth
 def api_pendientes():
+    u = current_user()
+    uid = u.get("id") if u else 0
+    etag = f'W/"pendientes_{_CACHE_VERSION}_{uid}"'
+    if request.headers.get("If-None-Match") == etag:
+        return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
     rows = scoped_cartas()
-    return jsonify(public_pendientes(rows))
+    resp = jsonify(public_pendientes(rows))
+    resp.headers["ETag"] = etag
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
 
 
 @app.route("/api/hilos", methods=["GET"])
@@ -579,7 +824,12 @@ def api_hilos():
         max_dias_i = HILO_OPERATIVO_MAX_DIAS if max_dias_i is None else max_dias_i
     elif foco == "urgentes":
         excluir_legado = True
-        solo_urgentes = True
+    u = current_user()
+    uid = u.get("id") if u else 0
+    etag = f'W/"hilos_{_CACHE_VERSION}_{uid}_{solo}_{deuda}_{excluir_legado}_{solo_urgentes}_{max_dias_i}"'
+    if request.headers.get("If-None-Match") == etag:
+        return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
+
     rows = scoped_cartas()
     payload = list_hilos_api(
         rows,
@@ -589,13 +839,15 @@ def api_hilos():
         max_dias=max_dias_i,
         solo_urgentes=solo_urgentes,
     )
-    u = current_user()
     payload["vista_parcial"] = bool(u and u.get("vista_parcial"))
     payload["scope"] = {
         "rol": (u or {}).get("rol"),
         "especialidades": (u or {}).get("especialidades") or [],
     }
-    return jsonify(payload)
+    resp = jsonify(payload)
+    resp.headers["ETag"] = etag
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
 
 
 @app.route("/api/hilos/rebuild", methods=["POST"])
@@ -613,9 +865,13 @@ def api_hilos_rebuild():
 @app.route("/api/saldos", methods=["GET"])
 @require_auth
 def api_saldos():
+    u = current_user()
+    uid = u.get("id") if u else 0
+    etag = f'W/"saldos_{_CACHE_VERSION}_{uid}"'
+    if request.headers.get("If-None-Match") == etag:
+        return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
     rows = scoped_cartas()
     payload = build_saldos(rows)
-    u = current_user()
     if u and u.get("vista_parcial"):
         payload["vista_parcial"] = True
         payload["excel_paridad_aplica"] = False
@@ -623,7 +879,10 @@ def api_saldos():
             "Vista parcial por especialidad: los totales no deben compararse "
             "con la paridad Excel global (175/228)."
         )
-    return jsonify(payload)
+    resp = jsonify(payload)
+    resp.headers["ETag"] = etag
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
 
 
 @app.route("/api/status/supervision", methods=["GET"])
@@ -649,13 +908,13 @@ def api_cartas_get(cid):
 
 
 @app.route("/api/cartas", methods=["POST"])
-@require_auth
+@require_perm("can_create_cartas")
 def api_cartas_add():
-    db = get_db()
     d = request.get_json(silent=True) or {}
-    if not d.get("n_documento") or not d.get("bandeja"):
-        return jsonify({"error": "n_documento y bandeja son obligatorios"}), 400
-    data = _prepare_carta_payload(d)
+    data, err = _validate_carta_payload(d)
+    if err:
+        return jsonify({"error": err}), 400
+
     u = current_user()
     if u and u.get("vista_parcial"):
         probe = {**data, "clasificacion": classify_carta(data)}
@@ -666,16 +925,23 @@ def api_cartas_add():
                     "especialidades": u.get("especialidades"),
                 }
             ), 403
+
+    db = get_db()
     cerrar_refs = d.get("cerrar_referenciadas", True)
     cols = list(data.keys())
     ph = ", ".join(["%s"] * len(cols))
     sql = f"INSERT INTO cartas ({', '.join(cols)}) VALUES ({ph})"
-    with db.cursor() as cur:
-        cur.execute(sql, [data[k] for k in cols])
-        new_id = cur.lastrowid
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (new_id,))
-        r = cur.fetchone()
-    db.commit()
+    try:
+        with db.cursor() as cur:
+            cur.execute(sql, [data[k] for k in cols])
+            new_id = cur.lastrowid
+            cur.execute("SELECT * FROM cartas WHERE id=%s", (new_id,))
+            r = cur.fetchone()
+        db.commit()
+    except pymysql.err.DataError:
+        return jsonify({"error": "Uno de los campos supera la capacidad de almacenamiento permitida"}), 400
+
+    invalidate_cartas_cache()
     close_info = try_close_referenced_cartas(db, {**data, "id": new_id}, cerrar=bool(cerrar_refs))
     hilos_info = _rebuild_hilos(db)
     out = row_to_dict(r)
@@ -696,24 +962,42 @@ def api_cartas_edit(cid):
         existing = row_to_dict(r)
         if not filter_cartas_for_user([existing], current_user()):
             return jsonify({"error": "Sin acceso a esta carta"}), 403
-        d = request.get_json(silent=True) or {}
+
+    d = request.get_json(silent=True) or {}
+    u = current_user()
+    # Si el usuario es un ingeniero (no tiene can_edit_formal), solo puede actualizar datos operativos
+    if u and not u.get("can_edit_formal"):
+        allowed_ops = {"especialidad", "estado", "referencias", "observacion", "area"}
+        d = {k: v for k, v in d.items() if k in allowed_ops}
         merged = {**existing, **d}
-        data = _prepare_carta_payload(merged)
-        u = current_user()
-        if u and u.get("vista_parcial"):
-            probe = {**data}
-            if not filter_cartas_for_user([probe], u):
-                return jsonify({"error": "No puedes mover la carta fuera de tu especialidad"}), 403
-        cerrar_refs = d.get("cerrar_referenciadas", True)
-        sets = [f"{k}=%s" for k in data.keys()]
-        vals = list(data.values()) + [cid]
-        cur.execute(
-            f"UPDATE cartas SET {', '.join(sets)}, actualizado_en=NOW() WHERE id=%s",
-            vals,
-        )
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
-        r2 = cur.fetchone()
-    db.commit()
+    else:
+        merged = {**existing, **d}
+
+    data, err = _validate_carta_payload(merged)
+    if err:
+        return jsonify({"error": err}), 400
+
+    if u and u.get("vista_parcial"):
+        probe = {**data}
+        if not filter_cartas_for_user([probe], u):
+            return jsonify({"error": "No puedes mover la carta fuera de tu especialidad"}), 403
+
+    cerrar_refs = d.get("cerrar_referenciadas", True)
+    sets = [f"{k}=%s" for k in data.keys()]
+    vals = list(data.values()) + [cid]
+    try:
+        with db.cursor() as cur:
+            cur.execute(
+                f"UPDATE cartas SET {', '.join(sets)}, actualizado_en=NOW() WHERE id=%s",
+                vals,
+            )
+            cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+            r2 = cur.fetchone()
+        db.commit()
+    except pymysql.err.DataError:
+        return jsonify({"error": "Uno de los campos supera la capacidad de almacenamiento permitida"}), 400
+
+    invalidate_cartas_cache()
     close_info = try_close_referenced_cartas(db, {**data, "id": cid}, cerrar=bool(cerrar_refs))
     hilos_info = _rebuild_hilos(db)
     out = row_to_dict(r2)
@@ -723,7 +1007,7 @@ def api_cartas_edit(cid):
 
 
 @app.route("/api/cartas/<int:cid>", methods=["DELETE"])
-@require_auth
+@require_perm("can_delete_cartas")
 def api_cartas_del(cid):
     db = get_db()
     with db.cursor() as cur:
@@ -735,12 +1019,19 @@ def api_cartas_del(cid):
             return jsonify({"error": "Sin acceso a esta carta"}), 403
         cur.execute("DELETE FROM cartas WHERE id=%s", (cid,))
     db.commit()
+    invalidate_cartas_cache()
     return jsonify({"ok": True, "id": cid})
 
 
 @app.route("/api/stats", methods=["GET"])
 @require_auth
 def api_stats():
+    u = current_user()
+    uid = u.get("id") if u else 0
+    etag = f'W/"stats_{_CACHE_VERSION}_{uid}"'
+    if request.headers.get("If-None-Match") == etag:
+        return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
+
     rows = scoped_cartas()
     u = current_user()
 
@@ -759,7 +1050,14 @@ def api_stats():
         if f:
             by_month[f[:7]] = by_month.get(f[:7], 0) + 1
 
-    classified = classify_cartas(rows)
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("SELECT dias_vencida, dias_por_vencer, dias_hilo FROM configuracion_sistema WHERE id=1")
+        cfg_row = cur.fetchone() or {}
+    v_dias = cfg_row.get("dias_vencida") or 15
+    pv_dias = cfg_row.get("dias_por_vencer") or 10
+
+    classified = classify_cartas(rows, vencida_dias=v_dias, por_vencer_dias=pv_dias)
     pendientes = public_pendientes(rows)
     return jsonify(
         {
@@ -771,7 +1069,7 @@ def api_stats():
             "bandejas_meta": BANDEJAS,
             "actores_meta": ACTORES,
             "alertas": classified["counts"],
-            "plazos": plazos_config(),
+            "plazos": plazos_config(v_dias, pv_dias),
             "pendientes": {
                 "counts": pendientes["counts"],
                 "debo_by_actor": pendientes["debo"]["by_actor"],
@@ -823,10 +1121,16 @@ def api_normalize():
     return jsonify(result)
 
 
-def _load_cartas(db):
+def _load_cartas(db=None):
+    global _RAW_CARTAS_CACHE
+    if _RAW_CARTAS_CACHE is not None:
+        return _RAW_CARTAS_CACHE
+    db = db or get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas")
-        return [row_to_dict(r) for r in cur.fetchall()]
+        cur.execute("SELECT * FROM cartas ORDER BY fecha IS NULL, fecha DESC, id DESC")
+        rows = [row_to_dict(r) for r in cur.fetchall()]
+        _RAW_CARTAS_CACHE = rows
+        return rows
 
 
 def _already_sent_today(db, kind: str, payload_hash: str) -> bool:

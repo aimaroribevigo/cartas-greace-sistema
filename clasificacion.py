@@ -205,12 +205,35 @@ def classify_carta(c: dict) -> dict[str, Any]:
     if contraparte_saldo not in ("supervisor", "entidad", "otro", "rl", "residente"):
         contraparte_saldo = "otro"
 
+    # Mapeo oficial de actores documentarios: RO, RL, SUP, PRONIS, MUNI, OTRO
+    actor_short = {
+        "residente": "RO",
+        "rl": "RL",
+        "supervisor": "SUP",
+        "entidad": "PRONIS",
+        "municipalidad": "MUNI",
+        "otro": "OTRO",
+    }
+    if sentido == "emitida":
+        emisor_code = actor_short.get(actor, "RO")
+        dest_code = actor_short.get(contraparte, "SUP")
+    else:
+        emisor_code = actor_short.get(contraparte, "SUP")
+        dest_code = "RO" if actor == "residente" else ("RL" if actor == "rl" else "RO")
+
+    flujo_code = f"{emisor_code}➔{dest_code}"
+    flujo_label = f"{emisor_code} ➔ {dest_code}"
+
     return {
         "actor": actor,
         "actor_label": ACTORES.get(actor, actor),
         "contraparte": contraparte,
         "contraparte_label": ACTORES.get(contraparte, contraparte),
         "contraparte_saldo": contraparte_saldo,
+        "emisor_code": emisor_code,
+        "dest_code": dest_code,
+        "flujo_code": flujo_code,
+        "flujo_label": flujo_label,
         "sentido": sentido,
         "naturaleza": naturaleza,
         "deuda": deuda,
