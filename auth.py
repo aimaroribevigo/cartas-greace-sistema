@@ -8,7 +8,7 @@ import re
 from functools import wraps
 
 from flask import g, jsonify, session
-from normalizers import split_especialidades
+from normalizers import split_especialidades, CATALOGO_ESPECIALIDADES, normalize_especialidad
 from werkzeug.security import check_password_hash, generate_password_hash
 
 AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") in ("1", "true", "True", "yes")
@@ -215,10 +215,13 @@ def user_from_row(r: dict | None) -> dict | None:
         "can_import": rol in ("admin", "residente"),
         "can_notify": rol in ("admin", "residente"),
         "can_manage_users": rol == "admin",
-        "can_create_cartas": rol in ("admin", "residente"),
-        "can_delete_cartas": rol in ("admin", "residente"),
-        "can_edit_formal": rol in ("admin", "residente"),
+        # Todo el ciclo de cartas (crear → respuesta → hilo → cierre) lo maneja solo el admin.
+        "can_create_cartas": rol == "admin",
+        "can_delete_cartas": rol == "admin",
+        "can_edit_formal": rol == "admin",
+        "can_edit_cartas": rol == "admin",
         "vista_parcial": rol == "ingeniero",
+        "solo_lectura_cartas": rol in ("ingeniero", "residente"),
     }
 
 
@@ -318,6 +321,8 @@ def public_user(u: dict | None) -> dict | None:
         "can_create_cartas": u.get("can_create_cartas", False),
         "can_delete_cartas": u.get("can_delete_cartas", False),
         "can_edit_formal": u.get("can_edit_formal", False),
+        "can_edit_cartas": u.get("can_edit_cartas", u.get("can_edit_formal", False)),
+        "solo_lectura_cartas": u.get("solo_lectura_cartas", False),
         "vista_parcial": u.get("vista_parcial", False),
         "auth_required": AUTH_REQUIRED,
     }
@@ -433,6 +438,29 @@ def list_usuarios_public(conn, include_inactive: bool = True) -> list[dict]:
     return out
 
 
+_CATALOGO_ESP_SET = {e.upper() for e in CATALOGO_ESPECIALIDADES}
+
+
+def _sanitize_user_especialidades(esps: list) -> tuple[list[str], str | None]:
+    """Normaliza y valida especialidades contra el catálogo oficial."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for e in esps or []:
+        raw = str(e).strip()
+        if not raw:
+            continue
+        norm = normalize_especialidad(raw)
+        if norm in ("SIN ESPECIALIDAD", "MIXTA", ""):
+            return [], f"Especialidad no válida: {raw}"
+        canon = next((c for c in CATALOGO_ESPECIALIDADES if c.upper() == norm.upper()), None)
+        if not canon:
+            return [], f"Especialidad fuera del catálogo: {raw}"
+        if canon not in seen:
+            seen.add(canon)
+            out.append(canon)
+    return out, None
+
+
 def create_usuario(
     conn,
     *,
@@ -462,6 +490,9 @@ def create_usuario(
         return None, err_p
 
     esps = especialidades or []
+    esps, err_e = _sanitize_user_especialidades(esps)
+    if err_e:
+        return None, err_e
     if any(len(str(e).strip()) > 80 for e in esps):
         return None, "Cada especialidad no puede superar los 80 caracteres"
     if len(json.dumps(esps, ensure_ascii=False)) > 1500:
@@ -527,7 +558,9 @@ def update_usuario(
         return None, f"Rol inválido. Use: {', '.join(VALID_ROLES)}"
 
     if especialidades is not None:
-        esps = especialidades
+        esps, err_e = _sanitize_user_especialidades(especialidades)
+        if err_e:
+            return None, err_e
     else:
         esps = _parse_esps(row.get("especialidades_json"))
 

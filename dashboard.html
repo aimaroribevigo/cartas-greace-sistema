@@ -34,7 +34,25 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .app-layout{display:flex;min-height:100vh;background:var(--bg);position:relative}
 
 /* Sidebar Navigation */
-.app-sidebar{width:250px;flex-shrink:0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;background:#FFFFFF;border-right:1px solid var(--border);z-index:120;box-shadow:1px 0 3px rgba(0,0,0,0.02);transition:transform .25s cubic-bezier(0.4,0,0.2,1)}
+.app-sidebar{width:250px;flex-shrink:0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;background:#FFFFFF;border-right:1px solid var(--border);z-index:120;box-shadow:1px 0 3px rgba(0,0,0,0.02);transition:width .22s cubic-bezier(0.4,0,0.2,1),transform .22s cubic-bezier(0.4,0,0.2,1)}
+@media(min-width:993px){
+  .app-sidebar.collapsed{width:68px!important;min-width:68px!important}
+  .app-sidebar.collapsed .sidebar-header{padding:0 12px;justify-content:center}
+  .app-sidebar.collapsed .app-brand{justify-content:center;gap:0}
+  .app-sidebar.collapsed .app-brand-text{display:none!important}
+  .app-sidebar.collapsed .sidebar-section-title{opacity:0;height:4px;padding:0;margin:6px 0;overflow:hidden}
+  .app-sidebar.collapsed .sidebar-nav{padding:0 8px;align-items:center}
+  .app-sidebar.collapsed .view-tab{width:46px;height:42px;padding:0;justify-content:center;align-items:center;border-radius:9px}
+  .app-sidebar.collapsed .view-tab .tab-label{display:none!important}
+  .app-sidebar.collapsed .view-tab i{font-size:19px;margin:0}
+  .app-sidebar.collapsed .sidebar-user{margin:8px 6px;padding:10px 4px;align-items:center}
+  .app-sidebar.collapsed .sidebar-user-top{justify-content:center}
+  .app-sidebar.collapsed .sidebar-user-top .user-info{display:none!important}
+  .app-sidebar.collapsed .sidebar-user-actions{flex-direction:column;gap:6px;width:100%;align-items:center}
+  .app-sidebar.collapsed .btn-user-action{width:36px;height:30px;padding:0;flex:none;justify-content:center}
+  .app-sidebar.collapsed .btn-user-action span{display:none!important}
+  .app-sidebar.collapsed .btn-user-action i{font-size:15px;margin:0}
+}
 .sidebar-header{height:var(--header-height);min-height:var(--header-height);box-sizing:border-box;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:#FFFFFF}
 .app-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
 .app-brand-logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#E0785C);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(196,91,62,0.32);flex-shrink:0}
@@ -70,11 +88,12 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .btn-logout:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 
 /* Main Content Area */
-.app-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+.app-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);transition:all .25s ease}
 .app-header{position:sticky;top:0;z-index:110;background:#FFFFFF;border-bottom:1px solid var(--border);padding:0 32px;height:var(--header-height);min-height:var(--header-height);box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 1px 2px rgba(0,0,0,0.02);transition:all .2s ease}
 .app-header-left{display:flex;align-items:center;gap:12px;min-width:0}
-.btn-sidebar-toggle{display:none;background:var(--bg-card);border:1px solid var(--border);font-size:18px;color:var(--text-secondary);cursor:pointer;padding:6px 9px;border-radius:8px;box-shadow:var(--shadow-sm)}
+.btn-sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;background:var(--bg-card);border:1px solid var(--border);font-size:18px;color:var(--text-secondary);cursor:pointer;padding:6px 9px;border-radius:8px;box-shadow:var(--shadow-sm);transition:all .15s ease}
 .btn-sidebar-toggle:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent)}
+.btn-sidebar-toggle:active{transform:scale(0.96)}
 .header-view-info{display:flex;flex-direction:column;gap:2px;min-width:0}
 .header-view-title{font-family:var(--font-display);font-size:20px;font-weight:400;color:var(--text-primary);line-height:1.2;margin:0;letter-spacing:-0.01em}
 .header-view-sub{font-size:12px;color:var(--text-secondary);line-height:1.3;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:600px}
@@ -196,6 +215,17 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 .pend-card .big{font-size:36px;font-weight:700;line-height:1;margin-bottom:12px}
 .pend-card.debo .big{color:var(--rose)}
 .pend-card.me_deben .big{color:#8A6A20}
+.pend-oper-table{font-size:12px;min-width:960px}
+.pend-oper-table th{white-space:nowrap;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
+.pend-oper-table td{vertical-align:top;padding:8px 10px}
+.pend-oper-table .cell-doc{font-weight:600;max-width:180px}
+.pend-oper-table .cell-asunto{max-width:240px;font-size:11.5px;line-height:1.35}
+.pend-plazo-badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.pend-plazo-badge.vencida{background:var(--rose-light);color:var(--rose)}
+.pend-plazo-badge.hoy{background:var(--amber-light);color:#8A6A20}
+.pend-plazo-badge.ok{background:var(--sage-light);color:var(--sage)}
+.pend-plazo-badge.sin_fecha,.pend-plazo-badge.sin_plazo{background:#F0EEEA;color:var(--text-muted)}
+.pend-reglas-note{font-size:11px;color:var(--text-muted);margin:0 0 10px;line-height:1.45}
 .pend-actor-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:0}
 .pend-actor-chip{border:1px solid var(--border);background:#FAFAF8;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;display:inline-flex;flex-direction:column;gap:2px;min-width:0}
 .pend-actor-chip.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
@@ -683,27 +713,27 @@ body.app-locked .app-layout{visibility:hidden}
 
     <div class="sidebar-section-title">Panel de Control</div>
     <nav class="sidebar-nav" aria-label="Vistas del panel">
-      <button type="button" class="view-tab active" data-view="reportes">
+      <button type="button" class="view-tab active" data-view="reportes" title="Reportes">
         <i class="ri-bar-chart-box-line"></i>
         <span class="tab-label">Reportes</span>
       </button>
-      <button type="button" class="view-tab" data-view="pendientes">
+      <button type="button" class="view-tab" data-view="pendientes" title="Pendientes">
         <i class="ri-exchange-funds-line"></i>
         <span class="tab-label">Pendientes</span>
       </button>
-      <button type="button" class="view-tab" data-view="saldos">
+      <button type="button" class="view-tab" data-view="saldos" title="Resumen de Saldos">
         <i class="ri-scales-3-line"></i>
         <span class="tab-label">Resumen Saldos</span>
       </button>
-      <button type="button" class="view-tab" data-view="cartas">
+      <button type="button" class="view-tab" data-view="cartas" title="Cartas">
         <i class="ri-mail-line"></i>
         <span class="tab-label">Cartas</span>
       </button>
-      <button type="button" class="view-tab" data-view="usuarios" id="tabUsuarios" style="display:none">
+      <button type="button" class="view-tab" data-view="usuarios" id="tabUsuarios" style="display:none" title="Usuarios">
         <i class="ri-user-settings-line"></i>
         <span class="tab-label">Usuarios</span>
       </button>
-      <button type="button" class="view-tab" data-view="configuracion" id="tabConfiguracion" style="display:none">
+      <button type="button" class="view-tab" data-view="configuracion" id="tabConfiguracion" style="display:none" title="Configuración">
         <i class="ri-settings-4-line"></i>
         <span class="tab-label">Configuración</span>
       </button>
@@ -739,7 +769,7 @@ body.app-locked .app-layout{visibility:hidden}
     <!-- Top Content Header -->
     <header class="app-header">
       <div class="app-header-left">
-        <button type="button" class="btn-sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">
+        <button type="button" class="btn-sidebar-toggle" id="btnSidebarToggle" aria-label="Alternar menú lateral" title="Ocultar / Mostrar menú lateral">
           <i class="ri-menu-line"></i>
         </button>
         <div class="header-view-info">
@@ -826,8 +856,9 @@ body.app-locked .app-layout{visibility:hidden}
         <select class="filter-select" id="filterContraparte" aria-label="Contraparte">
           <option value="all">Toda contraparte</option>
           <option value="supervisor">Supervisión</option>
-          <option value="entidad">Entidad</option>
+          <option value="entidad">PRONIS</option>
           <option value="municipalidad">Municipalidad</option>
+          <option value="jrd">Junta Resol. Disputas</option>
           <option value="otro">Otro</option>
           <option value="rl">Representante Legal</option>
           <option value="residente">Residente</option>
@@ -883,13 +914,13 @@ body.app-locked .app-layout{visibility:hidden}
   <div class="pend-grid">
     <div class="pend-card debo">
       <h3>Yo debo responder</h3>
-      <p class="hint">Te escribieron (recibidas abiertas). Aún no contestas. Excluye traslados. Clic en contraparte → detalle abajo.</p>
+      <p class="hint">Cartas recibidas abiertas de Supervisión, PRONIS, Municipalidad o JRD. Al responder (emitir carta con antecedentes o marcar CERRADO), salen de esta lista.</p>
       <div class="big" id="pendDeboCount">0</div>
       <div class="pend-actor-row" id="pendDeboActors"></div>
     </div>
     <div class="pend-card me_deben">
       <h3>Me deben respuesta</h3>
-      <p class="hint">Tú (o RL) emitiste y la contraparte aún no responde. Excluye traslados. Clic en contraparte → detalle abajo.</p>
+      <p class="hint">Cartas emitidas abiertas hacia las 4 contrapartes. Sup. 5 hábiles; si traslada a Entidad, 15 días calendario desde la fecha de traslado.</p>
       <div class="big" id="pendMeDebenCount">0</div>
       <div class="pend-actor-row" id="pendMeDebenActors"></div>
     </div>
@@ -898,16 +929,31 @@ body.app-locked .app-layout{visibility:hidden}
     <div class="pend-detail-toolbar">
       <div>
         <h3>Detalle operativo</h3>
-        <p>Matriz por especialidad, hilos de trámite (5 días) y enlace a Cartas. Estos controles aplican solo a esta sección.</p>
+        <p>Lista operativa (primera tabla), matriz por especialidad e hilos. Use <strong>Respondidos</strong> para trámites ya cerrados.</p>
       </div>
       <div class="pend-mode" id="pendMode">
         <button type="button" class="active" data-mode="debo">Yo debo</button>
         <button type="button" data-mode="me_deben">Me deben</button>
+        <button type="button" data-mode="respondidos">Respondidos</button>
         <button type="button" data-mode="comunicacion">Traslados</button>
       </div>
     </div>
     <div class="pend-detail-stack">
-      <div class="table-card">
+      <div class="table-card" id="pendOperBlock">
+        <div class="table-card-body">
+          <div class="pend-matrix-head">
+            <h4 id="pendOperTitle">Listado operativo — Yo debo responder</h4>
+            <p class="pend-reglas-note" id="pendOperSub">Solo cartas abiertas. Al emitir respuesta con antecedentes o marcar CERRADO, desaparecen de aquí.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="pend-matrix pend-oper-table" id="pendOperTable">
+            <thead id="pendOperHead"></thead>
+            <tbody id="pendOperBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="table-card" id="pendMatrixBlock">
         <div class="table-card-body">
           <div class="pend-matrix-head">
             <h4 id="pendMatrixTitle">Yo debo responder — especialidad × contraparte</h4>
@@ -1161,25 +1207,66 @@ body.app-locked .app-layout{visibility:hidden}
           </div>
         </div>
 
-        <!-- SECCIÓN 3: Plazos y Semáforos Operativos -->
+        <!-- SECCIÓN 3: Plazos contractuales y SLA unificado -->
         <div class="user-sec" style="background:#FFFFFF;margin-bottom:0">
-          <div class="user-sec-title"><i class="ri-alarm-warning-line"></i> Parámetros de Plazos y Semáforos (SLA)</div>
-          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr))">
+          <div class="user-sec-title"><i class="ri-timer-line"></i> Plazos contractuales y semáforos (SLA unificado)</div>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 14px;line-height:1.45">
+            Una sola fuente de verdad: los plazos por contraparte alimentan <strong>Pendientes</strong>, <strong>Hilos (FK)</strong> y los umbrales de semáforo.
+            Supervisión responde en días <strong>hábiles</strong>; Entidad/Municipalidad/JRD en días <strong>calendario</strong> (tras traslado, registre la fecha en la carta emitida).
+          </p>
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">Me deben — plazo por contraparte</div>
+          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));margin-bottom:16px">
             <div class="form-group">
-              <label>Días para Carta Vencida</label>
-              <input type="number" id="cfg_dias_vencida" min="1" max="99999" value="15" required style="font-weight:700">
-              <span style="font-size:11px;color:var(--rose);margin-top:3px">🔴 Alerta roja (≥ días)</span>
+              <label>Supervisión (hábiles)</label>
+              <input type="number" id="cfg_plazo_sup_dias" min="1" max="99999" value="5" required style="font-weight:700">
             </div>
             <div class="form-group">
-              <label>Días para Por Vencer</label>
-              <input type="number" id="cfg_dias_por_vencer" min="1" max="99999" value="10" required style="font-weight:700">
-              <span style="font-size:11px;color:#8A6A20;margin-top:3px">🟡 Alerta preventiva (≥ días)</span>
+              <label>Entidad PRONIS (calendario)</label>
+              <input type="number" id="cfg_plazo_entidad_dias" min="1" max="99999" value="15" required style="font-weight:700">
             </div>
             <div class="form-group">
-              <label>Plazo Hilos de Respuesta</label>
-              <input type="number" id="cfg_dias_hilo" min="1" max="99999" value="5" required style="font-weight:700">
-              <span style="font-size:11px;color:var(--teal);margin-top:3px">⏱️ Límite contractual (días)</span>
+              <label>Municipalidad (calendario)</label>
+              <input type="number" id="cfg_plazo_muni_dias" min="1" max="99999" value="15" required style="font-weight:700">
             </div>
+            <div class="form-group">
+              <label>Junta Disputas (calendario)</label>
+              <input type="number" id="cfg_plazo_jrd_dias" min="1" max="99999" value="15" required style="font-weight:700">
+            </div>
+          </div>
+          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));margin-bottom:16px">
+            <div class="form-group">
+              <label>Yo debo responder (hábiles)</label>
+              <input type="number" id="cfg_plazo_ro_dias" min="1" max="99999" value="5" required style="font-weight:700">
+              <span style="font-size:10px;color:var(--text-muted)">Plazo interno al recibir carta · define también el reloj de Hilos FK</span>
+            </div>
+            <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
+              <div id="cfgPlazoHiloPreview" style="font-size:11px;background:#EEF6FF;border:1px solid #B8D4F0;color:#1A4A7A;padding:8px 10px;border-radius:6px;line-height:1.45">
+                Hilos FK: <strong>5 días hábiles</strong> (sincronizado con «Yo debo»)
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="cfg_dias_hilo" value="5">
+          <div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+              <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em">Semáforos — vista Cartas y alertas</div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:11.5px;cursor:pointer;margin:0">
+                <input type="checkbox" id="cfg_sync_semaforos" checked style="width:16px;height:16px">
+                Sincronizar automáticamente con plazos contractuales
+              </label>
+            </div>
+            <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr))">
+              <div class="form-group">
+                <label>Días para Carta Vencida</label>
+                <input type="number" id="cfg_dias_vencida" min="1" max="99999" value="15" required style="font-weight:700">
+                <span style="font-size:11px;color:var(--rose);margin-top:3px">Alerta roja (≥ días abiertos)</span>
+              </div>
+              <div class="form-group">
+                <label>Días para Por Vencer</label>
+                <input type="number" id="cfg_dias_por_vencer" min="1" max="99999" value="10" required style="font-weight:700">
+                <span style="font-size:11px;color:#8A6A20;margin-top:3px">Alerta preventiva (≥ días abiertos)</span>
+              </div>
+            </div>
+            <div id="cfgSemSyncHint" style="font-size:10.5px;color:var(--text-muted);margin-top:6px;line-height:1.45"></div>
           </div>
         </div>
 
@@ -1307,53 +1394,31 @@ body.app-locked .app-layout{visibility:hidden}
 
         <!-- Sección 2: Especialidad y Estado (Operativo) -->
         <div class="user-sec">
-          <div class="user-sec-title"><i class="ri-tools-line"></i> Especialidad Técnica y Estado</div>
+          <div class="user-sec-title"><i class="ri-tools-line"></i> Especialidad Técnica y Asignación</div>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.45">
+            <strong>Operación (solo Admin):</strong> crea la carta inicial → asigna especialidad/especialista → cuando llega la respuesta en persona, crea <em>otra carta</em> citando antecedentes (mismo hilo) → al cerrar, se cierra el trámite completo.
+          </p>
           <div class="form-grid">
             <div class="form-group">
               <label>Estado de Gestión</label>
               <select id="f_estado" style="font-weight:600"></select>
             </div>
             <div class="form-group">
-              <label>Especialidad Técnica <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(tema del documento)</span></label>
-              <input type="text" id="f_especialidad" maxlength="150" placeholder="Ej: PINTURAS, ESTRUCTURAS, ARQUITECTURA…" autocomplete="off">
-            </div>
-          </div>
-          <div style="margin-top:10px">
-            <span style="font-size:11px;color:var(--text-muted)">Especialidades comunes (clic para autocompletar):</span>
-            <div class="esp-chip-picker" id="cartaEspChipPicker">
-              <button type="button" class="esp-chip-btn" data-esp="ESTRUCTURAS">+ ESTRUCTURAS</button>
-              <button type="button" class="esp-chip-btn" data-esp="ARQUITECTURA">+ ARQUITECTURA</button>
-              <button type="button" class="esp-chip-btn" data-esp="INSTALACIONES SANITARIAS">+ SANITARIAS</button>
-              <button type="button" class="esp-chip-btn" data-esp="INSTALACIONES ELECTRICAS">+ ELÉCTRICAS</button>
-              <button type="button" class="esp-chip-btn" data-esp="CALIDAD">+ CALIDAD</button>
-              <button type="button" class="esp-chip-btn" data-esp="SSOMA">+ SSOMA</button>
-              <button type="button" class="esp-chip-btn" data-esp="BIM">+ BIM</button>
-              <button type="button" class="esp-chip-btn" data-esp="EQUIPAMIENTO">+ EQUIPAMIENTO</button>
-              <button type="button" class="esp-chip-btn" data-esp="GEOTECNIA">+ GEOTECNIA</button>
-              <button type="button" class="esp-chip-btn" data-esp="TOPOGRAFIA">+ TOPOGRAFÍA</button>
+              <label>Especialidad Técnica <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(tema del documento)</span></label>
+              <select id="f_especialidad" required style="font-weight:600">
+                <option value="">— Seleccione especialidad —</option>
+              </select>
             </div>
           </div>
           <div class="form-group full-width" id="f_area_wrap" style="margin-top:12px">
-            <label id="f_area_label">Especialista Responsable <span class="req" id="f_area_req" style="display:none">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Quién dentro del equipo de campo debe responder)</span></label>
-            <input type="text" id="f_area" maxlength="150" placeholder="Ej: Especialista de Arquitectura, Especialista de Sanitarias, Oficina Técnica…" autocomplete="off">
+            <label id="f_area_label">Especialista Responsable <span class="req" id="f_area_req" style="display:none">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Admin asigna al ingeniero que elabora la respuesta)</span></label>
+            <select id="f_area" style="font-weight:600">
+              <option value="">— Seleccione especialista —</option>
+            </select>
             <div id="f_area_hint_out" style="display:none;font-size:11.5px;color:var(--text-muted);margin-top:4px;background:#F8F7F4;padding:6px 10px;border-radius:6px;border:1px dashed #E8E4DC">
-              📤 <em>Documento emitido hacia afuera: La respuesta formal le corresponde a la entidad externa destinataria (Supervisión / Entidad).</em>
+              Documento emitido hacia afuera: la respuesta formal corresponde a la entidad externa (Supervisión / PRONIS / Municipalidad).
             </div>
-            <div class="esp-chip-picker" id="areaRespChipPicker" style="margin-top:6px">
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ARQUITECTURA">+ ESP. ARQUITECTURA</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA SANITARIAS">+ ESP. SANITARIAS</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ESTRUCTURAS">+ ESP. ESTRUCTURAS</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ELECTRICAS">+ ESP. ELÉCTRICAS</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA GEOTECNIA">+ ESP. GEOTECNIA</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA ADM. CONTRATOS">+ ADM. CONTRATOS</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA COSTOS">+ COSTOS</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA BIM">+ BIM</button>
-              <button type="button" class="esp-chip-btn" data-area="ESPECIALISTA CAMPO">+ ESP. CAMPO</button>
-              <button type="button" class="esp-chip-btn" data-area="OFICINA TECNICA">+ OFICINA TÉCNICA</button>
-              <button type="button" class="esp-chip-btn" data-area="RESIDENCIA">+ RESIDENCIA</button>
-              <button type="button" class="esp-chip-btn" data-area="EQUIPAMIENTO">+ EQUIPAMIENTO</button>
-              <button type="button" class="esp-chip-btn" data-area="SSOMA / CALIDAD">+ SSOMA / CALIDAD</button>
-            </div>
+            <div id="f_area_suggest_hint" style="display:none;font-size:11px;color:var(--teal);margin-top:6px;line-height:1.4"></div>
           </div>
         </div>
 
@@ -1408,8 +1473,8 @@ body.app-locked .app-layout{visibility:hidden}
           </div>
           <div class="user-toggle-box" style="margin-top:14px">
             <div class="user-toggle-info">
-              <span class="user-toggle-title">Cierre inteligente de antecedentes citados</span>
-              <span class="user-toggle-sub">Si esta carta concluye el trámite (CERRADO / ABSUELTO), marcará como CERRADO las cartas antecedentes citadas que continúen abiertas.</span>
+              <span class="user-toggle-title">Cierre inteligente del hilo de trámite</span>
+              <span class="user-toggle-sub">Flujo admin: crea la carta → cuando llega la respuesta en persona, crea <em>otra carta</em> citando antecedentes (queda en el mismo hilo) → al marcar <strong>CERRADO</strong> o <strong>ABSUELTO</strong> se cierra de golpe todo el hilo. En respuestas intermedias solo cierra los antecedentes citados.</span>
             </div>
             <input type="checkbox" id="f_cerrar_referenciadas" checked>
           </div>
@@ -1462,26 +1527,20 @@ body.app-locked .app-layout{visibility:hidden}
           <div class="form-group">
             <label>Rol asignado <span class="req">*</span></label>
             <select id="uf_rol" style="font-weight:600">
-              <option value="ingeniero">👷 Ingeniero Especialista (acceso a sus especialidades)</option>
-              <option value="residente">📋 Residente de Obra (todas las especialidades y registro)</option>
-              <option value="admin">🔑 Administrador (control total, usuarios e importación)</option>
+              <option value="ingeniero">👷 Ingeniero Especialista (solo lectura de sus especialidades)</option>
+              <option value="residente">📋 Residente de Obra (consulta todas las cartas; no registra)</option>
+              <option value="admin">🔑 Administrador (único que crea, edita, responde y cierra hilos)</option>
             </select>
             <div class="user-role-desc" id="uf_rolDesc"></div>
           </div>
 
           <div class="form-group" id="uf_espsWrap" style="margin-top:12px">
             <label>Especialidades asignadas <span class="req">*</span></label>
-            <input type="text" id="uf_esps" maxlength="500" placeholder="Ej: ESTRUCTURAS, BIM, ARQUITECTURA">
-            <span style="font-size:11px;color:var(--text-muted);margin-top:4px">Haz clic en una especialidad común para agregarla rápidamente:</span>
-            <div class="esp-chip-picker" id="espChipPicker">
-              <button type="button" class="esp-chip-btn" data-esp="ESTRUCTURAS">+ ESTRUCTURAS</button>
-              <button type="button" class="esp-chip-btn" data-esp="ARQUITECTURA">+ ARQUITECTURA</button>
-              <button type="button" class="esp-chip-btn" data-esp="INSTALACIONES SANITARIAS">+ SANITARIAS</button>
-              <button type="button" class="esp-chip-btn" data-esp="INSTALACIONES ELECTRICAS">+ ELÉCTRICAS</button>
-              <button type="button" class="esp-chip-btn" data-esp="BIM">+ BIM</button>
-              <button type="button" class="esp-chip-btn" data-esp="MECANICA">+ MECÁNICA</button>
-              <button type="button" class="esp-chip-btn" data-esp="EQUIPAMIENTO">+ EQUIPAMIENTO</button>
-            </div>
+            <select id="uf_esps" multiple size="10" style="font-weight:600;width:100%;min-height:168px;padding:8px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            </select>
+            <span style="font-size:11px;color:var(--text-muted);margin-top:6px;display:block;line-height:1.45">
+              Catálogo oficial del proyecto. Use <strong>Ctrl+clic</strong> (o Cmd+clic en Mac) para asignar más de una especialidad al ingeniero.
+            </span>
           </div>
         </div>
 
@@ -1571,7 +1630,8 @@ body.app-locked .app-layout{visibility:hidden}
 <script>
 
 const OPEN_STATES=new Set(['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','SIN RESPUESTA','REINGRESO']);
-let VENCIDA_DIAS=15,POR_VENCER_DIAS=10;
+const CLOSED_PEND_STATES=new Set(['CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD']);
+let VENCIDA_DIAS=15,POR_VENCER_DIAS=10,HILO_PLAZO_DIAS=5;
 const PAGE_SIZE=20,DRAFT_KEY='sistemagreace_nueva_carta_draft';
 const FORM_FIELDS=['bandeja','fecha','n_documento','referencia','asunto','especialidad','estado','referencias','folios','cd','dirigido_a','receptor','cargo','observacion','area'];
 const ESTADO_OPTS=['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','SIN RESPUESTA','REINGRESO','CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','ANULADA','PARA CONOCIMIENTO'];
@@ -1656,15 +1716,17 @@ function userPerm(user,key){
   if(!user)return false;
   if(user[key]!=null)return!!user[key];
   const rol=String(user.rol||'').toLowerCase();
-  const byRol={
-    can_create_cartas:rol==='admin'||rol==='residente',
-    can_delete_cartas:rol==='admin'||rol==='residente',
-    can_edit_formal:rol==='admin'||rol==='residente',
+    const byRol={
+    can_create_cartas:rol==='admin',
+    can_delete_cartas:rol==='admin',
+    can_edit_formal:rol==='admin',
+    can_edit_cartas:rol==='admin',
     can_import:rol==='admin'||rol==='residente',
     can_notify:rol==='admin'||rol==='residente',
     can_manage_users:rol==='admin',
     can_see_all:rol==='admin'||rol==='residente',
-    vista_parcial:rol==='ingeniero'
+    vista_parcial:rol==='ingeniero',
+    solo_lectura_cartas:rol==='ingeniero'||rol==='residente'
   };
   return byRol[key]??false;
 }
@@ -1674,11 +1736,13 @@ function applyUserChrome(user){
     can_create_cartas:userPerm(user,'can_create_cartas'),
     can_delete_cartas:userPerm(user,'can_delete_cartas'),
     can_edit_formal:userPerm(user,'can_edit_formal'),
+    can_edit_cartas:userPerm(user,'can_edit_cartas'),
     can_import:userPerm(user,'can_import'),
     can_notify:userPerm(user,'can_notify'),
     can_manage_users:userPerm(user,'can_manage_users'),
     can_see_all:userPerm(user,'can_see_all'),
-    vista_parcial:userPerm(user,'vista_parcial')
+    vista_parcial:userPerm(user,'vista_parcial'),
+    solo_lectura_cartas:userPerm(user,'solo_lectura_cartas')
   }:null;
   const chip=document.getElementById('userChip');
   const ban=document.getElementById('scopeBanner');
@@ -1718,7 +1782,11 @@ function applyUserChrome(user){
   if(user.vista_parcial){
     ban.style.display='block';
     document.getElementById('scopeBannerText').textContent=
-      `Vista parcial: solo especialidad(es) ${(user.especialidades||[]).join(', ')||'—'}. Los saldos globales Excel (175/228) no aplican aquí.`;
+      `Solo lectura · especialidad(es) ${(user.especialidades||[]).join(', ')||'—'}. El Administrador registra cartas, respuestas (hilos) y cierres.`;
+  }else if(user.solo_lectura_cartas && !user.can_create_cartas){
+    ban.style.display='block';
+    document.getElementById('scopeBannerText').textContent=
+      'Modo consulta: puede ver todas las cartas. Crear, editar, responder (hilo) y borrar lo gestiona únicamente el Administrador.';
   }else{
     ban.style.display='none';
   }
@@ -1753,8 +1821,187 @@ async function ensureSession(){
   hidePwdGate();
   return true;
 }
-const ACTOR_ORDER=['supervisor','entidad','municipalidad','otro','rl','residente'];
-const ACTOR_LABELS={residente:'Residente',supervisor:'Supervisión',rl:'Representante Legal',entidad:'Entidad',municipalidad:'Municipalidad',otro:'Otro'};
+const PEND_CONTRAPARTES=['supervisor','entidad','municipalidad','jrd'];
+const ACTOR_ORDER=['supervisor','entidad','municipalidad','jrd','otro','rl','residente'];
+const ACTOR_LABELS={
+  supervisor:'Supervisión',
+  entidad:'PRONIS',
+  municipalidad:'Municipalidad',
+  jrd:'Junta Resol. Disputas',
+  rl:'Representante Legal',
+  residente:'Residente',
+  otro:'Otro'
+};
+function isPendContraparte(cl){
+  return PEND_CONTRAPARTES.includes(cl&&cl.contraparte);
+}
+let PLAZO_RESPUESTA={
+  supervisor:{dias:5,habiles:true,label:'5 días hábiles'},
+  entidad:{dias:15,habiles:false,label:'15 días calendario'},
+  municipalidad:{dias:15,habiles:false,label:'15 días calendario'},
+  jrd:{dias:15,habiles:false,label:'15 días calendario'},
+  otro:{dias:15,habiles:false,label:'15 días calendario'},
+  rl:{dias:5,habiles:true,label:'5 días hábiles'},
+  residente:{dias:5,habiles:true,label:'5 días hábiles'}
+};
+function plazoLabel(dias,habiles){
+  return `${dias} días ${habiles?'hábiles':'calendario'}`;
+}
+function applyPlazoContractualConfig(cfg){
+  if(!cfg)return;
+  const ro=parseInt(cfg.plazo_ro_dias,10)||5;
+  const sup=parseInt(cfg.plazo_sup_dias,10)||5;
+  const ent=parseInt(cfg.plazo_entidad_dias,10)||15;
+  const muni=parseInt(cfg.plazo_muni_dias,10)||15;
+  const jrd=parseInt(cfg.plazo_jrd_dias,10)||15;
+  PLAZO_RESPUESTA={
+    supervisor:{dias:sup,habiles:true,label:plazoLabel(sup,true)},
+    entidad:{dias:ent,habiles:false,label:plazoLabel(ent,false)},
+    municipalidad:{dias:muni,habiles:false,label:plazoLabel(muni,false)},
+    jrd:{dias:jrd,habiles:false,label:plazoLabel(jrd,false)},
+    otro:{dias:ent,habiles:false,label:plazoLabel(ent,false)},
+    rl:{dias:ro,habiles:true,label:plazoLabel(ro,true)},
+    residente:{dias:ro,habiles:true,label:plazoLabel(ro,true)}
+  };
+  if(typeof HILO_PLAZO_DIAS!=='undefined')HILO_PLAZO_DIAS=ro;
+  const hintDebo=document.querySelector('.pend-card.debo .hint');
+  const hintMe=document.querySelector('.pend-card.me_deben .hint');
+  if(hintDebo)hintDebo.textContent=`Recibidas abiertas de las 4 contrapartes. Plazo interno: ${ro} días hábiles. Cierre al responder.`;
+  if(hintMe)hintMe.textContent=`Emitidas abiertas hacia las 4 contrapartes. Sup. ${sup} hábiles; Entidad ${ent} calendario tras traslado.`;
+}
+function computeDerivedPlazosFromContractual(){
+  const ro=parseInt(document.getElementById('cfg_plazo_ro_dias')?.value,10)||5;
+  const sup=parseInt(document.getElementById('cfg_plazo_sup_dias')?.value,10)||5;
+  const ent=parseInt(document.getElementById('cfg_plazo_entidad_dias')?.value,10)||15;
+  const muni=parseInt(document.getElementById('cfg_plazo_muni_dias')?.value,10)||15;
+  const jrd=parseInt(document.getElementById('cfg_plazo_jrd_dias')?.value,10)||15;
+  const maxCal=Math.max(ent,muni,jrd);
+  const maxHab=Math.max(ro,sup);
+  return{
+    dias_hilo:ro,
+    dias_vencida:Math.max(maxCal,maxHab),
+    dias_por_vencer:Math.max(1,Math.min(ro,sup)-2)
+  };
+}
+function syncUnifiedPlazoUI(){
+  const derived=computeDerivedPlazosFromContractual();
+  const hiloEl=document.getElementById('cfg_dias_hilo');
+  if(hiloEl)hiloEl.value=derived.dias_hilo;
+  const prev=document.getElementById('cfgPlazoHiloPreview');
+  if(prev)prev.innerHTML=`Hilos FK: <strong>${derived.dias_hilo} días hábiles</strong> (sincronizado con «Yo debo»)`;
+  const syncOn=document.getElementById('cfg_sync_semaforos')?.checked!==false;
+  const vencEl=document.getElementById('cfg_dias_vencida');
+  const riesgoEl=document.getElementById('cfg_dias_por_vencer');
+  const hint=document.getElementById('cfgSemSyncHint');
+  if(syncOn){
+    if(vencEl){vencEl.value=derived.dias_vencida;vencEl.readOnly=true;vencEl.style.opacity='0.85';}
+    if(riesgoEl){riesgoEl.value=derived.dias_por_vencer;riesgoEl.readOnly=true;riesgoEl.style.opacity='0.85';}
+    if(hint)hint.textContent=`Calculado: vencida = max(plazos contractuales) = ${derived.dias_vencida}d · por vencer = min(hábiles)−2 = ${derived.dias_por_vencer}d`;
+  }else{
+    if(vencEl){vencEl.readOnly=false;vencEl.style.opacity='1';}
+    if(riesgoEl){riesgoEl.readOnly=false;riesgoEl.style.opacity='1';}
+    if(hint)hint.textContent='Modo manual: los semáforos no se recalculan al cambiar plazos contractuales.';
+  }
+  applyPlazoContractualConfig({
+    plazo_ro_dias:derived.dias_hilo,
+    plazo_sup_dias:parseInt(document.getElementById('cfg_plazo_sup_dias')?.value,10)||5,
+    plazo_entidad_dias:parseInt(document.getElementById('cfg_plazo_entidad_dias')?.value,10)||15,
+    plazo_muni_dias:parseInt(document.getElementById('cfg_plazo_muni_dias')?.value,10)||15,
+    plazo_jrd_dias:parseInt(document.getElementById('cfg_plazo_jrd_dias')?.value,10)||15
+  });
+  checkConfigChanges();
+}
+function inferContraparteHistorica(c){
+  const ban=String(c.bandeja||'');
+  if(ban==='recibida_sup')return'supervisor';
+  if(ban==='recibida_pronis')return'entidad';
+  if(ban==='recibida_mpsc')return'municipalidad';
+  return classif(c).contraparte;
+}
+function cartaEraPendienteDebo(c){
+  const ban=String(c.bandeja||'');
+  if(!ban.startsWith('recibida'))return false;
+  return isPendContraparte({contraparte:inferContraparteHistorica(c)});
+}
+function cartaEraPendienteMeDeben(c){
+  const ban=String(c.bandeja||'');
+  if(ban!=='residente'&&ban!=='rl')return false;
+  return isPendContraparte(classif(c));
+}
+function addBusinessDays(start,n){
+  const d=new Date(start.getTime());
+  let added=0;
+  while(added<n){
+    d.setDate(d.getDate()+1);
+    const wd=d.getDay();
+    if(wd!==0&&wd!==6)added++;
+  }
+  return d;
+}
+function fechaLimiteRespuesta(fechaIso,contraparte){
+  const base=parseDate(fechaIso);
+  if(!base)return null;
+  const cfg=PLAZO_RESPUESTA[contraparte]||PLAZO_RESPUESTA.otro;
+  if(cfg.habiles)return addBusinessDays(base,cfg.dias);
+  const d=new Date(base.getTime());
+  d.setDate(d.getDate()+cfg.dias);
+  return d;
+}
+function plazoRespuestaOperativo(c,modo){
+  const cl=classif(c);
+  const modoEff=modo||pendMode;
+  let cp=cl.contraparte||'supervisor';
+  let fecha=c.fecha;
+  let notaTraslado='';
+  const est=(cl.estado_norm||c.estado_norm||c.estado||'').toUpperCase();
+  if(cl.deuda==='debo'||(modoEff==='debo'&&cl.sentido==='recibida')){
+    cp='residente';
+    notaTraslado='Plazo interno para responder';
+  }else if(cl.sentido==='emitida'&&cl.deuda==='me_deben'&&est==='PENDIENTE ENTIDAD'){
+    cp='entidad';
+    if(c.fecha_respuesta){
+      fecha=c.fecha_respuesta;
+      notaTraslado='Traslado a entidad';
+    }else{
+      notaTraslado='Traslado (indique fecha traslado)';
+    }
+  }
+  const cfg=PLAZO_RESPUESTA[cp]||PLAZO_RESPUESTA.otro;
+  const limite=fechaLimiteRespuesta(fecha,cp);
+  const reglaLabel=notaTraslado?`${cfg.label} · ${notaTraslado}`:cfg.label;
+  if(!parseDate(fecha)){
+    return{kind:'sin_fecha',label:'Sin fecha',fecha_limite:null,dias_atraso:null,dias_restantes:null,regla_label:reglaLabel};
+  }
+  if(!limite){
+    return{kind:'sin_plazo',label:'Sin plazo',fecha_limite:null,dias_atraso:null,dias_restantes:null,regla_label:reglaLabel};
+  }
+  const hoy=today();
+  const limDay=new Date(limite.getFullYear(),limite.getMonth(),limite.getDate(),12,0,0);
+  const delta=Math.round((limDay-hoy)/86400000);
+  if(delta<0){
+    const atraso=-delta;
+    return{kind:'vencida',label:`Vencida ${atraso}d`,fecha_limite:fmtDateIso(limDay),dias_atraso:atraso,dias_restantes:0,regla_label:reglaLabel};
+  }
+  if(delta===0){
+    return{kind:'hoy',label:'Vence hoy',fecha_limite:fmtDateIso(limDay),dias_atraso:0,dias_restantes:0,regla_label:reglaLabel};
+  }
+  return{kind:'ok',label:`En plazo (${delta}d)`,fecha_limite:fmtDateIso(limDay),dias_atraso:0,dias_restantes:delta,regla_label:reglaLabel};
+}
+function emitidorCartaLabel(c){
+  const cl=classif(c);
+  const ban=String(c.bandeja||'');
+  if(ban==='rl')return'Representante Legal (RL)';
+  if(ban==='residente')return'Residente (RO)';
+  return cl.actor_label||'—';
+}
+function pendPlazoBadgeHtml(plazo){
+  const p=plazo||{};
+  const cls=p.kind||'sin_fecha';
+  let txt=p.label||'—';
+  if(p.dias_atraso>0)txt=`+${p.dias_atraso}d atraso`;
+  else if(p.dias_restantes>0&&cls==='ok')txt=`${p.dias_restantes}d restantes`;
+  return `<span class="pend-plazo-badge ${cls}">${escapeHtml(txt)}</span>`;
+}
 
 function isOpen(est){return OPEN_STATES.has((est||'').toUpperCase());}
 function parseDate(v){if(!v)return null;const s=String(v).trim().slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;const d=new Date(s+'T12:00:00');return isNaN(d)?null:d;}
@@ -1785,6 +2032,64 @@ function normalizeFlujoCode(raw){
   return String(raw||'').toUpperCase().replace(/[\u2794\u279C\u2192\u27A1➔➡→\s]/g,'').replace(/-/g,'');
 }
 
+function inferContraparteFromCarta(c){
+  const ban=String(c.bandeja||'').trim();
+  if(ban==='recibida_sup')return'supervisor';
+  if(ban==='recibida_pronis')return'entidad';
+  if(ban==='recibida_mpsc')return'municipalidad';
+  if(ban.startsWith('recibida_'))return'otro';
+  const cl=c.clasificacion||{};
+  if(cl.contraparte)return cl.contraparte;
+  const est=String(c.estado_norm||c.estado||'').toUpperCase();
+  if(est.includes('MUNICIPALIDAD'))return'municipalidad';
+  if(est.includes('ENTIDAD')||est.includes('PRONIS'))return'entidad';
+  if(est.includes('SUPERVISION')||est.includes('SUPERVIS'))return'supervisor';
+  const dir=[c.dirigido_a,c.receptor,c.cargo].join(' ').toUpperCase();
+  if(/MPSC|MUNICIP|SANCHEZ CARRION/.test(dir))return'municipalidad';
+  if(/PRONIS|MINSA|ENTIDAD|MESA DE PARTES/.test(dir))return'entidad';
+  if(/JUNTA DE RESOLUCION|DISPUTAS|JRD/.test(dir))return'jrd';
+  if(/CCC|SUPERV|CONSORCIO CONSULTOR/.test(dir))return'supervisor';
+  if(ban==='rl')return'entidad';
+  return'supervisor';
+}
+
+function cartaNaturaleza(cl){
+  if(cl.naturaleza)return cl.naturaleza;
+  if(cl.solo_comunicacion)return'comunicacion';
+  if(cl.deuda==='debo'||cl.deuda==='me_deben')return'respuesta';
+  return'respuesta';
+}
+
+function cartaMatchesContraparte(c,selected){
+  if(!selected||selected==='all')return true;
+  const cl=classif(c);
+  if((cl.contraparte||'')===selected)return true;
+  if(cl.deuda==='debo'){
+    const banCp=contraparteFromBandeja(c);
+    if(banCp&&banCp===selected)return true;
+    const ban=String(c.bandeja||'');
+    if(selected==='supervisor'&&ban==='recibida_sup')return true;
+    if(selected==='entidad'&&ban==='recibida_pronis')return true;
+    if(selected==='municipalidad'&&ban==='recibida_mpsc')return true;
+  }
+  return inferContraparteFromCarta(c)===selected;
+}
+
+function cartaMatchesPendiente(c,mode,actor,esp){
+  const cl=classif(c);
+  if(mode==='comunicacion')return cl.naturaleza==='comunicacion'||cl.solo_comunicacion;
+  if(mode==='debo'){
+    if(cl.deuda!=='debo')return false;
+    if(!isPendContraparte(cl))return false;
+  }else if(mode==='me_deben'){
+    if(cl.deuda!=='me_deben')return false;
+    if(!isPendContraparte(cl))return false;
+  }else return false;
+  if(actor&&actor!=='all'&&!cartaMatchesContraparte(c,actor))return false;
+  if(esp&&esp!=='all'&&!cartaMatchesEsp(c,esp))return false;
+  return true;
+}
+
 function inferClasificacion(c){
   const ban=String(c.bandeja||'');
   const sentido=c.sentido||(ban.startsWith('recibida')?'recibida':'emitida');
@@ -1801,16 +2106,18 @@ function inferClasificacion(c){
   }else{
     deuda='me_deben';
   }
-  const emisor=sentido==='recibida'?'SUP':'RO';
-  const dest=sentido==='recibida'?'RO':'SUP';
+  const cp=inferContraparteFromCarta(c);
+  const actorShort={supervisor:'SUP',entidad:'PRONIS',municipalidad:'MUNI',jrd:'JRD',otro:'OTRO',rl:'RL',residente:'RO'};
+  const emisor=sentido==='recibida'?(actorShort[cp]||'SUP'):(ban==='rl'?'RL':'RO');
+  const dest=sentido==='recibida'?'RO':(actorShort[cp]||'SUP');
   return{
     sentido,
     deuda,
     naturaleza,
-    contraparte: ban==='recibida_sup'?'supervisor':(ban.startsWith('recibida_pronis')?'entidad':'supervisor'),
-    contraparte_label: ban==='recibida_sup'?'Supervisión':'Supervisión',
-    emisor_code: emisor,
-    dest_code: dest,
+    contraparte:cp,
+    contraparte_label:ACTOR_LABELS[cp]||cp,
+    emisor_code:emisor,
+    dest_code:dest,
     flujo_code:`${emisor}\u2794${dest}`,
     flujo_label:`${emisor} \u2794 ${dest}`,
     abierta,
@@ -1818,9 +2125,26 @@ function inferClasificacion(c){
   };
 }
 
+function contraparteFromBandeja(c){
+  const ban=String(c.bandeja||'').trim();
+  if(ban==='recibida_sup')return'supervisor';
+  if(ban==='recibida_pronis')return'entidad';
+  if(ban==='recibida_mpsc')return'municipalidad';
+  return null;
+}
+
 function classif(c){
   const cl=c.clasificacion;
-  if(cl&&cl.deuda!=null&&cl.flujo_code)return cl;
+  const bandejaCp=contraparteFromBandeja(c);
+  if(cl&&cl.deuda!=null&&cl.flujo_code){
+    const cp=bandejaCp||cl.contraparte||inferContraparteFromCarta(c);
+    return{
+      ...cl,
+      contraparte:cp,
+      contraparte_label:cl.contraparte_label||ACTOR_LABELS[cp]||cp,
+      naturaleza:cl.naturaleza||cartaNaturaleza(cl)
+    };
+  }
   return inferClasificacion(c);
 }
 
@@ -1947,8 +2271,14 @@ function showView(view){
   closeMobileSidebar();
 }
 
-function goToCartasWithFilters(){currentPage=1;showView('cartas');document.getElementById('view-cartas')?.scrollIntoView({behavior:'smooth',block:'start'});
-  showToast(filtered.length?`Lista filtrada: ${filtered.length} carta${filtered.length===1?'':'s'}`:'No hay cartas con estos filtros','info');}
+function goToCartasWithFilters(msg){
+  currentPage=1;
+  showView('cartas');
+  document.getElementById('view-cartas')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const n=filtered.length;
+  if(msg)showToast(msg,'info');
+  else showToast(n?`Lista filtrada: ${n} carta${n===1?'':'s'}`:'No hay cartas con estos filtros','info');
+}
 
 function setPage(p){currentPage=Math.min(Math.max(1,p),totalPages());updateTable();if(currentView==='cartas')document.querySelector('#view-cartas .table-card')?.scrollIntoView({behavior:'smooth',block:'start'});}
 
@@ -1980,6 +2310,132 @@ function splitEspecialidades(raw){
   return norms.length?norms:['SIN ESPECIALIDAD'];
 }
 
+let CATALOGO={especialidades:[],especialistas:[],esp_a_especialista:{}};
+const CATALOGO_ESP_FALLBACK=['ESTRUCTURAS','ARQUITECTURA','INST. SANITARIAS','INST. ELECTRICAS','INST. MECANICAS','EQUIPAMIENTO','CALIDAD','SSOMA','BIM','GEOTECNIA','TOPOGRAFIA','MEDIO AMBIENTE','ADM. DE CONTRATOS','COSTOS','COMUNICACIONES','PRODUCCION','CAMPO','RR.HH.'];
+const CATALOGO_AREA_FALLBACK=['ESPECIALISTA ESTRUCTURAS','ESPECIALISTA ARQUITECTURA','ESPECIALISTA SANITARIAS','ESPECIALISTA ELECTRICAS','ESPECIALISTA GEOTECNIA','ESPECIALISTA BIM','ESPECIALISTA TOPOGRAFIA','ESPECIALISTA MEDIO AMBIENTE','ESPECIALISTA ADM. CONTRATOS','ESPECIALISTA COSTOS','ESPECIALISTA COMUNICACIONES','ESPECIALISTA PRODUCCION','ESPECIALISTA CAMPO','SSOMA / CALIDAD','EQUIPAMIENTO','RESIDENCIA','OFICINA TECNICA'];
+
+function applyCatalogoFromStats(stats){
+  if(stats&&stats.catalogo)CATALOGO=stats.catalogo;
+}
+
+function getCatalogoEspecialidadesForUser(){
+  const all=(CATALOGO.especialidades&&CATALOGO.especialidades.length)?CATALOGO.especialidades:CATALOGO_ESP_FALLBACK;
+  const u=CURRENT_USER;
+  if(u&&u.vista_parcial&&u.especialidades&&u.especialidades.length){
+    const allowed=new Set(u.especialidades.map(e=>String(e).trim().toUpperCase()));
+    const filtered=all.filter(e=>{
+      const k=String(e).trim().toUpperCase();
+      if(allowed.has(k))return true;
+      for(const a of allowed){if(k.includes(a)||a.includes(k))return true;}
+      return false;
+    });
+    return filtered.length?filtered:all;
+  }
+  return all;
+}
+
+function normalizeEspSelectValue(raw){
+  const parts=splitEspecialidades(String(raw||''));
+  return parts.find(p=>p&&p!=='SIN ESPECIALIDAD'&&p!=='MIXTA')||'';
+}
+
+function ensureSelectOption(sel,val,suffix){
+  if(!sel||!val)return;
+  const v=String(val).trim();
+  if(!v)return;
+  if(!Array.from(sel.options).some(o=>o.value===v)){
+    const opt=document.createElement('option');
+    opt.value=v;
+    opt.textContent=v+(suffix||' (histórico)');
+    sel.appendChild(opt);
+  }
+  sel.value=v;
+}
+
+function populateCartaEspSelect(selected){
+  const sel=document.getElementById('f_especialidad');
+  if(!sel)return;
+  const catalog=getCatalogoEspecialidadesForUser();
+  sel.innerHTML='<option value="">— Seleccione especialidad —</option>'+
+    catalog.map(e=>`<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+  if(selected)ensureSelectOption(sel,normalizeEspSelectValue(selected));
+}
+
+function populateCartaAreaSelect(selected){
+  const sel=document.getElementById('f_area');
+  if(!sel)return;
+  const catalog=(CATALOGO.especialistas&&CATALOGO.especialistas.length)?CATALOGO.especialistas:CATALOGO_AREA_FALLBACK;
+  sel.innerHTML='<option value="">— Seleccione especialista —</option>'+
+    catalog.map(e=>`<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+  if(selected)ensureSelectOption(sel,String(selected).trim(),' (histórico)');
+}
+
+function suggestAreaFromEspecialidad(force){
+  const espSel=document.getElementById('f_especialidad');
+  const areaSel=document.getElementById('f_area');
+  const hint=document.getElementById('f_area_suggest_hint');
+  if(!espSel||!areaSel)return;
+  const ban=document.getElementById('f_bandeja')?.value||'';
+  if(!String(ban).startsWith('recibida')){
+    if(hint)hint.style.display='none';
+    return;
+  }
+  const espNorm=normalizeEspSelectValue(espSel.value);
+  const map=CATALOGO.esp_a_especialista||{};
+  const suggested=map[espNorm];
+  if(!suggested){
+    if(hint)hint.style.display='none';
+    return;
+  }
+  if(force||!areaSel.value){
+    ensureSelectOption(areaSel,suggested);
+    areaSel.value=suggested;
+  }
+  if(hint){
+    hint.style.display='block';
+    hint.textContent=`Sugerido para «${espNorm}»: ${suggested}. El Admin puede asignar otro especialista si corresponde.`;
+  }
+}
+
+function initCartaCatalogSelects(espValue,areaValue){
+  populateCartaEspSelect(espValue);
+  populateCartaAreaSelect(areaValue);
+  suggestAreaFromEspecialidad(false);
+}
+
+function getCatalogoEspecialidadesList(){
+  return (CATALOGO.especialidades&&CATALOGO.especialidades.length)?CATALOGO.especialidades:CATALOGO_ESP_FALLBACK;
+}
+
+function populateUserEspSelect(selectedList){
+  const sel=document.getElementById('uf_esps');
+  if(!sel)return;
+  const catalog=getCatalogoEspecialidadesList();
+  sel.innerHTML=catalog.map(e=>`<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+  const wanted=new Set();
+  (selectedList||[]).forEach(raw=>{
+    const n=normalizeEspSelectValue(raw)||String(raw||'').trim().toUpperCase();
+    if(n&&n!=='SIN ESPECIALIDAD')wanted.add(n);
+  });
+  Array.from(sel.options).forEach(opt=>{
+    if(wanted.has(opt.value))opt.selected=true;
+  });
+  wanted.forEach(v=>{
+    if(Array.from(sel.options).some(o=>o.value===v))return;
+    const opt=document.createElement('option');
+    opt.value=v;
+    opt.textContent=v+' (histórico)';
+    opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
+function getUserEspSelections(){
+  const sel=document.getElementById('uf_esps');
+  if(!sel)return [];
+  return Array.from(sel.selectedOptions).map(o=>o.value.trim()).filter(Boolean);
+}
+
 function getCartaEspecialidades(c){
   const raw=String(c.especialidad||'').trim();
   if(raw)return splitEspecialidades(raw);
@@ -2008,9 +2464,31 @@ function getCartaReferencia(c){
   return'';
 }
 
+let PEND_MATRIX_IDS={};
+
+function pendEspKey(c){
+  return classif(c).especialidad_norm||c.especialidad_norm||'SIN ESPECIALIDAD';
+}
+
+function pendContraparteKey(c){
+  return contraparteFromBandeja(c)||classif(c).contraparte||inferContraparteFromCarta(c)||'supervisor';
+}
+
+function pendMatrixIdsFor(esp,act){
+  const bucket=PEND_MATRIX_IDS[esp];
+  if(!bucket)return[];
+  if(act==='all'){
+    const ids=new Set();
+    PEND_CONTRAPARTES.forEach(a=>(bucket[a]||[]).forEach(id=>ids.add(id)));
+    return[...ids];
+  }
+  return bucket[act]||[];
+}
+
 function cartaMatchesEsp(c,selectedEsp){
   if(!selectedEsp||selectedEsp==='all')return true;
   const sel=selectedEsp.trim().toUpperCase();
+  if(pendEspKey(c).toUpperCase()===sel)return true;
   const list=getCartaEspecialidades(c);
   if(list.some(e=>e===sel))return true;
   if(sel==='MIXTA'&&list.length>1)return true;
@@ -2044,6 +2522,40 @@ function initFilters(){
   ESTADO_OPTS.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;fEst.appendChild(o);});
 }
 
+const ESP_TO_AREA={
+  'ESTRUCTURAS':'ESPECIALISTA ESTRUCTURAS','ARQUITECTURA':'ESPECIALISTA ARQUITECTURA','INST. SANITARIAS':'ESPECIALISTA SANITARIAS',
+  'INST. ELECTRICAS':'ESPECIALISTA ELECTRICAS','INST. MECANICAS':'EQUIPAMIENTO','EQUIPAMIENTO':'EQUIPAMIENTO',
+  'CALIDAD':'SSOMA / CALIDAD','SSOMA':'SSOMA / CALIDAD','GEOTECNIA':'ESPECIALISTA GEOTECNIA','BIM':'ESPECIALISTA BIM',
+  'TOPOGRAFIA':'ESPECIALISTA TOPOGRAFIA','MEDIO AMBIENTE':'ESPECIALISTA MEDIO AMBIENTE','ADM. DE CONTRATOS':'ESPECIALISTA ADM. CONTRATOS',
+  'COSTOS':'ESPECIALISTA COSTOS','COMUNICACIONES':'ESPECIALISTA COMUNICACIONES','PRODUCCION':'ESPECIALISTA PRODUCCION',
+  'RR.HH.':'RESIDENCIA','CAMPO':'ESPECIALISTA CAMPO','MIXTA':'OFICINA TECNICA'
+};
+
+function inferAreaFromEspecialidad(c){
+  const ban=String(c.bandeja||'');
+  if(!ban.startsWith('recibida'))return '';
+  const esps=getCartaEspecialidades(c).filter(e=>e!=='SIN ESPECIALIDAD'&&e!=='MIXTA');
+  if(!esps.length)return 'RESIDENCIA';
+  if(esps.length===1)return ESP_TO_AREA[esps[0]]||esps[0];
+  const mapped=[...new Set(esps.map(e=>ESP_TO_AREA[e]).filter(Boolean))];
+  if(mapped.length===1)return mapped[0];
+  for(const e of esps){
+    const t=ESP_TO_AREA[e];
+    if(t&&t!=='OFICINA TECNICA')return t;
+  }
+  return 'OFICINA TECNICA';
+}
+
+function yoDeboResponderLabel(c){
+  const area=String(c.area||'').trim();
+  if(area)return area;
+  const inferred=inferAreaFromEspecialidad(c);
+  if(inferred)return inferred;
+  const en=String(c.especialidad_norm||c.especialidad||'').trim();
+  if(en&&en!=='SIN ESPECIALIDAD'&&en!=='MIXTA')return en;
+  return 'Sin asignar';
+}
+
 function getRespRespuestaLabel(c){
   const cl=classif(c);
   const isOut=c.sentido==='emitida'||String(c.bandeja||'').startsWith('emitida')||c.bandeja==='residente'||c.bandeja==='rl';
@@ -2051,9 +2563,9 @@ function getRespRespuestaLabel(c){
     const destName=cl.contraparte_label||(cl.dest_code==='SUP'?'Supervisión':(cl.dest_code==='PRONIS'?'PRONIS':(cl.dest_code==='MUNI'?'Municipalidad':'Entidad Externa')));
     return `<span class="badge-soft" style="font-size:11px;font-weight:600;background:rgba(196,91,62,.08);color:var(--accent)" title="Respuesta formal a cargo de la entidad externa">🏛️ ${escapeHtml(destName)}</span>`;
   }else{
-    const internalArea=String(c.area||'').trim();
-    const label=internalArea||'Sin asignar';
-    return `<span class="badge-soft" style="font-size:11px;font-weight:700;background:rgba(42,122,120,.08);color:var(--teal)" title="Especialista interno de Residencia que debe elaborar la respuesta">${internalArea?'👷':'⚠️'} ${escapeHtml(label)}</span>`;
+    const label=yoDeboResponderLabel(c);
+    const assigned=label!=='Sin asignar';
+    return `<span class="badge-soft" style="font-size:11px;font-weight:700;background:rgba(42,122,120,.08);color:var(--teal)" title="Especialista interno de Residencia que debe elaborar la respuesta">${assigned?'👷':'⚠️'} ${escapeHtml(label)}</span>`;
   }
 }
 
@@ -2199,8 +2711,8 @@ function applyFilters(){
         if(cl.deuda&&cl.deuda!=='ninguna')return false;
       }else if(cl.deuda!==deuda)return false;
     }
-    if(contraparte!=='all'&&(cl.contraparte||'')!==contraparte)return false;
-    if(naturaleza!=='all'&&(cl.naturaleza||'')!==naturaleza)return false;
+    if(contraparte!=='all'&&!cartaMatchesContraparte(c,contraparte))return false;
+    if(naturaleza!=='all'&&cartaNaturaleza(cl)!==naturaleza)return false;
     return true;
   });
   filtered.sort((a,b)=>{
@@ -2233,7 +2745,7 @@ function applyFilters(){
   }
 }
 
-function resetFilters(){
+function resetFiltersSilent(){
   document.getElementById('filterEstado').value='all';
   document.getElementById('filterEsp').value='all';
   const fFlujo=document.getElementById('filterFlujo');
@@ -2245,6 +2757,10 @@ function resetFilters(){
   document.getElementById('filterNaturaleza').value='all';
   document.getElementById('filterBandeja').value='all';
   activeBandeja='all';
+}
+
+function resetFilters(){
+  resetFiltersSilent();
   const moreEl=document.getElementById('filterMore');
   const moreBtn=document.getElementById('btnFilterMore');
   moreEl?.classList.remove('open');
@@ -2259,6 +2775,18 @@ function applyPlazosConfig(stats){
   const p=(stats&&stats.plazos)||{};
   if(p.vencida_dias!=null)VENCIDA_DIAS=Number(p.vencida_dias)||VENCIDA_DIAS;
   if(p.por_vencer_dias!=null)POR_VENCER_DIAS=Number(p.por_vencer_dias)||POR_VENCER_DIAS;
+  if(stats&&stats.plazos_contractuales){
+    applyPlazoContractualConfig(stats.plazos_contractuales);
+  }else if(stats&&stats.plazos_respuesta){
+    const pr=stats.plazos_respuesta;
+    applyPlazoContractualConfig({
+      plazo_sup_dias:pr.supervisor&&pr.supervisor.dias,
+      plazo_entidad_dias:pr.entidad&&pr.entidad.dias,
+      plazo_muni_dias:pr.municipalidad&&pr.municipalidad.dias,
+      plazo_jrd_dias:pr.jrd&&pr.jrd.dias,
+      plazo_ro_dias:(pr.residente&&pr.residente.dias)||(pr.supervisor&&pr.supervisor.dias)
+    });
+  }
   const fv=document.getElementById('footerVencida');
   const fr=document.getElementById('footerRiesgo');
   if(fv)fv.textContent=String(VENCIDA_DIAS);
@@ -2544,7 +3072,7 @@ function updateTable(){
       <td class="cell-wrap">${escapeHtml(c.asunto||'—')}</td>
       <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
       <td class="col-acc">
-        <button class="btn-row-action" title="${(CURRENT_USER&&CURRENT_USER.can_edit_formal)?'Editar carta':'Ver y registrar seguimiento'}" onclick="openEditModal(${c.id})"><i class="${(CURRENT_USER&&CURRENT_USER.can_edit_formal)?'ri-edit-line':'ri-file-text-line'}"></i></button>
+        <button class="btn-row-action" title="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'Editar carta':'Ver carta (solo lectura)'}" onclick="openEditModal(${c.id})"><i class="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'ri-edit-line':'ri-eye-line'}"></i></button>
         ${(CURRENT_USER&&CURRENT_USER.can_delete_cartas)?`<button class="btn-row-action btn-del" title="Eliminar" onclick="confirmDelete(${c.id})"><i class="ri-delete-bin-line"></i></button>`:''}
       </td>`;
     tbody.appendChild(tr);
@@ -2583,14 +3111,21 @@ function updatePendDetailMeta(){
   const titles={
     debo:'Yo debo responder — especialidad × contraparte',
     me_deben:'Me deben respuesta — especialidad × contraparte',
+    respondidos:'Respondidos / cerrados — ya no pendientes',
     comunicacion:'Traslados / comunicación — especialidad × contraparte'
   };
   document.getElementById('pendMatrixTitle').textContent=titles[pendMode]||titles.debo;
-  document.getElementById('pendMatrixSub').textContent=pendActor==='all'
-    ?'Clic en un número para filtrar Cartas por esa especialidad y contraparte'
-    :`Filtrado a contraparte: ${ACTOR_LABELS[pendActor]||pendActor}`;
+  document.getElementById('pendMatrixSub').textContent=pendMode==='respondidos'
+    ?'Historial de cartas cerradas que antes eran Yo debo o Me deben (últimos 120 registros visibles)'
+    :(pendActor==='all'
+      ?'Clic en un número para filtrar Cartas por esa especialidad y contraparte'
+      :`Filtrado a contraparte: ${ACTOR_LABELS[pendActor]||pendActor}`);
   const hilosBlock=document.getElementById('pendHilosBlock');
-  if(hilosBlock)hilosBlock.style.display=pendMode==='comunicacion'?'none':'';
+  const operBlock=document.getElementById('pendOperBlock');
+  const matrixCard=document.getElementById('pendMatrixBlock');
+  if(hilosBlock)hilosBlock.style.display=(pendMode==='comunicacion'||pendMode==='respondidos')?'none':'';
+  if(operBlock)operBlock.style.display='';
+  if(matrixCard)matrixCard.style.display=pendMode==='respondidos'?'none':'';
   const waBtn=document.getElementById('btnWhatsappPendientes');
   if(waBtn)waBtn.style.display=pendMode==='debo'?'inline-flex':'none';
   return items;
@@ -2598,52 +3133,173 @@ function updatePendDetailMeta(){
 
 function renderPendMatrix(){
   const items=pendItemsForMode();
-  const matrixCard=document.querySelector('#pendDetail .pend-detail-stack > .table-card');
+  const matrixCard=document.getElementById('pendMatrixBlock');
+  if(pendMode==='respondidos'||pendMode==='comunicacion'){
+    matrixCard?.classList.remove('is-updating');
+    return;
+  }
   matrixCard?.classList.add('is-updating');
   const espSet=new Set();
   const matrix={};
+  PEND_MATRIX_IDS={};
   items.forEach(c=>{
-    const cl=classif(c);
-    const esp=cl.especialidad_norm||c.especialidad_norm||'SIN ESPECIALIDAD';
-    const act=cl.contraparte||'supervisor';
+    const esp=pendEspKey(c);
+    const act=pendContraparteKey(c);
     espSet.add(esp);
     matrix[esp]=matrix[esp]||{};
     matrix[esp][act]=(matrix[esp][act]||0)+1;
+    PEND_MATRIX_IDS[esp]=PEND_MATRIX_IDS[esp]||{};
+    PEND_MATRIX_IDS[esp][act]=PEND_MATRIX_IDS[esp][act]||[];
+    PEND_MATRIX_IDS[esp][act].push(c.id);
   });
   const esps=[...espSet].sort((a,b)=>{
-    const ta=ACTOR_ORDER.reduce((s,k)=>s+((matrix[a]||{})[k]||0),0);
-    const tb=ACTOR_ORDER.reduce((s,k)=>s+((matrix[b]||{})[k]||0),0);
+    const ta=PEND_CONTRAPARTES.reduce((s,k)=>s+((matrix[a]||{})[k]||0),0);
+    const tb=PEND_CONTRAPARTES.reduce((s,k)=>s+((matrix[b]||{})[k]||0),0);
     return tb-ta||a.localeCompare(b);
   });
   const thead=document.querySelector('#pendMatrix thead');
   const tbody=document.querySelector('#pendMatrix tbody');
-  thead.innerHTML='<tr><th>Especialidad</th>'+ACTOR_ORDER.map(a=>`<th>${ACTOR_LABELS[a]}</th>`).join('')+'<th>Total</th></tr>';
+  thead.innerHTML='<tr><th>Especialidad</th>'+PEND_CONTRAPARTES.map(a=>`<th>${ACTOR_LABELS[a]}</th>`).join('')+'<th>Total</th></tr>';
   tbody.innerHTML='';
   if(!esps.length){
-    tbody.innerHTML='<tr><td colspan="8" style="color:var(--text-muted);padding:16px">Sin cartas en este modo</td></tr>';
+    tbody.innerHTML=`<tr><td colspan="${PEND_CONTRAPARTES.length+2}" style="color:var(--text-muted);padding:16px">Sin cartas en este modo</td></tr>`;
   }else{
     esps.forEach((esp,idx)=>{
       const tr=document.createElement('tr');
       tr.className='row-rendered';
       tr.style.animationDelay=`${Math.min(idx*12,180)}ms`;
       let total=0;
-      const cells=ACTOR_ORDER.map(act=>{
+      const cells=PEND_CONTRAPARTES.map(act=>{
         const n=(matrix[esp]||{})[act]||0;
         total+=n;
         if(!n)return '<td class="num" style="color:var(--text-muted);cursor:default">0</td>';
-        return `<td class="num" data-esp="${escapeHtml(esp)}" data-act="${act}">${n}</td>`;
+        return `<td class="num" data-esp="${escapeHtml(esp)}" data-act="${act}" title="Ver ${n} carta${n===1?'':'s'} en Cartas">${n}</td>`;
       }).join('');
       tr.innerHTML=`<td>${escapeHtml(esp)}</td>${cells}<td class="num" data-esp="${escapeHtml(esp)}" data-act="all"><strong>${total}</strong></td>`;
       tbody.appendChild(tr);
     });
     tbody.querySelectorAll('td.num[data-esp]').forEach(td=>{
       td.addEventListener('click',()=>{
-        const esp=td.dataset.esp,act=td.dataset.act;
-        applyPendienteToFilters(pendMode,act==='all'?pendActor:act,esp);
+        const esp=td.dataset.esp;
+        const act=td.dataset.act;
+        const actor=act==='all'?'all':act;
+        if(actor!=='all')pendActor=actor;
+        else pendActor='all';
+        syncPendChipStates();
+        const ids=pendMatrixIdsFor(esp,act);
+        applyPendienteToFilters(pendMode,actor,esp,{ids});
       });
     });
   }
   requestAnimationFrame(()=>matrixCard?.classList.remove('is-updating'));
+}
+
+function renderPendOperTable(){
+  const tbody=document.getElementById('pendOperBody');
+  const thead=document.getElementById('pendOperHead');
+  const title=document.getElementById('pendOperTitle');
+  const sub=document.getElementById('pendOperSub');
+  if(!tbody||!thead)return;
+  if(pendMode==='comunicacion'){
+    tbody.innerHTML='';
+    return;
+  }
+  if(pendMode==='respondidos'){
+    const items=pendItemsForMode();
+    if(title)title.textContent='Respondidos — ya no están en pendientes';
+    if(sub)sub.textContent='Cartas cerradas (CERRADO / ABSUELTO) que fueron Yo debo o Me deben. Ordenadas por fecha de documento.';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo</th><th>Contraparte</th><th>Fecha doc.</th><th>Estado cierre</th><th>Especialista / área</th><th>Asunto</th><th></th></tr>';
+    tbody.innerHTML='';
+    if(!items.length){
+      tbody.innerHTML='<tr><td colspan="8" style="color:var(--text-muted);padding:16px">Sin cartas respondidas/cerradas en este filtro</td></tr>';
+      return;
+    }
+    items.forEach((c,idx)=>{
+      const cl=classif(c);
+      const eraDebo=cartaEraPendienteDebo(c);
+      const tr=document.createElement('tr');
+      tr.className='row-rendered';
+      tr.style.animationDelay=`${Math.min(idx*10,160)}ms`;
+      const asunto=String(c.asunto||'').slice(0,120)+(String(c.asunto||'').length>120?'…':'');
+      const cp=inferContraparteHistorica(c);
+      tr.innerHTML=`
+        <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td>${eraDebo?'Yo debía':'Me debían'}</td>
+        <td>${escapeHtml(ACTOR_LABELS[cp]||cp||'—')}</td>
+        <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
+        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
+        <td>${escapeHtml(eraDebo?yoDeboResponderLabel(c):(cl.contraparte_label||'—'))}</td>
+        <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
+        <td><button type="button" class="btn-jump-ref" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button></td>`;
+      tbody.appendChild(tr);
+    });
+    return;
+  }
+  const items=pendItemsForMode().map(c=>{
+    const plazo=plazoRespuestaOperativo(c,pendMode);
+    return{c,plazo,cl:classif(c)};
+  });
+  items.sort((a,b)=>{
+    const av=(a.plazo.dias_atraso||0);
+    const bv=(b.plazo.dias_atraso||0);
+    if(bv!==av)return bv-av;
+    return String(a.c.fecha||'').localeCompare(String(b.c.fecha||''));
+  });
+  if(title){
+    title.textContent=pendMode==='me_deben'
+      ?'Listado operativo — Me deben respuesta'
+      :'Listado operativo — Yo debo responder';
+  }
+  if(sub){
+    sub.textContent=pendMode==='me_deben'
+      ?'Cartas emitidas por RO/RL: fecha de envío, destinatario, plazo contractual (Sup. 5 hábiles · PRONIS/Muni/JRD 15 días) y atraso.'
+      :'Cartas recibidas: contraparte emisora, especialista interno asignado (área), plazo contractual y atraso.';
+  }
+  if(pendMode==='me_deben'){
+    thead.innerHTML='<tr><th>N° carta</th><th>Emitida por</th><th>Fecha envío</th><th>Enviada a</th><th>Debe responder</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th></th></tr>';
+  }else{
+    thead.innerHTML='<tr><th>N° carta</th><th>Recibida de</th><th>Fecha</th><th>Flujo</th><th>Especialista / área</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th></th></tr>';
+  }
+  tbody.innerHTML='';
+  if(!items.length){
+    tbody.innerHTML='<tr><td colspan="10" style="color:var(--text-muted);padding:16px">Sin cartas en este modo'+(pendActor!=='all'?' y contraparte':'')+'</td></tr>';
+    return;
+  }
+  items.forEach((row,idx)=>{
+    const{c,plazo,cl}=row;
+    const tr=document.createElement('tr');
+    tr.className='row-rendered';
+    tr.style.animationDelay=`${Math.min(idx*10,160)}ms`;
+    const limiteFmt=plazo.fecha_limite?fmtDate(plazo.fecha_limite):'—';
+    const asunto=String(c.asunto||'').slice(0,120)+(String(c.asunto||'').length>120?'…':'');
+    if(pendMode==='me_deben'){
+      tr.innerHTML=`
+        <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td>${escapeHtml(emitidorCartaLabel(c))}</td>
+        <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
+        <td>${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'—')}</td>
+        <td>${escapeHtml(cl.contraparte_label||'—')}<br><span style="font-size:10px;color:var(--text-muted)">${escapeHtml(plazo.regla_label||'')}</span></td>
+        <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
+        <td style="white-space:nowrap">${limiteFmt}</td>
+        <td>${pendPlazoBadgeHtml(plazo)}</td>
+        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
+        <td><button type="button" class="btn-jump-ref" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button></td>`;
+    }else{
+      const respLabel=yoDeboResponderLabel(c);
+      tr.innerHTML=`
+        <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td>${escapeHtml(cl.contraparte_label||'—')}</td>
+        <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
+        <td>${flujoBadge(c)}</td>
+        <td>${escapeHtml(respLabel)}${respLabel==='Sin asignar'?'<br><span style="font-size:10px;color:var(--rose)">Asigne área en la carta</span>':''}<br><span style="font-size:10px;color:var(--text-muted)">${escapeHtml(plazo.regla_label||'')}</span></td>
+        <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
+        <td style="white-space:nowrap">${limiteFmt}</td>
+        <td>${pendPlazoBadgeHtml(plazo)}</td>
+        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
+        <td><button type="button" class="btn-jump-ref" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button></td>`;
+    }
+    tbody.appendChild(tr);
+  });
 }
 
 async function refreshHilosAsync(){
@@ -2674,6 +3330,7 @@ function applyPendSelection(mode,actor,options={}){
   syncPendChipStates();
   updatePendDetailMeta();
   renderPendMatrix();
+  renderPendOperTable();
   refreshHilosAsync();
   if(options.focus)focusPendDetail({skipScroll:options.skipScroll,forceScroll:options.forceScroll});
 }
@@ -2681,9 +3338,8 @@ function applyPendSelection(mode,actor,options={}){
 function renderActorChips(containerId, byActor, mode){
   const el=document.getElementById(containerId);
   el.innerHTML='';
-  ACTOR_ORDER.forEach(id=>{
+  PEND_CONTRAPARTES.forEach(id=>{
     const n=(byActor&&byActor[id])||0;
-    if(!n&&mode!==pendMode){/* still show for active mode */}
     const b=document.createElement('button');
     b.type='button';
     b.dataset.pendMode=mode;
@@ -2699,11 +3355,31 @@ function renderActorChips(containerId, byActor, mode){
 }
 
 function pendItemsForMode(){
+  if(pendMode==='respondidos'){
+    return ALL_CARTAS.filter(c=>{
+      const est=(c.estado_norm||c.estado||'').toUpperCase();
+      if(!CLOSED_PEND_STATES.has(est))return false;
+      const eraDebo=cartaEraPendienteDebo(c);
+      const eraMe=cartaEraPendienteMeDeben(c);
+      if(!eraDebo&&!eraMe)return false;
+      if(pendActor!=='all'){
+        const cp=inferContraparteHistorica(c);
+        if(cp!==pendActor)return false;
+      }
+      return true;
+    }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).slice(0,120);
+  }
   return ALL_CARTAS.filter(c=>{
     const cl=classif(c);
     if(pendMode==='comunicacion')return cl.naturaleza==='comunicacion'||cl.solo_comunicacion;
-    if(pendMode==='debo')return cl.deuda==='debo';
-    if(pendMode==='me_deben')return cl.deuda==='me_deben';
+    if(pendMode==='debo'){
+      if(cl.deuda!=='debo')return false;
+      return isPendContraparte(cl);
+    }
+    if(pendMode==='me_deben'){
+      if(cl.deuda!=='me_deben')return false;
+      return isPendContraparte(cl);
+    }
     return false;
   }).filter(c=>{
     if(pendActor==='all')return true;
@@ -2782,6 +3458,7 @@ function renderPendientes(){
   syncPendChipStates();
   updatePendDetailMeta();
   renderPendMatrix();
+  renderPendOperTable();
   renderHilos();
 }
 
@@ -2851,6 +3528,7 @@ function renderHilos(){
       const extra=(g.docs||[]).length>12?` +${(g.docs||[]).length-12} más`:'';
       const desdeIni=g.dias_desde_inicio!=null?` · edad desde inicio: ${g.dias_desde_inicio}d`:'';
       det.innerHTML=`<td colspan="8" class="hilo-detail">
+        ${g.hilo_id!=null?`<div style="font-size:11px;color:var(--accent);margin-bottom:6px"><i class="ri-mail-thread-line"></i> Hilo FK #${g.hilo_id}${g.clave?' · '+escapeHtml(g.clave):''}</div>`:''}
         Reloj desde ancla (última abierta con deuda)${desdeIni}. Documentos: ${docs||'—'}${extra}
         <div style="margin-top:8px">
           <button type="button" class="btn-jump-cartas" data-hilo-ids="${(g.carta_ids||[]).join(',')}">Ver ${g.n_cartas||0} cartas</button>
@@ -2891,16 +3569,25 @@ async function loadHilos(){
   HILOS=await r.json();
 }
 
-function applyPendienteToFilters(mode,actor,esp){
-  resetFilters();
+function applyPendienteToFilters(mode,actor,esp,opts){
+  opts=opts||{};
+  resetFiltersSilent();
+  initBandejas();
+  const BANDEJA_CONTRAPARTE={supervisor:'recibida_sup',entidad:'recibida_pronis',municipalidad:'recibida_mpsc'};
   if(mode==='comunicacion'){
     document.getElementById('filterNaturaleza').value='comunicacion';
     document.getElementById('filterDeuda').value='all';
-  }else{
-    document.getElementById('filterNaturaleza').value='respuesta';
+  }else if(mode==='debo'||mode==='me_deben'){
+    document.getElementById('filterNaturaleza').value='all';
     document.getElementById('filterDeuda').value=mode;
   }
-  if(actor&&actor!=='all')document.getElementById('filterContraparte').value=actor;
+  if(actor&&actor!=='all'){
+    document.getElementById('filterContraparte').value=actor;
+    if(mode==='debo'&&BANDEJA_CONTRAPARTE[actor]){
+      document.getElementById('filterBandeja').value=BANDEJA_CONTRAPARTE[actor];
+      activeBandeja=BANDEJA_CONTRAPARTE[actor];
+    }
+  }
   if(esp&&esp!=='all'){
     const sel=document.getElementById('filterEsp');
     if(![...sel.options].some(o=>o.value===esp)){
@@ -2908,8 +3595,33 @@ function applyPendienteToFilters(mode,actor,esp){
     }
     sel.value=esp;
   }
-  applyFilters();
-  goToCartasWithFilters();
+  if(opts.ids&&opts.ids.length){
+    const idSet=new Set(opts.ids.map(x=>parseInt(x,10)).filter(Boolean));
+    filtered=ALL_CARTAS.filter(c=>idSet.has(c.id));
+  }else{
+    filtered=ALL_CARTAS.filter(c=>cartaMatchesPendiente(c,mode,actor||'all',esp||'all'));
+  }
+  filtered.sort((a,b)=>{
+    const fa=parseDate(a.fecha),fb=parseDate(b.fecha);
+    if(fa&&fb&&fa.getTime()!==fb.getTime())return fb-fa;
+    return(b.id||0)-(a.id||0);
+  });
+  currentPage=1;
+  document.getElementById('btnReset').classList.add('visible');
+  document.getElementById('filterActiveTag').classList.add('visible');
+  const moreEl=document.getElementById('filterMore');
+  const moreBtn=document.getElementById('btnFilterMore');
+  if(actor&&actor!=='all'){
+    moreEl?.classList.add('open');
+    moreBtn?.classList.add('active');
+    moreBtn?.setAttribute('aria-expanded','true');
+    const label=moreBtn?.querySelector('span');
+    if(label)label.textContent='Menos';
+  }
+  syncCartasSearchUI();
+  updateTable();
+  const cpLabel=actor&&actor!=='all'?(ACTOR_LABELS[actor]||actor):'todas las contrapartes';
+  goToCartasWithFilters(filtered.length?`${filtered.length} carta${filtered.length===1?'':'s'} — ${esp&&esp!=='all'?esp+' · ':''}${cpLabel}`:null);
 }
 
 function updateAll(){updateKPIs();updateDeadlineAlerts();updateCharts();updateTable();if(currentView==='pendientes')renderPendientes();if(currentView==='saldos')renderSaldos();}
@@ -3089,6 +3801,7 @@ async function loadData(){
     BANDEJAS_META=stats.bandejas_meta||BANDEJAS_META;
     ACTORES_META=stats.actores_meta||ACTOR_LABELS;
     if(stats.user)applyUserChrome(stats.user);
+    applyCatalogoFromStats(stats);
     applyPlazosConfig(stats);initBandejas();initFilters();updateHeroMeta();applyFilters();
     try{await loadHilos();}catch(e){console.warn('hilos',e);HILOS={hilos:[],counts:{}};}
     if(currentView==='pendientes')renderPendientes();
@@ -3143,7 +3856,17 @@ function focusCartaModalHeader(){
   }
 }
 function formHasContent(d){if(!d)return false;const meaningful=['n_documento','referencia','asunto','especialidad','referencias','folios','cd','dirigido_a','receptor','cargo','observacion'];return meaningful.some(f=>String(d[f]||'').trim()!=='');}
-function applyForm(d){FORM_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(!el)return;let v=d&&d[f]!=null?String(d[f]):'';if(el.type==='date'&&v)v=v.slice(0,10);el.value=v;});loadRefAntecedentesFromField();}
+function applyForm(d){
+  FORM_FIELDS.forEach(f=>{
+    const el=document.getElementById('f_'+f);
+    if(!el)return;
+    let v=d&&d[f]!=null?String(d[f]):'';
+    if(el.type==='date'&&v)v=v.slice(0,10);
+    if(f!=='especialidad'&&f!=='area')el.value=v;
+  });
+  initCartaCatalogSelects(d&&d.especialidad,d&&d.area);
+  loadRefAntecedentesFromField();
+}
 function saveDraft(){const d=collectForm();if(!formHasContent(d)){localStorage.removeItem(DRAFT_KEY);return false;}localStorage.setItem(DRAFT_KEY,JSON.stringify({savedAt:new Date().toISOString(),data:d}));return true;}
 function loadDraft(){try{const r=localStorage.getItem(DRAFT_KEY);if(!r)return null;const p=JSON.parse(r);return p&&p.data?p.data:null;}catch{return null;}}
 function clearDraft(){localStorage.removeItem(DRAFT_KEY);}
@@ -3170,33 +3893,30 @@ function updateBandejaHint(){
   // Lógica de Responsabilidad de Respuesta:
   const isOut = val === 'residente' || val === 'rl' || String(val||'').startsWith('emitida');
   const areaWrap = document.getElementById('f_area_wrap');
-  const chipPicker = document.getElementById('areaRespChipPicker');
   const areaLabel = document.getElementById('f_area_label');
   const areaInput = document.getElementById('f_area');
+  const hintOut = document.getElementById('f_area_hint_out');
 
   if(isOut){
-    // Cuando nosotros enviamos hacia afuera (RO ➔ SUP / PRINOS):
-    // La respuesta formal le corresponde a la entidad externa en general.
-    // Ocultamos la asignación de especialista interno porque no aplica.
     if(areaWrap) areaWrap.style.display = 'none';
-    if(chipPicker) chipPicker.style.display = 'none';
+    if(hintOut) hintOut.style.display = 'none';
     const areaReq=document.getElementById('f_area_req');
     if(areaReq)areaReq.style.display='none';
+    const suggestHint=document.getElementById('f_area_suggest_hint');
+    if(suggestHint)suggestHint.style.display='none';
   }else{
-    // Cuando la Supervisión/Entidad nos envía hacia la Residencia (SUP ➔ RO):
-    // Asignamos qué especialista de MI EQUIPO de Residencia elaborará el informe/respuesta.
     if(areaWrap) areaWrap.style.display = 'block';
-    if(chipPicker) chipPicker.style.display = 'flex';
+    if(hintOut) hintOut.style.display = 'none';
     const areaReq=document.getElementById('f_area_req');
     if(areaReq)areaReq.style.display='inline';
-    if(areaLabel) areaLabel.innerHTML = 'Especialista Responsable de mi Equipo (Residencia) <span class="req" id="f_area_req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Obligatorio en cartas recibidas — quién elabora la respuesta)</span>';
-    if(areaInput) areaInput.placeholder = 'Ej: Especialista de Arquitectura, Especialista de Sanitarias, Oficina Técnica…';
+    if(areaLabel) areaLabel.innerHTML = 'Especialista Responsable <span class="req" id="f_area_req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Admin asigna al ingeniero que elabora la respuesta)</span>';
+    suggestAreaFromEspecialidad(false);
   }
 }
 
 function openNewModal(){
   if (CURRENT_USER && !CURRENT_USER.can_create_cartas) {
-    showToast('Solo el Residente o Administrador pueden registrar cartas nuevas', 'error');
+    showToast('Solo el Administrador puede registrar cartas. Su rol es de consulta.', 'error');
     return;
   }
   editingId=null;
@@ -3206,7 +3926,7 @@ function openNewModal(){
 
   document.getElementById('modalTitle').textContent='Nueva Carta';
   const sub=document.getElementById('modalSub');
-  if(sub)sub.textContent='Registra un nuevo documento con su bandeja, plazos y referencias';
+  if(sub)sub.textContent='Admin: registra el documento. Si es respuesta a una carta previa, agregue antecedentes para unir el hilo.';
   document.getElementById('btnSaveForm').innerHTML='<i class="ri-save-line"></i> Guardar Carta';
   document.getElementById('cartaForm').reset();
   document.getElementById('f_id').value='';
@@ -3222,11 +3942,44 @@ function openNewModal(){
   loadRefAntecedentesFromField();
   hideRefAntSuggest();
   updateRefAntPendingHint();
-  syncCartaEspChips();
+  initCartaCatalogSelects(draft&&draft.especialidad,draft&&draft.area);
   updateBandejaHint();
   updateRefTraceUI();
+  setCartaFormReadOnly(false);
+  document.getElementById('btnSaveForm').innerHTML='<i class="ri-save-line"></i> Guardar Carta';
   snapshotCartaForm();
   showModal();
+}
+
+function setCartaFormReadOnly(ro){
+  const form=document.getElementById('cartaForm');
+  if(!form)return;
+  form.querySelectorAll('input,select,textarea,button').forEach(el=>{
+    if(el.id==='f_id')return;
+    if(el.closest('.modal-footer'))return;
+    if(el.type==='hidden')return;
+    if(el.tagName==='BUTTON'){
+      el.disabled=!!ro;
+      el.style.pointerEvents=ro?'none':'';
+      el.style.opacity=ro?'0.55':'';
+      return;
+    }
+    el.disabled=!!ro;
+    el.readOnly=!!ro;
+  });
+  const saveBtn=document.getElementById('btnSaveForm');
+  if(saveBtn){
+    saveBtn.style.display=ro?'none':'';
+    saveBtn.disabled=!!ro;
+  }
+  const cancelBtn=document.getElementById('btnCancelForm');
+  if(cancelBtn){
+    cancelBtn.disabled=false;
+    cancelBtn.style.pointerEvents='';
+    cancelBtn.style.opacity='';
+    if(ro)cancelBtn.textContent='Cerrar';
+    else cancelBtn.textContent='Cancelar';
+  }
 }
 
 async function openEditModal(id){
@@ -3238,15 +3991,15 @@ async function openEditModal(id){
       c=await r.json();
     }
     editingId=id;
-    const canEditFormal = CURRENT_USER && CURRENT_USER.can_edit_formal;
+    const canEdit = CURRENT_USER && (CURRENT_USER.can_edit_cartas || CURRENT_USER.can_edit_formal);
     const sumEl = document.getElementById('cartaReadonlySummary');
     const secFormals = document.querySelectorAll('.sec-formal');
 
     const docLabel = c.n_documento || ('ID ' + id);
     const estadoLabel = c.estado_norm || c.estado || '—';
 
-    if (!canEditFormal) {
-      // Modo Especialista / Ingeniero: Interfaz simplificada y directa
+    if (!canEdit) {
+      // Solo lectura (ingeniero u otros sin permiso de edición)
       if (sumEl) {
         sumEl.style.display = 'block';
         const sentido = c.sentido || (String(c.bandeja || '').startsWith('recibida') ? 'recibida' : 'emitida');
@@ -3256,7 +4009,7 @@ async function openEditModal(id){
         const espBadge = document.getElementById('csum_especialidad');
         if (espBadge) espBadge.textContent = '👷 ' + espTxt;
         const espField = document.getElementById('csum_area_text');
-        if (espField) espField.textContent = espTxt;
+        if (espField) espField.textContent = (c.area || '').trim() || espTxt;
         document.getElementById('csum_doc').textContent = docLabel;
         document.getElementById('csum_fecha').textContent = fmtDate(c.fecha) || '—';
         document.getElementById('csum_destinatario').textContent = c.dirigido_a || c.receptor || '—';
@@ -3265,10 +4018,8 @@ async function openEditModal(id){
       secFormals.forEach(s => s.style.display = 'none');
       document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
-      if (sub) sub.textContent = `Seguimiento técnico · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
-      document.getElementById('btnSaveForm').innerHTML = '<i class="ri-check-line"></i> Guardar Seguimiento';
+      if (sub) sub.textContent = `Solo lectura · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
     } else {
-      // Modo Completo: Administrador / Residente
       if (sumEl) sumEl.style.display = 'none';
       secFormals.forEach(s => s.style.display = '');
       document.getElementById('modalTitle').textContent = docLabel;
@@ -3280,9 +4031,10 @@ async function openEditModal(id){
     document.getElementById('f_id').value=id;
     setDraftHint(false);
     applyForm(c);
-    syncCartaEspChips();
+    initCartaCatalogSelects(c.especialidad,c.area);
     updateBandejaHint();
     updateRefTraceUI();
+    setCartaFormReadOnly(!canEdit);
     snapshotCartaForm();
     showModal();
     focusCartaModalHeader();
@@ -3300,7 +4052,17 @@ function closeModal(opts={}){
 
 async function handleSave(){
   syncRefAntecedentesField();
-  const canEditFormal = CURRENT_USER && CURRENT_USER.can_edit_formal;
+  const canEdit = CURRENT_USER && (CURRENT_USER.can_edit_cartas || CURRENT_USER.can_edit_formal);
+  const canCreate = CURRENT_USER && CURRENT_USER.can_create_cartas;
+  if (editingId != null && !canEdit) {
+    showToast('Solo el Administrador puede editar cartas (p. ej. si se confundió al crear).', 'error');
+    return;
+  }
+  if (editingId == null && !canCreate) {
+    showToast('Solo el Administrador puede registrar cartas y respuestas (hilos).', 'error');
+    return;
+  }
+  const canEditFormal = canEdit;
   const doc = document.getElementById('f_n_documento').value.trim();
   const ban = document.getElementById('f_bandeja').value;
   const fecha = document.getElementById('f_fecha').value;
@@ -3337,9 +4099,14 @@ async function handleSave(){
     if (cargo.length > 150) { showToast('El cargo no puede superar los 150 caracteres', 'error'); return; }
   }
 
-  // Validaciones de campos operativos
+  // Validaciones operativas: especialidad obligatoria; especialista en recibidas
+  if (!esp) {
+    showToast('Debe seleccionar la especialidad técnica (tema del documento)', 'error');
+    document.getElementById('f_especialidad')?.focus();
+    return;
+  }
   if (isRecibida && !area) {
-    showToast('Las cartas recibidas requieren asignar el especialista responsable interno (Área / Especialista)', 'error');
+    showToast('En cartas recibidas debe asignar el especialista responsable (quién elabora la respuesta)', 'error');
     document.getElementById('f_area')?.focus();
     updateBandejaHint();
     return;
@@ -3360,8 +4127,20 @@ async function handleSave(){
     const saved = await saveCarta(data);
     if (!wasEdit) clearDraft();
     closeModal({ fromSave: true });
-    const closed = (saved && saved._cierre_referencias && saved._cierre_referencias.closed) || 0;
-    showToast(wasEdit ? (canEditFormal ? 'Carta actualizada' : 'Seguimiento técnico guardado') : 'Carta registrada' + (closed ? ` · ${closed} citada(s) cerrada(s)` : ''), 'success');
+    const cr=saved&&saved._cierre_referencias;
+    const closed=(cr&&cr.closed)||0;
+    let extra='';
+    if(closed){
+      extra=cr&&cr.mode==='hilo'
+        ?` · hilo cerrado (${closed} carta${closed===1?'':'s'} del trámite)`
+        :` · ${closed} antecedente${closed===1?'':'s'} cerrado${closed===1?'':'s'}`;
+    }
+    const hv=saved&&saved._hilo_vinculo;
+    if(hv&&hv.hilo_id){
+      const tit=hv.titulo?` (${hv.titulo})`:'';
+      extra+=` · vinculada al hilo #${hv.hilo_id}${tit}`;
+    }
+    showToast((wasEdit?'Carta actualizada':'Carta registrada')+extra,'success');
     await refreshData();
   }
   catch (e) {
@@ -3369,7 +4148,7 @@ async function handleSave(){
   }
   finally {
     btn.disabled = false;
-    btn.innerHTML = wasEdit ? (canEditFormal ? '<i class="ri-save-line"></i> Actualizar Carta' : '<i class="ri-check-line"></i> Guardar Seguimiento') : '<i class="ri-save-line"></i> Guardar Carta';
+    btn.innerHTML = wasEdit ? '<i class="ri-save-line"></i> Actualizar Carta' : '<i class="ri-save-line"></i> Guardar Carta';
   }
 }
 
@@ -3382,33 +4161,58 @@ function confirmDelete(id){
   const c=ALL_CARTAS.find(x=>x.id===id);
   document.getElementById('confirmTitle').textContent='Eliminar carta';
   document.getElementById('confirmMsg').textContent=c?`¿Eliminar la carta "${c.n_documento||id}"? Esta acción no se puede deshacer.`:'¿Eliminar esta carta?';
-  document.getElementById('btnConfirmOk').textContent='Eliminar';
+  const okBtn=document.getElementById('btnConfirmOk');
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.textContent='Eliminar';
+    okBtn.style.background='';
+  }
   document.getElementById('confirmOverlay').classList.add('active');
 }
 function confirmReimport(){
   confirmAction='reimport';deleteId=null;
   document.getElementById('confirmTitle').textContent='Reimportar Excel';
   document.getElementById('confirmMsg').textContent='Se borrarán las cartas actuales y se volverán a cargar desde el Excel montado (Control de Cartas HLP). Las ediciones manuales en la base se perderán.';
-  document.getElementById('btnConfirmOk').textContent='Reimportar';
+  const okBtn=document.getElementById('btnConfirmOk');
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.textContent='Reimportar';
+    okBtn.style.background='';
+  }
   document.getElementById('confirmOverlay').classList.add('active');
 }
 let toggleTargetUser=null,toggleTargetActivo=false;
 
 function closeConfirm(){
-  document.getElementById('confirmOverlay').classList.remove('active');
-  document.getElementById('confirmOverlay').style.zIndex='';
+  const overlay=document.getElementById('confirmOverlay');
+  if(overlay){
+    overlay.classList.remove('active');
+    overlay.style.zIndex='';
+  }
   deleteId=null;
   confirmAction=null;
   switchEditTargetId=null;
   toggleTargetUser=null;
   const okBtn=document.getElementById('btnConfirmOk');
-  if(okBtn)okBtn.style.background='';
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.style.background='';
+  }
 }
 async function executeDelete(){
   if(!deleteId)return;
-  const btn=document.getElementById('btnConfirmOk');btn.disabled=true;
-  try{await deleteCarta(deleteId);closeConfirm();showToast('Carta eliminada','success');await refreshData();}
-  catch(e){showToast('Error: '+e.message,'error');}finally{btn.disabled=false;}
+  const btn=document.getElementById('btnConfirmOk');
+  if(btn)btn.disabled=true;
+  try{
+    await deleteCarta(deleteId);
+    closeConfirm();
+    showToast('Carta eliminada','success');
+    await refreshData();
+  }catch(e){
+    showToast('Error: '+e.message,'error');
+  }finally{
+    if(btn)btn.disabled=false;
+  }
 }
 async function executeReimport(){
   const buttons=[document.getElementById('btnReimport'),document.getElementById('btnReimportFooter'),document.getElementById('btnConfirmOk')].filter(Boolean);
@@ -3488,13 +4292,17 @@ function confirmToggleUser(user, activo){
   document.getElementById('confirmTitle').textContent=title;
   document.getElementById('confirmMsg').innerHTML=msg;
   const okBtn=document.getElementById('btnConfirmOk');
-  okBtn.textContent=actionText;
-  okBtn.style.background=activo?'var(--teal)':'var(--rose)';
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.textContent=actionText;
+    okBtn.style.background=activo?'var(--teal)':'var(--rose)';
+  }
   document.getElementById('confirmOverlay').classList.add('active');
 }
 async function executeToggleUser(){
   if(!toggleTargetUser)return;
-  const btn=document.getElementById('btnConfirmOk');btn.disabled=true;
+  const btn=document.getElementById('btnConfirmOk');
+  if(btn)btn.disabled=true;
   const id=toggleTargetUser.id,activo=toggleTargetActivo;
   const uname=toggleTargetUser.username||toggleTargetUser.nombre||'usuario';
   try{
@@ -3505,7 +4313,7 @@ async function executeToggleUser(){
     showToast(activo?`Usuario @${uname} activado`:`Usuario @${uname} desactivado`,'success');
     await loadUsersAdmin();
   }catch(e){showToast('Error: '+e.message,'error');}
-  finally{btn.disabled=false;}
+  finally{if(btn)btn.disabled=false;}
 }
 function confirmLogout(){
   confirmAction='logout';
@@ -3515,24 +4323,30 @@ function confirmLogout(){
   document.getElementById('confirmTitle').textContent='Cerrar sesión';
   document.getElementById('confirmMsg').innerHTML=`¿Estás seguro de que deseas salir del sistema?<br/><span style="font-size:12.5px;color:var(--text-muted);display:inline-block;margin-top:6px">Se cerrará la sesión activa de <strong>@${escapeHtml(uname)}</strong>.</span>`;
   const okBtn=document.getElementById('btnConfirmOk');
-  okBtn.textContent='Cerrar sesión';
-  okBtn.style.background='var(--rose)';
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.textContent='Cerrar sesión';
+    okBtn.style.background='var(--rose)';
+  }
   document.getElementById('confirmOverlay').classList.add('active');
 }
 async function executeLogout(){
   const btn=document.getElementById('btnConfirmOk');
   if(btn){btn.disabled=true;btn.textContent='Cerrando…';}
-  closeConfirm();
-  CURRENT_USER=null;
-  ALL_CARTAS=[];
-  filtered=[];
-  applyUserChrome(null);
-  hidePwdGate();
-  showLoginGate('');
-  showToast('Sesión cerrada correctamente','info');
   try{
     await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
   }catch(_){}
+  finally{
+    if(btn){btn.disabled=false;btn.textContent='Confirmar';}
+    closeConfirm();
+    CURRENT_USER=null;
+    ALL_CARTAS=[];
+    filtered=[];
+    applyUserChrome(null);
+    hidePwdGate();
+    showLoginGate('');
+    showToast('Sesión cerrada correctamente','info');
+  }
 }
 async function executeSwitchCarta(){
   const id=switchEditTargetId;
@@ -3551,6 +4365,8 @@ async function executeSwitchCarta(){
 function confirmOpenCartaInEditor(targetId){
   const target=ALL_CARTAS.find(x=>x.id===targetId);
   const targetLabel=target?.n_documento||('ID '+targetId);
+  const canEdit=CURRENT_USER&&(CURRENT_USER.can_edit_cartas||CURRENT_USER.can_edit_formal);
+  const openVerb=canEdit?'Editando':'Consultando';
 
   if(editingId===targetId){
     closeRefPreview();
@@ -3562,19 +4378,23 @@ function confirmOpenCartaInEditor(targetId){
   if(!modalOpen){
     closeRefPreview();
     openEditModal(targetId).then(()=>{
-      showToast('Editando: '+targetLabel,'info');
+      showToast(openVerb+': '+targetLabel,'info');
     }).catch(e=>showToast(e.message||'Error al abrir','error'));
     return;
   }
 
   switchEditTargetId=targetId;
   confirmAction='switch_carta';
-  document.getElementById('confirmTitle').textContent='¿Cambiar de carta?';
+  document.getElementById('confirmTitle').textContent=canEdit?'¿Cambiar de carta?':'¿Ver otra carta?';
   const leavingLabel=getCurrentEditingLabel();
-  const dirtyNote=cartaFormIsDirty()?' Los cambios sin guardar se perderán.':'';
-  document.getElementById('confirmMsg').textContent=`Estás editando «${leavingLabel}». ¿Abrir «${targetLabel}» en el editor?${dirtyNote}`;
-  document.getElementById('btnConfirmOk').textContent='Abrir carta';
-  document.getElementById('btnConfirmOk').style.background='var(--accent)';
+  const dirtyNote=(canEdit&&cartaFormIsDirty())?' Los cambios sin guardar se perderán.':'';
+  document.getElementById('confirmMsg').textContent=`Estás ${canEdit?'editando':'viendo'} «${leavingLabel}». ¿Abrir «${targetLabel}»?${dirtyNote}`;
+  const okBtn=document.getElementById('btnConfirmOk');
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.textContent=canEdit?'Abrir carta':'Ver carta';
+    okBtn.style.background='var(--accent)';
+  }
   const overlay=document.getElementById('confirmOverlay');
   overlay.style.zIndex='100001';
   overlay.classList.add('active');
@@ -3624,7 +4444,10 @@ function exportCSV(){
   a.download='cartas_leoncio_prado.csv';a.click();
 }
 
-document.querySelectorAll('.view-tab').forEach(btn=>btn.addEventListener('click',()=>showView(btn.dataset.view)));
+document.querySelectorAll('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
+  showView(btn.dataset.view);
+  if(isMobileScreen())closeMobileSidebar();
+}));
 document.getElementById('btnReset').addEventListener('click',resetFilters);
 document.getElementById('filterBandeja').addEventListener('change',()=>{activeBandeja=document.getElementById('filterBandeja').value;applyFilters();});
 document.getElementById('btnFilterMore').addEventListener('click',()=>{
@@ -3645,32 +4468,7 @@ document.getElementById('modalClose')?.addEventListener('click',()=>closeModal()
 document.getElementById('btnCancelForm').addEventListener('click',()=>closeModal());
 document.getElementById('btnSaveForm').addEventListener('click',handleSave);
 document.getElementById('f_bandeja')?.addEventListener('change',updateBandejaHint);
-function syncCartaEspChips(){
-  const input=document.getElementById('f_especialidad');
-  const val=(input?input.value:'').toUpperCase();
-  const currentList=splitEspecialidades(val).map(s=>s.trim());
-  document.querySelectorAll('#cartaEspChipPicker .esp-chip-btn').forEach(btn=>{
-    const esp=(btn.dataset.esp||'').toUpperCase();
-    const isActive=currentList.includes(esp);
-    btn.classList.toggle('active',isActive);
-  });
-}
-
-function toggleCartaEspChip(esp){
-  const input=document.getElementById('f_especialidad');
-  if(!input)return;
-  const currentVal=input.value.trim();
-  let list=splitEspecialidades(currentVal).filter(s=>s!=='SIN ESPECIALIDAD');
-  const target=esp.toUpperCase();
-  if(list.includes(target)){
-    list=list.filter(s=>s!==target);
-  }else{
-    list.push(target);
-  }
-  input.value=list.join(', ');
-  syncCartaEspChips();
-  input.focus();
-}
+document.getElementById('f_especialidad')?.addEventListener('change',()=>suggestAreaFromEspecialidad(true));
 
 function previewRefCarta(id){
   const c=ALL_CARTAS.find(x=>x.id===id);
@@ -3695,6 +4493,8 @@ function previewRefCarta(id){
 
   const btnOpen=document.getElementById('btnPrevOpenEdit');
   if(btnOpen){
+    const canEdit=CURRENT_USER&&(CURRENT_USER.can_edit_cartas||CURRENT_USER.can_edit_formal);
+    btnOpen.innerHTML=canEdit?'<i class="ri-edit-line"></i> Abrir en Editor':'<i class="ri-eye-line"></i> Ver detalle';
     btnOpen.onclick=()=>confirmOpenCartaInEditor(id);
   }
 
@@ -3775,6 +4575,7 @@ function renderRefAntecedentesChips(){
       debouncedUpdateRefTraceUI();
     };
   });
+  debouncedUpdateRefTraceUI();
 }
 
 function loadRefAntecedentesFromField(){
@@ -3917,6 +4718,52 @@ function debouncedUpdateRefTraceUI(){
   refTraceTimer=setTimeout(updateRefTraceUI,140);
 }
 
+function resolveHiloFkBanner(matched,currentId){
+  const hiloIds=new Set();
+  if(currentId!=null){
+    const cur=ALL_CARTAS.find(c=>c.id===currentId);
+    if(cur&&cur.hilo_id!=null)hiloIds.add(+cur.hilo_id);
+  }
+  (matched||[]).forEach(m=>{
+    const c=ALL_CARTAS.find(x=>x.id===m.id);
+    if(c&&c.hilo_id!=null)hiloIds.add(+c.hilo_id);
+  });
+  if(!hiloIds.size)return null;
+  if(hiloIds.size>1){
+    return {warn:true,text:'Los antecedentes pertenecen a hilos distintos; al guardar el sistema los unificará en un solo hilo (FK).'};
+  }
+  const hid=[...hiloIds][0];
+  const siblings=ALL_CARTAS.filter(c=>+c.hilo_id===hid);
+  const hiloFromApi=(HILOS?.hilos||[]).find(h=>+h.hilo_id===hid);
+  const titulo=(hiloFromApi&&hiloFromApi.titulo)||(siblings[0]&&inferHiloTitulo(siblings))||('Hilo #'+hid);
+  const clave=(hiloFromApi&&hiloFromApi.clave)||'';
+  return {hid,titulo,n:siblings.length,clave,warn:false};
+}
+
+function inferHiloTitulo(cartas){
+  if(!cartas||!cartas.length)return '';
+  for(const c of cartas){
+    const a=String(c.asunto||'');
+    const m=a.match(/consulta\s*n[°º.]?\s*(\d+)/i);
+    if(m)return 'Consulta N°'+m[1];
+  }
+  const d=cartas[0].n_documento;
+  return d?String(d).slice(0,80):'';
+}
+
+function hiloFkBannerHtml(b){
+  if(!b)return '';
+  if(b.warn){
+    return `<div class="hilo-fk-banner warn" style="font-size:11px;background:#FFF8E6;border:1px solid #E8D4A0;color:#6B5A2E;padding:8px 10px;border-radius:6px;margin-bottom:8px;line-height:1.45">
+      <i class="ri-git-merge-line"></i> ${escapeHtml(b.text)}
+    </div>`;
+  }
+  const claveTxt=b.clave?` · ${escapeHtml(b.clave)}`:'';
+  return `<div class="hilo-fk-banner" style="font-size:11px;background:#EEF6FF;border:1px solid #B8D4F0;color:#1A4A7A;padding:8px 10px;border-radius:6px;margin-bottom:8px;line-height:1.45">
+    <i class="ri-mail-thread-line"></i> <strong>Hilo vinculado (FK #${b.hid})</strong>${claveTxt}: ${escapeHtml(b.titulo)} · ${b.n} carta${b.n===1?'':'s'} en el mismo trámite. No se mezclará con otros hilos.
+  </div>`;
+}
+
 function updateRefTraceUI(){
   const container=document.getElementById('refTraceLinksContainer');
   if(!container)return;
@@ -3981,6 +4828,13 @@ function updateRefTraceUI(){
   }
 
   if(!matched.length){
+    const soloHilo=resolveHiloFkBanner([],currentId);
+    if(soloHilo&&!soloHilo.warn){
+      container.style.display='block';
+      container.innerHTML=hiloFkBannerHtml(soloHilo)+`
+        <div style="font-size:11px;color:var(--text-muted);padding:2px 4px">Esta carta ya pertenece a un hilo persistente. Agrega antecedentes para enlazar respuestas al mismo trámite.</div>`;
+      return;
+    }
     if(refVal.length>=4){
       container.style.display='block';
       const noKeyMsg=rawParts.length&&!searchKeys.length
@@ -4001,7 +4855,8 @@ function updateRefTraceUI(){
   const MAX_TRACE=12;
   const shown=matched.slice(0,MAX_TRACE);
   const extra=matched.length-shown.length;
-  container.innerHTML=`
+  const hiloBanner=hiloFkBannerHtml(resolveHiloFkBanner(matched,currentId));
+  container.innerHTML=hiloBanner+`
     <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-top:4px;margin-bottom:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
       <i class="ri-link-m" style="color:var(--accent)"></i> Trazabilidad Detectada (${matched.length} documento${matched.length>1?'s':''}):
       ${extra>0?`<span style="font-weight:500;color:var(--text-muted)">mostrando ${shown.length}</span>`:''}
@@ -4053,27 +4908,16 @@ document.getElementById('refAntecedentesInput')?.addEventListener('paste',e=>{
     e.target.value='';
   }
 });
-document.getElementById('f_especialidad')?.addEventListener('input',syncCartaEspChips);
-document.querySelectorAll('#cartaEspChipPicker .esp-chip-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    toggleCartaEspChip(btn.dataset.esp);
-  });
-});
 document.getElementById('btnConfirmCancel').addEventListener('click',closeConfirm);
 document.getElementById('btnConfirmOk').addEventListener('click',handleConfirmOk);
+document.getElementById('confirmOverlay')?.addEventListener('click',e=>{
+  if(e.target.id==='confirmOverlay')closeConfirm();
+});
 document.getElementById('btnCSV').addEventListener('click',exportCSV);
 document.getElementById('btnReimportConfig')?.addEventListener('click',confirmReimport);
 document.getElementById('btnBackfillHistorico')?.addEventListener('click',()=>runBackfillHistorico(false));
 document.getElementById('btnBackfillPreview')?.addEventListener('click',()=>runBackfillHistorico(true));
 document.getElementById('filterFlujo')?.addEventListener('change',applyFilters);
-document.querySelectorAll('#areaRespChipPicker .esp-chip-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const input=document.getElementById('f_area');
-    if(!input)return;
-    input.value=btn.dataset.area;
-    input.focus();
-  });
-});
 document.getElementById('filterEstado').addEventListener('change',applyFilters);
 document.getElementById('filterEsp').addEventListener('change',applyFilters);
 document.getElementById('filterPlazo').addEventListener('change',applyFilters);
@@ -4256,7 +5100,32 @@ const btnSidebarClose=document.getElementById('btnSidebarClose');
 const sidebarBackdrop=document.getElementById('sidebarBackdrop');
 const appSidebar=document.getElementById('appSidebar');
 
+function isMobileScreen(){
+  return window.innerWidth <= 992;
+}
+
+function toggleSidebar(){
+  if(isMobileScreen()){
+    if(appSidebar?.classList.contains('open')){
+      closeMobileSidebar();
+    }else{
+      openMobileSidebar();
+    }
+  }else{
+    const isCollapsed = appSidebar?.classList.toggle('collapsed');
+    try{
+      localStorage.setItem('sidebar_collapsed', isCollapsed ? '1' : '0');
+    }catch(_){}
+    setTimeout(()=>{
+      window.dispatchEvent(new Event('resize'));
+      updateHeaderHeight();
+      Object.values(charts).forEach(ch=>ch&&ch.resize&&ch.resize());
+    }, 260);
+  }
+}
+
 function openMobileSidebar(){
+  appSidebar?.classList.remove('collapsed');
   appSidebar?.classList.add('open');
   sidebarBackdrop?.classList.add('active');
 }
@@ -4265,7 +5134,7 @@ function closeMobileSidebar(){
   sidebarBackdrop?.classList.remove('active');
 }
 
-btnSidebarToggle?.addEventListener('click',openMobileSidebar);
+btnSidebarToggle?.addEventListener('click',toggleSidebar);
 btnSidebarClose?.addEventListener('click',closeMobileSidebar);
 sidebarBackdrop?.addEventListener('click',closeMobileSidebar);
 
@@ -4316,10 +5185,11 @@ function syncUserFormRol(){
   const espsWrap=document.getElementById('uf_espsWrap');
   const descEl=document.getElementById('uf_rolDesc');
   if(espsWrap)espsWrap.style.display=rol==='ingeniero'?'':'none';
+  if(rol==='ingeniero')populateUserEspSelect(getUserEspSelections());
   const descs={
-    ingeniero:'<strong>👷 Ingeniero Especialista:</strong> Solo tiene acceso a las cartas de sus especialidades asignadas. No administra usuarios.',
-    residente:'<strong>📋 Residente de Obra:</strong> Tiene acceso a todas las especialidades y bandejas del proyecto, con permisos de registro y edición.',
-    admin:'<strong>🔑 Administrador:</strong> Control total del sistema, gestión de usuarios, reimportación de Excel y configuración general.'
+    ingeniero:'<strong>👷 Ingeniero Especialista:</strong> Solo lectura de las cartas de sus especialidades. No crea, edita ni cierra trámites.',
+    residente:'<strong>📋 Residente de Obra:</strong> Consulta todas las bandejas y especialidades. El ciclo de cartas (crear, responder, cerrar hilo) lo maneja solo el Administrador.',
+    admin:'<strong>🔑 Administrador:</strong> Único operador del ciclo: crea la carta, registra la respuesta (nueva carta con antecedentes → hilo), corrige errores de tipado y cierra el hilo completo.'
   };
   if(descEl)descEl.innerHTML=descs[rol]||'';
 }
@@ -4341,7 +5211,7 @@ function openUserModal(user){
   
   document.getElementById('uf_nombre').value=isEdit?user.nombre:'';
   document.getElementById('uf_rol').value=isEdit?user.rol:'ingeniero';
-  document.getElementById('uf_esps').value=isEdit?(user.especialidades||[]).join(', '):'';
+  populateUserEspSelect(isEdit?(user.especialidades||[]):[]);
   
   const pwdInp=document.getElementById('uf_password');
   const pwdResetInp=document.getElementById('uf_password_reset');
@@ -4365,22 +5235,6 @@ function openUserModal(user){
   showUserModal();
 }
 
-document.querySelectorAll('#espChipPicker .esp-chip-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const esp=btn.dataset.esp;
-    const input=document.getElementById('uf_esps');
-    if(!input)return;
-    const curr=input.value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean);
-    if(curr.includes(esp)){
-      input.value=curr.filter(s=>s!==esp).join(', ');
-    }else{
-      curr.push(esp);
-      input.value=curr.join(', ');
-    }
-    input.focus();
-  });
-});
-
 document.querySelectorAll('.btn-toggle-pwd').forEach(btn=>{
   btn.addEventListener('click',()=>{
     const targetId=btn.dataset.target;
@@ -4396,12 +5250,16 @@ async function handleUserSave(){
   const isEdit = editingUserId != null;
   const nombre = document.getElementById('uf_nombre').value.trim();
   const rol = document.getElementById('uf_rol').value;
-  const esps = document.getElementById('uf_esps').value.trim();
+  const espsList = rol === 'ingeniero' ? getUserEspSelections() : [];
 
   if (!nombre) { showToast('El nombre y cargo son obligatorios', 'error'); return; }
   if (nombre.length > 100) { showToast('El nombre y cargo no pueden superar los 100 caracteres', 'error'); return; }
-  if (rol === 'ingeniero' && !esps) { showToast('El rol Ingeniero requiere al menos una especialidad', 'error'); return; }
-  if (esps.length > 500) { showToast('El listado de especialidades no puede superar los 500 caracteres', 'error'); return; }
+  if (rol === 'ingeniero' && !espsList.length) {
+    showToast('Seleccione al menos una especialidad del catálogo para el ingeniero', 'error');
+    document.getElementById('uf_esps')?.focus();
+    return;
+  }
+  if (espsList.length > 12) { showToast('Máximo 12 especialidades por usuario', 'error'); return; }
 
   if (!isEdit) {
     const username = document.getElementById('uf_username').value.trim();
@@ -4432,7 +5290,7 @@ async function handleUserSave(){
   btn.textContent = 'Guardando…';
   try {
     if (isEdit) {
-      const body = { nombre, rol, especialidades: esps };
+      const body = { nombre, rol, especialidades: espsList };
       const r = await apiFetch('/api/auth/users/' + editingUserId, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -4461,7 +5319,7 @@ async function handleUserSave(){
         username,
         nombre,
         rol,
-        especialidades: esps,
+        especialidades: espsList,
         password,
         must_change_password: document.getElementById('uf_must').checked
       };
@@ -4627,6 +5485,7 @@ async function loadUsersAdmin(){
     const r=await apiFetch('/api/auth/users');
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||'Error al cargar usuarios');
+    if(d.catalogo)CATALOGO=d.catalogo;
     USERS_ADMIN=d.users||[];
     renderUsersTable();
   }catch(e){
@@ -4682,6 +5541,7 @@ function applyConfig(cfg) {
   // 4. Logo en la Barra Lateral
   const sLogo = document.getElementById('sidebarBrandLogo');
   if (sLogo) {
+    sLogo.title = cfg.nombre_sistema || 'SistemaGreace';
     if (cfg.logo_url) {
       sLogo.innerHTML = `<img src="${cfg.logo_url}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:9px;display:block">`;
       sLogo.style.background = 'transparent';
@@ -4731,10 +5591,12 @@ function applyConfig(cfg) {
   const foot = document.querySelector('.footer > span:first-child');
   if (foot) foot.textContent = `Fuente: Control de Cartas — ${cfg.subtitulo_proyecto || 'Leoncio Prado (PRONIS/MINSA)'}`;
 
-  // 8. Reglas de Plazos SLA
+  // 8. Reglas de Plazos SLA (unificado con contractuales)
+  applyPlazoContractualConfig(cfg);
+  if (cfg.plazo_ro_dias != null) HILO_PLAZO_DIAS = parseInt(cfg.plazo_ro_dias, 10);
+  else if (cfg.dias_hilo != null) HILO_PLAZO_DIAS = parseInt(cfg.dias_hilo, 10);
   if (cfg.dias_vencida != null) VENCIDA_DIAS = parseInt(cfg.dias_vencida, 10);
   if (cfg.dias_por_vencer != null) POR_VENCER_DIAS = parseInt(cfg.dias_por_vencer, 10);
-  if (cfg.dias_hilo != null) HILO_PLAZO_DIAS = parseInt(cfg.dias_hilo, 10);
   const fV = document.getElementById('footerVencida');
   if (fV) fV.textContent = VENCIDA_DIAS;
   const fR = document.getElementById('footerRiesgo');
@@ -4803,6 +5665,12 @@ function checkConfigChanges() {
   const curVencida = parseInt(document.getElementById('cfg_dias_vencida')?.value || 15, 10);
   const curRiesgo = parseInt(document.getElementById('cfg_dias_por_vencer')?.value || 10, 10);
   const curHilo = parseInt(document.getElementById('cfg_dias_hilo')?.value || 5, 10);
+  const curPlazoSup = parseInt(document.getElementById('cfg_plazo_sup_dias')?.value || 5, 10);
+  const curPlazoEnt = parseInt(document.getElementById('cfg_plazo_entidad_dias')?.value || 15, 10);
+  const curPlazoMuni = parseInt(document.getElementById('cfg_plazo_muni_dias')?.value || 15, 10);
+  const curPlazoJrd = parseInt(document.getElementById('cfg_plazo_jrd_dias')?.value || 15, 10);
+  const curPlazoRo = parseInt(document.getElementById('cfg_plazo_ro_dias')?.value || 5, 10);
+  const curSyncSem = document.getElementById('cfg_sync_semaforos')?.checked !== false;
   
   const isDirty = !initialConfigSnapshot ||
     curNombre !== initialConfigSnapshot.nombre_sistema ||
@@ -4811,7 +5679,13 @@ function checkConfigChanges() {
     pendingFaviconBase64 !== initialConfigSnapshot.favicon_url ||
     curVencida !== initialConfigSnapshot.dias_vencida ||
     curRiesgo !== initialConfigSnapshot.dias_por_vencer ||
-    curHilo !== initialConfigSnapshot.dias_hilo;
+    curHilo !== initialConfigSnapshot.dias_hilo ||
+    curSyncSem !== initialConfigSnapshot.sync_semaforos ||
+    curPlazoSup !== initialConfigSnapshot.plazo_sup_dias ||
+    curPlazoEnt !== initialConfigSnapshot.plazo_entidad_dias ||
+    curPlazoMuni !== initialConfigSnapshot.plazo_muni_dias ||
+    curPlazoJrd !== initialConfigSnapshot.plazo_jrd_dias ||
+    curPlazoRo !== initialConfigSnapshot.plazo_ro_dias;
 
   const btnSave = document.getElementById('btnConfigSave');
   const bChanges = document.getElementById('cfg_changes_badge');
@@ -4842,14 +5716,31 @@ function loadConfigAdmin() {
     subtitulo_proyecto: 'Hospital Leoncio Prado (PRONIS/MINSA)',
     dias_vencida: 15,
     dias_por_vencer: 10,
-    dias_hilo: 5
+    dias_hilo: 5,
+    plazo_sup_dias: 5,
+    plazo_entidad_dias: 15,
+    plazo_muni_dias: 15,
+    plazo_jrd_dias: 15,
+    plazo_ro_dias: 5
   };
   
   document.getElementById('cfg_nombre_sistema').value = cfg.nombre_sistema || '';
   document.getElementById('cfg_subtitulo_proyecto').value = cfg.subtitulo_proyecto || '';
+  document.getElementById('cfg_plazo_sup_dias').value = cfg.plazo_sup_dias ?? 5;
+  document.getElementById('cfg_plazo_entidad_dias').value = cfg.plazo_entidad_dias ?? 15;
+  document.getElementById('cfg_plazo_muni_dias').value = cfg.plazo_muni_dias ?? 15;
+  document.getElementById('cfg_plazo_jrd_dias').value = cfg.plazo_jrd_dias ?? 15;
+  document.getElementById('cfg_plazo_ro_dias').value = cfg.plazo_ro_dias ?? 5;
+  const syncSemEl=document.getElementById('cfg_sync_semaforos');
+  if(syncSemEl){
+    const outOfSync=cfg.dias_vencida!=null&&cfg.plazo_ro_dias!=null&&
+      parseInt(cfg.dias_hilo,10)!==parseInt(cfg.plazo_ro_dias,10);
+    syncSemEl.checked=outOfSync?false:(cfg.sync_semaforos!==false);
+  }
   document.getElementById('cfg_dias_vencida').value = cfg.dias_vencida || 15;
   document.getElementById('cfg_dias_por_vencer').value = cfg.dias_por_vencer || 10;
-  document.getElementById('cfg_dias_hilo').value = cfg.dias_hilo || 5;
+  document.getElementById('cfg_dias_hilo').value = cfg.plazo_ro_dias ?? cfg.dias_hilo ?? 5;
+  syncUnifiedPlazoUI();
   
   pendingLogoBase64 = cfg.logo_url || null;
   pendingFaviconBase64 = cfg.favicon_url || null;
@@ -4859,9 +5750,15 @@ function loadConfigAdmin() {
     subtitulo_proyecto: (cfg.subtitulo_proyecto || '').trim(),
     logo_url: cfg.logo_url || null,
     favicon_url: cfg.favicon_url || null,
-    dias_vencida: parseInt(cfg.dias_vencida || 15, 10),
-    dias_por_vencer: parseInt(cfg.dias_por_vencer || 10, 10),
-    dias_hilo: parseInt(cfg.dias_hilo || 5, 10)
+    dias_vencida: parseInt(document.getElementById('cfg_dias_vencida')?.value || 15, 10),
+    dias_por_vencer: parseInt(document.getElementById('cfg_dias_por_vencer')?.value || 10, 10),
+    dias_hilo: parseInt(document.getElementById('cfg_dias_hilo')?.value || 5, 10),
+    plazo_sup_dias: parseInt(cfg.plazo_sup_dias ?? 5, 10),
+    plazo_entidad_dias: parseInt(cfg.plazo_entidad_dias ?? 15, 10),
+    plazo_muni_dias: parseInt(cfg.plazo_muni_dias ?? 15, 10),
+    plazo_jrd_dias: parseInt(cfg.plazo_jrd_dias ?? 15, 10),
+    plazo_ro_dias: parseInt(cfg.plazo_ro_dias ?? 5, 10),
+    sync_semaforos: document.getElementById('cfg_sync_semaforos')?.checked !== false
   };
   
   updateLogoPreviewUI(pendingLogoBase64);
@@ -4964,26 +5861,45 @@ document.getElementById('btnRemoveFavicon')?.addEventListener('click', () => {
   showToast('Favicon removido. Volverá al ícono por defecto al guardar.', 'info');
 });
 
-['cfg_nombre_sistema','cfg_subtitulo_proyecto','cfg_dias_vencida','cfg_dias_por_vencer','cfg_dias_hilo'].forEach(id => {
+['cfg_nombre_sistema','cfg_subtitulo_proyecto','cfg_dias_vencida','cfg_dias_por_vencer','cfg_plazo_sup_dias','cfg_plazo_entidad_dias','cfg_plazo_muni_dias','cfg_plazo_jrd_dias','cfg_plazo_ro_dias'].forEach(id => {
   const el = document.getElementById(id);
   if (el) {
     el.addEventListener('input', () => {
       if (id === 'cfg_nombre_sistema') updateTabPreviewUI();
-      checkConfigChanges();
+      if (['cfg_plazo_sup_dias','cfg_plazo_entidad_dias','cfg_plazo_muni_dias','cfg_plazo_jrd_dias','cfg_plazo_ro_dias'].includes(id)) {
+        syncUnifiedPlazoUI();
+      } else {
+        checkConfigChanges();
+      }
     });
-    el.addEventListener('change', checkConfigChanges);
+    el.addEventListener('change', () => {
+      if (['cfg_plazo_sup_dias','cfg_plazo_entidad_dias','cfg_plazo_muni_dias','cfg_plazo_jrd_dias','cfg_plazo_ro_dias'].includes(id)) {
+        syncUnifiedPlazoUI();
+      } else {
+        checkConfigChanges();
+      }
+    });
   }
 });
+document.getElementById('cfg_sync_semaforos')?.addEventListener('change', syncUnifiedPlazoUI);
 
 document.getElementById('btnConfigSave')?.addEventListener('click', handleConfigSave);
 document.getElementById('btnConfigReset')?.addEventListener('click', handleConfigReset);
 
 async function handleConfigSave() {
+  syncUnifiedPlazoUI();
   const nombre = document.getElementById('cfg_nombre_sistema').value.trim();
   const subtitulo = document.getElementById('cfg_subtitulo_proyecto').value.trim();
-  const dias_vencida = parseInt(document.getElementById('cfg_dias_vencida').value, 10);
-  const dias_por_vencer = parseInt(document.getElementById('cfg_dias_por_vencer').value, 10);
-  const dias_hilo = parseInt(document.getElementById('cfg_dias_hilo').value, 10);
+  const sync_semaforos = document.getElementById('cfg_sync_semaforos')?.checked !== false;
+  const derived = computeDerivedPlazosFromContractual();
+  const dias_vencida = sync_semaforos ? derived.dias_vencida : parseInt(document.getElementById('cfg_dias_vencida').value, 10);
+  const dias_por_vencer = sync_semaforos ? derived.dias_por_vencer : parseInt(document.getElementById('cfg_dias_por_vencer').value, 10);
+  const dias_hilo = derived.dias_hilo;
+  const plazo_sup_dias = parseInt(document.getElementById('cfg_plazo_sup_dias').value, 10);
+  const plazo_entidad_dias = parseInt(document.getElementById('cfg_plazo_entidad_dias').value, 10);
+  const plazo_muni_dias = parseInt(document.getElementById('cfg_plazo_muni_dias').value, 10);
+  const plazo_jrd_dias = parseInt(document.getElementById('cfg_plazo_jrd_dias').value, 10);
+  const plazo_ro_dias = parseInt(document.getElementById('cfg_plazo_ro_dias').value, 10);
 
   if (!nombre) { showToast('El nombre del sistema es obligatorio', 'error'); return; }
   if (nombre.length > 100) { showToast('El nombre del sistema no puede superar los 100 caracteres', 'error'); return; }
@@ -5009,6 +5925,18 @@ async function handleConfigSave() {
     showToast('Los días de alerta preventiva (por vencer) deben ser menores que los días para carta vencida', 'error');
     return;
   }
+  for (const [label, val] of [
+    ['Supervisión', plazo_sup_dias],
+    ['Entidad', plazo_entidad_dias],
+    ['Municipalidad', plazo_muni_dias],
+    ['Junta Disputas', plazo_jrd_dias],
+    ['Yo debo (RO)', plazo_ro_dias]
+  ]) {
+    if (isNaN(val) || val < 1 || val > 99999) {
+      showToast(`Plazo ${label}: ingrese un entero entre 1 y 99.999`, 'error');
+      return;
+    }
+  }
 
   const btn = document.getElementById('btnConfigSave');
   btn.disabled = true;
@@ -5022,7 +5950,13 @@ async function handleConfigSave() {
       favicon_url: pendingFaviconBase64,
       dias_vencida,
       dias_por_vencer,
-      dias_hilo
+      dias_hilo,
+      plazo_sup_dias,
+      plazo_entidad_dias,
+      plazo_muni_dias,
+      plazo_jrd_dias,
+      plazo_ro_dias,
+      sync_semaforos
     };
     const r = await apiFetch('/api/config', {
       method: 'PUT',
@@ -5041,8 +5975,15 @@ async function handleConfigSave() {
         favicon_url: d.config.favicon_url || null,
         dias_vencida: parseInt(d.config.dias_vencida || 15, 10),
         dias_por_vencer: parseInt(d.config.dias_por_vencer || 10, 10),
-        dias_hilo: parseInt(d.config.dias_hilo || 5, 10)
+        dias_hilo: parseInt(d.config.dias_hilo || 5, 10),
+        plazo_sup_dias: parseInt(d.config.plazo_sup_dias ?? 5, 10),
+        plazo_entidad_dias: parseInt(d.config.plazo_entidad_dias ?? 15, 10),
+        plazo_muni_dias: parseInt(d.config.plazo_muni_dias ?? 15, 10),
+        plazo_jrd_dias: parseInt(d.config.plazo_jrd_dias ?? 15, 10),
+        plazo_ro_dias: parseInt(d.config.plazo_ro_dias ?? 5, 10),
+        sync_semaforos: document.getElementById('cfg_sync_semaforos')?.checked !== false
       };
+      syncUnifiedPlazoUI();
       checkConfigChanges();
     }
     showToast('Configuración del sistema actualizada correctamente', 'success');
@@ -5057,9 +5998,14 @@ async function handleConfigSave() {
 function handleConfigReset() {
   document.getElementById('cfg_nombre_sistema').value = 'SistemaGreace';
   document.getElementById('cfg_subtitulo_proyecto').value = 'Hospital Leoncio Prado (PRONIS/MINSA)';
-  document.getElementById('cfg_dias_vencida').value = 15;
-  document.getElementById('cfg_dias_por_vencer').value = 10;
-  document.getElementById('cfg_dias_hilo').value = 5;
+  document.getElementById('cfg_plazo_sup_dias').value = 5;
+  document.getElementById('cfg_plazo_entidad_dias').value = 15;
+  document.getElementById('cfg_plazo_muni_dias').value = 15;
+  document.getElementById('cfg_plazo_jrd_dias').value = 15;
+  document.getElementById('cfg_plazo_ro_dias').value = 5;
+  const syncEl=document.getElementById('cfg_sync_semaforos');
+  if(syncEl)syncEl.checked=true;
+  syncUnifiedPlazoUI();
   pendingLogoBase64 = null;
   pendingFaviconBase64 = null;
   updateLogoPreviewUI(null);
@@ -5076,6 +6022,11 @@ window.addEventListener('hashchange',()=>{
   showView(['cartas','pendientes','saldos','usuarios','configuracion'].includes(h)?h:'reportes');
 });
 
+try{
+  if(!isMobileScreen() && localStorage.getItem('sidebar_collapsed') === '1'){
+    document.getElementById('appSidebar')?.classList.add('collapsed');
+  }
+}catch(_){}
 updateHeaderHeight();
 fetchConfig();
 const boot=(location.hash||'').replace('#','');

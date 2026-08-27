@@ -5,31 +5,10 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from normalizers import split_especialidades
+from normalizers import split_especialidades, ESP_TO_ESPECIALISTA
 
 # Especialidad técnica → responsable interno canónico (equipo de Residencia)
-ESP_TO_AREA: dict[str, str] = {
-    "ESTRUCTURAS": "ESPECIALISTA ESTRUCTURAS",
-    "ARQUITECTURA": "ESPECIALISTA ARQUITECTURA",
-    "INST. SANITARIAS": "ESPECIALISTA SANITARIAS",
-    "INST. ELECTRICAS": "ESPECIALISTA ELECTRICAS",
-    "INST. MECANICAS": "EQUIPAMIENTO",
-    "EQUIPAMIENTO": "EQUIPAMIENTO",
-    "CALIDAD": "SSOMA / CALIDAD",
-    "SSOMA": "SSOMA / CALIDAD",
-    "GEOTECNIA": "ESPECIALISTA GEOTECNIA",
-    "BIM": "ESPECIALISTA BIM",
-    "TOPOGRAFIA": "ESPECIALISTA TOPOGRAFIA",
-    "MEDIO AMBIENTE": "ESPECIALISTA MEDIO AMBIENTE",
-    "ADM. DE CONTRATOS": "ESPECIALISTA ADM. CONTRATOS",
-    "COSTOS": "ESPECIALISTA COSTOS",
-    "COMUNICACIONES": "ESPECIALISTA COMUNICACIONES",
-    "PRODUCCION": "ESPECIALISTA PRODUCCION",
-    "RR.HH.": "RESIDENCIA",
-    "CAMPO": "ESPECIALISTA CAMPO",
-    "MIXTA": "OFICINA TECNICA",
-    "SIN ESPECIALIDAD": "RESIDENCIA",
-}
+ESP_TO_AREA: dict[str, str] = ESP_TO_ESPECIALISTA
 
 # Etiquetas legacy del Excel en columna area → responsable canónico
 _AREA_LEGACY_PATTERNS: list[tuple[re.Pattern, str]] = [

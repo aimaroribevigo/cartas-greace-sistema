@@ -13,6 +13,17 @@ VENCIDA_DIAS = int(os.environ.get("CARTA_VENCIDA_DIAS", "15"))
 POR_VENCER_DIAS = int(os.environ.get("CARTA_POR_VENCER_DIAS", "10"))
 
 
+def set_sla_config(cfg: dict | None) -> None:
+    """Sincroniza umbrales de semáforo con configuracion_sistema."""
+    global VENCIDA_DIAS, POR_VENCER_DIAS
+    if not cfg:
+        return
+    if cfg.get("dias_vencida") is not None:
+        VENCIDA_DIAS = max(1, int(cfg["dias_vencida"]))
+    if cfg.get("dias_por_vencer") is not None:
+        POR_VENCER_DIAS = max(1, int(cfg["dias_por_vencer"]))
+
+
 def _as_date(v) -> date | None:
     if v is None:
         return None

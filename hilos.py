@@ -17,6 +17,25 @@ HILO_AMARILLO_DIA = int(os.environ.get("HILO_AMARILLO_DIA", "4"))
 HILO_LEGADO_DIAS = int(os.environ.get("HILO_LEGADO_DIAS", "60"))
 HILO_OPERATIVO_MAX_DIAS = int(os.environ.get("HILO_OPERATIVO_MAX_DIAS", "15"))
 
+_RUNTIME_HILO_CFG: dict | None = None
+
+
+def set_hilo_plazo_config(cfg: dict | None) -> None:
+    """Sincroniza plazos de hilos con configuracion_sistema (plazo_ro_dias = fuente)."""
+    global HILO_PLAZO_DIAS, HILO_VERDE_HASTA, HILO_AMARILLO_DIA, HILO_OPERATIVO_MAX_DIAS, _RUNTIME_HILO_CFG
+    _RUNTIME_HILO_CFG = cfg
+    c = cfg or {}
+    plazo = int(c.get("plazo_ro_dias") or c.get("dias_hilo") or os.environ.get("HILO_PLAZO_DIAS", "5"))
+    HILO_PLAZO_DIAS = max(1, plazo)
+    HILO_VERDE_HASTA = max(1, HILO_PLAZO_DIAS - 2)
+    HILO_AMARILLO_DIA = max(1, HILO_PLAZO_DIAS - 1)
+    max_cal = max(
+        int(c.get("plazo_entidad_dias") or 15),
+        int(c.get("plazo_muni_dias") or 15),
+        int(c.get("plazo_jrd_dias") or 15),
+    )
+    HILO_OPERATIVO_MAX_DIAS = max_cal
+
 _DOC_RE = re.compile(
     r"(?:CARTA|INFORME|OFICIO|ASIENTO)\s*N[°º]?\s*[A-Z0-9\-/]+",
     re.I,
@@ -250,7 +269,211 @@ def _titulo_group(items: list[dict]) -> str:
     return asu
 
 
-def _summarize_group(items: list[dict], today: date | None = None) -> dict:
+def canonical_tramite_clave(c: dict) -> str | None:
+    """Clave estable del trámite (p. ej. CONSULTA:177). Sin hash aleatorio."""
+    for k in extract_tramite_keys(c):
+        if k.startswith("CONSULTA:"):
+            return k
+    return None
+
+
+def _stable_clave_for_items(items: list[dict]) -> str:
+    for c in items:
+        ck = canonical_tramite_clave(c)
+        if ck:
+            return ck
+    dk = normalize_doc_key((items[0] if items else {}).get("n_documento"))
+    if dk:
+        return f"DOC:{dk}"[:255]
+    cid = (items[0] if items else {}).get("id")
+    return f"SUELTA:{cid or 0}"[:255]
+
+
+def _ensure_hilos_table(cur):
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hilos (
+            id INT NOT NULL AUTO_INCREMENT,
+            clave VARCHAR(255) NOT NULL,
+            titulo VARCHAR(255) NULL,
+            especialidad_norm VARCHAR(120) NULL,
+            estado VARCHAR(40) NOT NULL DEFAULT 'abierto',
+            fecha_inicio DATE NULL,
+            fecha_cierre DATE NULL,
+            dias_congelados INT NULL,
+            n_cartas INT NOT NULL DEFAULT 0,
+            creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uq_hilos_clave (clave),
+            KEY idx_hilos_estado (estado)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """
+    )
+    _ensure_carta_hilo_col(cur)
+    try:
+        cur.execute(
+            """
+            SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cartas'
+              AND CONSTRAINT_NAME = 'fk_cartas_hilo'
+            """
+        )
+        if not cur.fetchone():
+            cur.execute(
+                """
+                ALTER TABLE cartas
+                ADD CONSTRAINT fk_cartas_hilo
+                FOREIGN KEY (hilo_id) REFERENCES hilos(id)
+                ON DELETE SET NULL ON UPDATE CASCADE
+                """
+            )
+    except Exception:
+        pass
+
+
+def _hilo_ids_from_cited_docs(cur, cited: set[str]) -> set[int]:
+    if not cited:
+        return set()
+    cur.execute("SELECT id, n_documento, hilo_id FROM cartas")
+    out: set[int] = set()
+    for r in cur.fetchall():
+        if normalize_doc_key(r.get("n_documento")) not in cited:
+            continue
+        hid = r.get("hilo_id")
+        if hid is not None:
+            out.add(int(hid))
+    return out
+
+
+def _merge_hilos(cur, primary_id: int, other_ids: set[int]) -> None:
+    for oid in other_ids:
+        if oid == primary_id:
+            continue
+        cur.execute("UPDATE cartas SET hilo_id=%s WHERE hilo_id=%s", (primary_id, oid))
+        cur.execute("DELETE FROM hilos WHERE id=%s", (oid,))
+
+
+def _get_or_create_hilo(cur, clave: str, carta: dict) -> int:
+    clave = clave[:255]
+    cur.execute("SELECT id, clave FROM hilos WHERE clave=%s", (clave,))
+    row = cur.fetchone()
+    if row:
+        return int(row["id"])
+    titulo = _titulo_group([carta])
+    esp = (carta.get("especialidad_norm") or "SIN ESPECIALIDAD")[:120]
+    cur.execute(
+        """
+        INSERT INTO hilos (clave, titulo, especialidad_norm, estado, n_cartas)
+        VALUES (%s, %s, %s, 'abierto', 0)
+        """,
+        (clave, titulo[:255], esp),
+    )
+    return int(cur.lastrowid)
+
+
+def assign_carta_hilo(conn, carta_id: int, carta: dict) -> dict:
+    """
+    Vincula la carta a un hilo persistente (FK hilo_id), estilo conversación Outlook.
+    Prioridad: antecedentes citados > clave CONSULTA:N > documento raíz.
+    """
+    blob = " ".join(
+        [
+            str(carta.get("referencias") or ""),
+            str(carta.get("asunto") or ""),
+            str(carta.get("observacion") or ""),
+        ]
+    )
+    cited = set(extract_cited_docs(blob))
+    carta_clave = canonical_tramite_clave(carta)
+
+    with conn.cursor() as cur:
+        _ensure_hilos_table(cur)
+        cited_hilos = _hilo_ids_from_cited_docs(cur, cited)
+        cur.execute("SELECT hilo_id FROM cartas WHERE id=%s", (carta_id,))
+        own = cur.fetchone()
+        existing = int(own["hilo_id"]) if own and own.get("hilo_id") else None
+
+        target: int | None = None
+        merged = 0
+
+        if cited_hilos:
+            target = min(cited_hilos)
+            rest = cited_hilos - {target}
+            if existing and existing not in cited_hilos:
+                rest.add(existing)
+            if rest:
+                _merge_hilos(cur, target, rest)
+                merged = len(rest)
+        elif existing:
+            target = existing
+        elif carta_clave:
+            target = _get_or_create_hilo(cur, carta_clave, carta)
+        else:
+            root = f"DOC:{normalize_doc_key(carta.get('n_documento'))}"[:255]
+            if root and root != "DOC:":
+                target = _get_or_create_hilo(cur, root, carta)
+
+        if target is None:
+            conn.commit()
+            return {"ok": True, "hilo_id": None, "reason": "sin_vinculo"}
+
+        if carta_clave:
+            cur.execute("SELECT clave FROM hilos WHERE id=%s", (target,))
+            hrow = cur.fetchone()
+            if hrow and hrow.get("clave", "").startswith("DOC:") and carta_clave:
+                try:
+                    cur.execute(
+                        "UPDATE hilos SET clave=%s, titulo=%s WHERE id=%s",
+                        (carta_clave, _titulo_group([carta])[:255], target),
+                    )
+                except Exception:
+                    pass
+
+        cur.execute("UPDATE cartas SET hilo_id=%s WHERE id=%s", (target, carta_id))
+        cur.execute("SELECT clave, titulo FROM hilos WHERE id=%s", (target,))
+        meta = cur.fetchone() or {}
+    conn.commit()
+    return {
+        "ok": True,
+        "hilo_id": target,
+        "clave": meta.get("clave"),
+        "titulo": meta.get("titulo"),
+        "merged_hilos": merged,
+        "via": "citas" if cited_hilos else ("consulta" if carta_clave else "documento"),
+    }
+
+
+def build_groups_from_fk(cartas: list[dict]) -> list[dict]:
+    """Agrupa cartas por hilo_id (FK). No mezcla hilos distintos."""
+    from collections import defaultdict
+
+    by_hilo: dict[int, list[dict]] = defaultdict(list)
+    orphans: list[dict] = []
+    for c in cartas:
+        hid = c.get("hilo_id")
+        if hid is not None:
+            by_hilo[int(hid)].append(c)
+        else:
+            orphans.append(c)
+
+    groups: list[dict] = []
+    for hid, items in by_hilo.items():
+        g = _summarize_group(items, stable=True)
+        g["hilo_id"] = hid
+        groups.append(g)
+
+    for c in orphans:
+        g = _summarize_group([c], stable=True)
+        g["hilo_id"] = None
+        groups.append(g)
+
+    groups.sort(key=lambda g: (0 if g["abierto"] else 1, -(g.get("dias") or 0), g["titulo"]))
+    return groups
+
+
+def _summarize_group(items: list[dict], today: date | None = None, stable: bool = False) -> dict:
     today = today or date.today()
     fechas = [_as_date(c.get("fecha")) for c in items]
     fechas = [f for f in fechas if f]
@@ -289,19 +512,22 @@ def _summarize_group(items: list[dict], today: date | None = None) -> dict:
             (x.get("especialidad_norm") or "SIN ESPECIALIDAD") for x in items
         ).most_common()
     ]
-    clave_parts = []
-    for c in items:
-        clave_parts.extend(extract_tramite_keys(c))
-    base = clave_parts[0] if clave_parts else f"DOC:{normalize_doc_key(items[0].get('n_documento'))}"
-    id_bits = sorted(
-        str(c.get("id") or normalize_doc_key(c.get("n_documento")) or i)
-        for i, c in enumerate(items)
-    )
-    suffix = hashlib.md5("|".join(id_bits).encode("utf-8")).hexdigest()[:10]
-    clave = f"{base}|{suffix}"
+    if stable:
+        clave = _stable_clave_for_items(items)[:255]
+    else:
+        clave_parts = []
+        for c in items:
+            clave_parts.extend(extract_tramite_keys(c))
+        base = clave_parts[0] if clave_parts else f"DOC:{normalize_doc_key(items[0].get('n_documento'))}"
+        id_bits = sorted(
+            str(c.get("id") or normalize_doc_key(c.get("n_documento")) or i)
+            for i, c in enumerate(items)
+        )
+        suffix = hashlib.md5("|".join(id_bits).encode("utf-8")).hexdigest()[:10]
+        clave = f"{base}|{suffix}"[:255]
 
     return {
-        "clave": clave[:255],
+        "clave": clave,
         "titulo": _titulo_group(items),
         "especialidad_norm": esps[0] if esps else "SIN ESPECIALIDAD",
         "abierto": abierto,
@@ -320,43 +546,36 @@ def _summarize_group(items: list[dict], today: date | None = None) -> dict:
     }
 
 
-def persist_hilos(conn, cartas: list[dict]) -> dict:
-    """Recalcula hilos, limpia y reescribe tablas. No altera estados de cartas Excel."""
-    groups = build_thread_groups(cartas)
+def sync_hilos_metadata(conn, cartas: list[dict] | None = None) -> dict:
+    """Sincroniza metadatos de hilos respetando FK hilo_id (no borra vínculos)."""
     with conn.cursor() as cur:
-        # asegurar columnas
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS hilos (
-                id INT NOT NULL AUTO_INCREMENT,
-                clave VARCHAR(255) NOT NULL,
-                titulo VARCHAR(255) NULL,
-                especialidad_norm VARCHAR(120) NULL,
-                estado VARCHAR(40) NOT NULL DEFAULT 'abierto',
-                fecha_inicio DATE NULL,
-                fecha_cierre DATE NULL,
-                dias_congelados INT NULL,
-                n_cartas INT NOT NULL DEFAULT 0,
-                creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-                    ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (id),
-                UNIQUE KEY uq_hilos_clave (clave),
-                KEY idx_hilos_estado (estado)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-            """
-        )
-        _ensure_carta_hilo_col(cur)
-        cur.execute("UPDATE cartas SET hilo_id=NULL")
-        cur.execute("DELETE FROM hilos")
+        _ensure_hilos_table(cur)
+        if cartas is None:
+            cartas = _fetch_all_cartas(cur)
 
+        for c in cartas:
+            cid = c.get("id")
+            if cid is None or c.get("hilo_id"):
+                continue
+            assign_carta_hilo(conn, int(cid), c)
+
+        cur.execute("SELECT * FROM cartas")
+        cartas = _fetch_all_cartas(cur)
+        groups = build_groups_from_fk(cartas)
+        hilo_ids_seen: set[int] = set()
         abiertos = cerrados = 0
+
         for g in groups:
+            hid = g.get("hilo_id")
+            if hid is None:
+                continue
+            hilo_ids_seen.add(int(hid))
             cur.execute(
                 """
-                INSERT INTO hilos (clave, titulo, especialidad_norm, estado,
-                    fecha_inicio, fecha_cierre, dias_congelados, n_cartas)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                UPDATE hilos SET
+                    clave=%s, titulo=%s, especialidad_norm=%s, estado=%s,
+                    fecha_inicio=%s, fecha_cierre=%s, dias_congelados=%s, n_cartas=%s
+                WHERE id=%s
                 """,
                 (
                     g["clave"][:255],
@@ -367,22 +586,37 @@ def persist_hilos(conn, cartas: list[dict]) -> dict:
                     g["fecha_cierre"],
                     g["dias_congelados"],
                     g["n_cartas"],
+                    hid,
                 ),
             )
-            hid = cur.lastrowid
-            ids = [i for i in g["carta_ids"] if i is not None]
-            if ids:
-                placeholders = ",".join(["%s"] * len(ids))
-                cur.execute(
-                    f"UPDATE cartas SET hilo_id=%s WHERE id IN ({placeholders})",
-                    [hid] + ids,
-                )
             if g["abierto"]:
                 abiertos += 1
             else:
                 cerrados += 1
+
+        cur.execute("SELECT id FROM hilos")
+        for row in cur.fetchall():
+            hid = int(row["id"])
+            if hid in hilo_ids_seen:
+                continue
+            cur.execute("SELECT COUNT(*) AS n FROM cartas WHERE hilo_id=%s", (hid,))
+            n = (cur.fetchone() or {}).get("n") or 0
+            if n == 0:
+                cur.execute("DELETE FROM hilos WHERE id=%s", (hid,))
+
     conn.commit()
-    return {"ok": True, "hilos": len(groups), "abiertos": abiertos, "cerrados": cerrados}
+    return {
+        "ok": True,
+        "hilos": len(hilo_ids_seen),
+        "abiertos": abiertos,
+        "cerrados": cerrados,
+        "mode": "fk",
+    }
+
+
+def persist_hilos(conn, cartas: list[dict]) -> dict:
+    """Alias: sincroniza hilos por FK sin destruir vínculos."""
+    return sync_hilos_metadata(conn, cartas)
 
 
 def _ensure_carta_hilo_col(cur):
@@ -406,7 +640,7 @@ def list_hilos_api(
 
     today = date.today()
     by_id = {c["id"]: c for c in cartas if c.get("id") is not None}
-    groups = build_thread_groups(cartas)
+    groups = build_groups_from_fk(cartas)
     out = []
     counts = {
         "abiertos": 0,
@@ -594,27 +828,86 @@ def build_whatsapp_hilos_urgentes(
     return "\n".join(lines).strip()
 
 
-def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
-    """Si la carta nueva es de cierre y cita otras abiertas, las marca CERRADO."""
-    if not cerrar:
-        return {"ok": True, "closed": 0}
-    est = normalize_estado(nueva.get("estado_norm") or nueva.get("estado"))
-    if est not in ("CERRADO", "ABSUELTO SUPERVISION", "ABSUELTO ENTIDAD"):
-        return {"ok": True, "closed": 0, "reason": "no_es_cierre"}
-
-    cited = set(
-        extract_cited_docs(
-            " ".join([str(nueva.get("referencias") or ""), str(nueva.get("asunto") or "")])
-        )
+def is_respuesta_emitida(nueva: dict) -> bool:
+    """Carta emitida RO/RL que cita antecedentes = respuesta operativa."""
+    sentido = (nueva.get("sentido") or "").strip().lower()
+    if not sentido:
+        ban = (nueva.get("bandeja") or "").strip()
+        sentido = "recibida" if ban.startswith("recibida") else "emitida"
+    if sentido != "emitida":
+        return False
+    ban = (nueva.get("bandeja") or "").strip()
+    if ban not in ("residente", "rl"):
+        return False
+    cited = extract_cited_docs(
+        " ".join([str(nueva.get("referencias") or ""), str(nueva.get("asunto") or "")])
     )
-    if not cited:
-        return {"ok": True, "closed": 0, "reason": "sin_citas"}
+    return bool(cited)
 
+
+def _fetch_all_cartas(cur) -> list[dict]:
+    cur.execute("SELECT * FROM cartas")
+    out = []
+    for r in cur.fetchall():
+        d = dict(r) if not isinstance(r, dict) else dict(r)
+        for k, v in list(d.items()):
+            if hasattr(v, "isoformat"):
+                d[k] = v.isoformat()
+        out.append(d)
+    return out
+
+
+def _merge_nueva_en_cartas(cartas: list[dict], nueva: dict) -> list[dict]:
+    nid = nueva.get("id")
+    merged: list[dict] = []
+    found = False
+    for c in cartas:
+        if nid is not None and c.get("id") == nid:
+            merged.append({**c, **nueva})
+            found = True
+        else:
+            merged.append(c)
+    if not found and nid is not None:
+        merged.append(dict(nueva))
+    return merged
+
+
+def _groups_for_cierre(cartas: list[dict], nueva_id: int | None, cited: set[str]) -> list[dict]:
+    groups = build_groups_from_fk(cartas)
+    matched: list[dict] = []
+    seen: set[tuple] = set()
+    for g in groups:
+        ids = sorted(g.get("carta_ids") or [])
+        gkey = tuple(ids)
+        if gkey in seen:
+            continue
+        hit = bool(nueva_id is not None and nueva_id in ids)
+        if not hit and cited:
+            for c in cartas:
+                if c.get("id") not in ids:
+                    continue
+                if normalize_doc_key(c.get("n_documento")) in cited:
+                    hit = True
+                    break
+        if hit:
+            matched.append(g)
+            seen.add(gkey)
+    return matched
+
+
+def _close_open_cartas_ids(conn, ids_to_close: set[int], skip_id: int | None = None) -> tuple[int, list]:
     closed = 0
+    samples: list[dict] = []
     with conn.cursor() as cur:
-        cur.execute("SELECT id, n_documento, estado, estado_norm FROM cartas")
-        for r in cur.fetchall():
-            if normalize_doc_key(r["n_documento"]) not in cited:
+        for cid in ids_to_close:
+            if skip_id is not None and cid == skip_id:
+                continue
+            cur.execute(
+                "SELECT id, n_documento, estado, estado_norm FROM cartas WHERE id=%s",
+                (cid,),
+            )
+            r = cur.fetchone()
+            if not r:
                 continue
             est_r = normalize_estado(r.get("estado_norm") or r.get("estado"))
             if not is_estado_abierto(est_r):
@@ -625,9 +918,118 @@ def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
                 SET estado=%s, estado_norm=%s, actualizado_en=NOW()
                 WHERE id=%s
                 """,
-                ("CERRADO", "CERRADO", r["id"]),
+                ("CERRADO", "CERRADO", cid),
             )
-            closed += cur.rowcount
+            if cur.rowcount:
+                closed += cur.rowcount
+                if len(samples) < 10:
+                    samples.append({"id": cid, "n_documento": r.get("n_documento")})
+    return closed, samples
+
+
+def _close_cited_open_cartas(conn, cited: set[str], skip_id: int | None = None) -> dict:
+    if not cited:
+        return {"ok": True, "closed": 0, "reason": "sin_citas"}
+    closed = 0
+    samples: list[dict] = []
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, n_documento, estado, estado_norm FROM cartas")
+        for r in cur.fetchall():
+            if normalize_doc_key(r["n_documento"]) not in cited:
+                continue
+            cid = r["id"]
+            if skip_id is not None and cid == skip_id:
+                continue
+            est_r = normalize_estado(r.get("estado_norm") or r.get("estado"))
+            if not is_estado_abierto(est_r):
+                continue
+            cur.execute(
+                """
+                UPDATE cartas
+                SET estado=%s, estado_norm=%s, actualizado_en=NOW()
+                WHERE id=%s
+                """,
+                ("CERRADO", "CERRADO", cid),
+            )
+            if cur.rowcount:
+                closed += cur.rowcount
+                if len(samples) < 10:
+                    samples.append({"id": cid, "n_documento": r.get("n_documento")})
     if closed:
         conn.commit()
-    return {"ok": True, "closed": closed}
+    return {"ok": True, "closed": closed, "mode": "citas", "samples": samples}
+
+
+def _close_hilo_on_cierre(conn, nueva: dict, cited: set[str]) -> dict:
+    """Cierra todas las cartas abiertas del hilo FK o del grupo vinculado."""
+    nueva_id = nueva.get("id")
+    hilo_id = nueva.get("hilo_id")
+    ids: set[int] = set()
+    titulos: list[str] = []
+
+    if hilo_id:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id FROM cartas WHERE hilo_id=%s", (int(hilo_id),))
+            ids = {int(r["id"]) for r in cur.fetchall()}
+            cur.execute("SELECT titulo FROM hilos WHERE id=%s", (int(hilo_id),))
+            trow = cur.fetchone()
+            if trow and trow.get("titulo"):
+                titulos.append(str(trow["titulo"])[:80])
+
+    if len(ids) < 2:
+        with conn.cursor() as cur:
+            cartas = _merge_nueva_en_cartas(_fetch_all_cartas(cur), nueva)
+        groups = _groups_for_cierre(cartas, nueva_id, cited)
+        for g in groups:
+            if (g.get("n_cartas") or 0) < 2:
+                continue
+            for cid in g.get("carta_ids") or []:
+                if cid is not None:
+                    ids.add(int(cid))
+            t = g.get("titulo")
+            if t and t not in titulos:
+                titulos.append(str(t)[:80])
+
+    if len(ids) < 2:
+        return {"ok": True, "closed": 0, "mode": "hilo", "reason": "hilo_unitario"}
+
+    closed, samples = _close_open_cartas_ids(conn, ids, skip_id=nueva_id)
+    if closed:
+        conn.commit()
+    return {
+        "ok": True,
+        "closed": closed,
+        "mode": "hilo",
+        "hilo_cartas": len(ids),
+        "hilo_titulos": titulos[:3],
+        "samples": samples,
+    }
+
+
+def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
+    """Cierra antecedentes citados; si es cierre de trámite, cierra todo el hilo vinculado."""
+    if not cerrar:
+        return {"ok": True, "closed": 0}
+    est = normalize_estado(nueva.get("estado_norm") or nueva.get("estado"))
+    is_cierre = est in ("CERRADO", "ABSUELTO SUPERVISION", "ABSUELTO ENTIDAD")
+    is_response = is_respuesta_emitida(nueva)
+    if not is_cierre and not is_response:
+        return {"ok": True, "closed": 0, "reason": "no_es_cierre_ni_respuesta"}
+
+    cited = set(
+        extract_cited_docs(
+            " ".join([str(nueva.get("referencias") or ""), str(nueva.get("asunto") or "")])
+        )
+    )
+
+    if is_cierre:
+        hilo_result = _close_hilo_on_cierre(conn, nueva, cited)
+        if hilo_result.get("closed", 0) > 0:
+            return hilo_result
+        # Hilo no detectado o ya cerrado: antecedentes citados explícitamente
+        cited_result = _close_cited_open_cartas(conn, cited, skip_id=nueva.get("id"))
+        if cited_result.get("closed", 0) > 0:
+            return cited_result
+        return hilo_result if hilo_result.get("hilo_cartas", 0) >= 2 else cited_result
+
+    return _close_cited_open_cartas(conn, cited, skip_id=nueva.get("id"))

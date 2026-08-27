@@ -16,8 +16,9 @@ from pymysql.cursors import DictCursor
 
 from backfill_cartas import backfill_cartas
 from import_excel import import_excel_to_db
-from plazos import build_whatsapp_message, classify_cartas, plazos_config
-from normalizers import normalize_especialidad, normalize_estado, normalize_referencias_antecedentes, refresh_normalized_fields, carta_matches_especialidad
+from plazos_respuesta import plazos_respuesta_config, set_plazos_config
+from plazos import set_sla_config
+from normalizers import normalize_especialidad, normalize_estado, normalize_referencias_antecedentes, refresh_normalized_fields, carta_matches_especialidad, catalogo_payload
 from clasificacion import (
     ACTORES,
     build_pendientes,
@@ -30,9 +31,11 @@ from clasificacion import (
 from whatsapp_notify import send_whatsapp, whatsapp_config
 from hilos import (
     HILO_OPERATIVO_MAX_DIAS,
+    assign_carta_hilo,
     build_whatsapp_hilos_urgentes,
     list_hilos_api,
     persist_hilos,
+    set_hilo_plazo_config,
     try_close_referenced_cartas,
 )
 from auth import (
@@ -350,10 +353,24 @@ def init_db(conn=None):
             if not cur.fetchone():
                 cur.execute(
                     """
-                    INSERT INTO configuracion_sistema (id, nombre_sistema, subtitulo_proyecto, dias_vencida, dias_por_vencer, dias_hilo)
-                    VALUES (1, 'SistemaGreace', 'Hospital Leoncio Prado (PRONIS/MINSA)', 15, 10, 5)
+                    INSERT INTO configuracion_sistema (
+                        id, nombre_sistema, subtitulo_proyecto,
+                        dias_vencida, dias_por_vencer, dias_hilo,
+                        plazo_sup_dias, plazo_entidad_dias, plazo_muni_dias, plazo_jrd_dias, plazo_ro_dias
+                    )
+                    VALUES (1, 'SistemaGreace', 'Hospital Leoncio Prado (PRONIS/MINSA)', 15, 10, 5, 5, 15, 15, 15, 5)
                     """
                 )
+            for col, ddl in (
+                ("plazo_sup_dias", "ADD COLUMN plazo_sup_dias INT NOT NULL DEFAULT 5"),
+                ("plazo_entidad_dias", "ADD COLUMN plazo_entidad_dias INT NOT NULL DEFAULT 15"),
+                ("plazo_muni_dias", "ADD COLUMN plazo_muni_dias INT NOT NULL DEFAULT 15"),
+                ("plazo_jrd_dias", "ADD COLUMN plazo_jrd_dias INT NOT NULL DEFAULT 15"),
+                ("plazo_ro_dias", "ADD COLUMN plazo_ro_dias INT NOT NULL DEFAULT 5"),
+            ):
+                cur.execute(f"SHOW COLUMNS FROM configuracion_sistema LIKE '{col}'")
+                if not cur.fetchone():
+                    cur.execute(f"ALTER TABLE configuracion_sistema {ddl}")
             ensure_usuarios_table(cur)
         conn.commit()
         seed_usuarios(conn)
@@ -456,10 +473,19 @@ def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
     area = str(d.get("area") or "").strip()
     if len(area) > 150:
         return {}, "El especialista responsable no puede superar los 150 caracteres"
+    esp_raw = str(d.get("especialidad") or "").strip()
+    if not esp_raw:
+        return {}, (
+            "La especialidad técnica es obligatoria. Seleccione el tema del documento "
+            "(p. ej. Estructuras, Arquitectura, Inst. Sanitarias)."
+        )
+    esp_norm = normalize_especialidad(esp_raw)
+    if esp_norm in ("SIN ESPECIALIDAD", "MIXTA", ""):
+        return {}, "Seleccione una especialidad válida del catálogo (no puede quedar sin especialidad)."
     if str(ban).startswith("recibida") and not area:
         return {}, (
             "Las cartas recibidas requieren asignar el especialista responsable interno "
-            "(Área / Especialista de tu equipo de Residencia)"
+            "(quién de Residencia elaborará la respuesta — el Residente deriva al especialista)."
         )
 
     return _prepare_carta_payload(d), None
@@ -576,6 +602,7 @@ def api_auth_users():
             "ok": True,
             "users": list_usuarios_public(get_db()),
             "roles": list(VALID_ROLES),
+            "catalogo": catalogo_payload(),
         }
     )
 
@@ -636,6 +663,64 @@ def api_auth_users_set_password(uid):
     return jsonify({"ok": True, "must_change_password": bool(body.get("must_change_password", True))})
 
 
+def _get_system_config(conn=None) -> dict:
+    own = conn is None
+    if own:
+        conn = get_db()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+            row = cur.fetchone()
+    finally:
+        if own:
+            conn.close()
+    if not row:
+        return {
+            "dias_vencida": 15,
+            "dias_por_vencer": 10,
+            "dias_hilo": 5,
+            "plazo_sup_dias": 5,
+            "plazo_entidad_dias": 15,
+            "plazo_muni_dias": 15,
+            "plazo_jrd_dias": 15,
+            "plazo_ro_dias": 5,
+        }
+    return row
+
+
+def _sync_config_plazos(body: dict) -> dict:
+    """Unifica plazos contractuales, hilos FK y semáforos (una sola fuente de verdad)."""
+    ro = int(body.get("plazo_ro_dias", 5))
+    sup = int(body.get("plazo_sup_dias", 5))
+    ent = int(body.get("plazo_entidad_dias", 15))
+    muni = int(body.get("plazo_muni_dias", 15))
+    jrd = int(body.get("plazo_jrd_dias", 15))
+    body["plazo_ro_dias"] = ro
+    body["plazo_sup_dias"] = sup
+    body["plazo_entidad_dias"] = ent
+    body["plazo_muni_dias"] = muni
+    body["plazo_jrd_dias"] = jrd
+    # Hilos (Outlook FK) = mismo plazo que «Yo debo responder»
+    body["dias_hilo"] = ro
+    sync_sem = body.get("sync_semaforos", True)
+    if sync_sem is None or sync_sem is True or str(sync_sem).lower() in ("1", "true", "yes"):
+        max_cal = max(ent, muni, jrd)
+        max_hab = max(ro, sup)
+        body["dias_vencida"] = max(max_cal, max_hab)
+        body["dias_por_vencer"] = max(1, min(ro, sup) - 2)
+    return body
+
+
+def _apply_plazos_from_config(cfg: dict | None = None) -> dict:
+    cfg = cfg or _get_system_config()
+    if cfg.get("dias_hilo") != cfg.get("plazo_ro_dias") and cfg.get("plazo_ro_dias") is not None:
+        cfg = {**cfg, "dias_hilo": cfg.get("plazo_ro_dias")}
+    set_plazos_config(cfg)
+    set_sla_config(cfg)
+    set_hilo_plazo_config(cfg)
+    return cfg
+
+
 @app.route("/api/config", methods=["GET"])
 def api_get_config():
     db = get_db()
@@ -652,6 +737,11 @@ def api_get_config():
                 "dias_vencida": 15,
                 "dias_por_vencer": 10,
                 "dias_hilo": 5,
+                "plazo_sup_dias": 5,
+                "plazo_entidad_dias": 15,
+                "plazo_muni_dias": 15,
+                "plazo_jrd_dias": 15,
+                "plazo_ro_dias": 5,
             }
     return jsonify({"ok": True, "config": row})
 
@@ -684,11 +774,24 @@ def api_update_config():
         return jsonify({"error": "El favicon excede el tamaño máximo permitido (256 KB)"}), 400
 
     try:
-        if body.get("dias_vencida") is None or body.get("dias_por_vencer") is None or body.get("dias_hilo") is None:
-            return jsonify({"error": "Todos los parámetros de días son obligatorios"}), 400
-        dias_vencida = int(body.get("dias_vencida"))
-        dias_por_vencer = int(body.get("dias_por_vencer"))
-        dias_hilo = int(body.get("dias_hilo"))
+        plazo_sup_dias = int(body.get("plazo_sup_dias", 5))
+        plazo_entidad_dias = int(body.get("plazo_entidad_dias", 15))
+        plazo_muni_dias = int(body.get("plazo_muni_dias", 15))
+        plazo_jrd_dias = int(body.get("plazo_jrd_dias", 15))
+        plazo_ro_dias = int(body.get("plazo_ro_dias", 5))
+        for name, val in (
+            ("Supervisión", plazo_sup_dias),
+            ("Entidad (PRONIS)", plazo_entidad_dias),
+            ("Municipalidad", plazo_muni_dias),
+            ("Junta de Disputas", plazo_jrd_dias),
+            ("Residente (Yo debo)", plazo_ro_dias),
+        ):
+            if val < 1 or val > 99999:
+                return jsonify({"error": f"Plazo de {name}: ingrese un entero entre 1 y 99.999 días"}), 400
+        body = _sync_config_plazos(body)
+        dias_vencida = int(body["dias_vencida"])
+        dias_por_vencer = int(body["dias_por_vencer"])
+        dias_hilo = int(body["dias_hilo"])
         if dias_vencida < 1:
             return jsonify({"error": "Los días para carta vencida deben ser mayores o iguales a 1"}), 400
         if dias_por_vencer < 1:
@@ -708,8 +811,10 @@ def api_update_config():
             cur.execute(
                 """
                 INSERT INTO configuracion_sistema
-                    (id, nombre_sistema, subtitulo_proyecto, logo_url, favicon_url, dias_vencida, dias_por_vencer, dias_hilo)
-                VALUES (1, %s, %s, %s, %s, %s, %s, %s)
+                    (id, nombre_sistema, subtitulo_proyecto, logo_url, favicon_url,
+                     dias_vencida, dias_por_vencer, dias_hilo,
+                     plazo_sup_dias, plazo_entidad_dias, plazo_muni_dias, plazo_jrd_dias, plazo_ro_dias)
+                VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
                     nombre_sistema=VALUES(nombre_sistema),
                     subtitulo_proyecto=VALUES(subtitulo_proyecto),
@@ -717,9 +822,27 @@ def api_update_config():
                     favicon_url=VALUES(favicon_url),
                     dias_vencida=VALUES(dias_vencida),
                     dias_por_vencer=VALUES(dias_por_vencer),
-                    dias_hilo=VALUES(dias_hilo)
+                    dias_hilo=VALUES(dias_hilo),
+                    plazo_sup_dias=VALUES(plazo_sup_dias),
+                    plazo_entidad_dias=VALUES(plazo_entidad_dias),
+                    plazo_muni_dias=VALUES(plazo_muni_dias),
+                    plazo_jrd_dias=VALUES(plazo_jrd_dias),
+                    plazo_ro_dias=VALUES(plazo_ro_dias)
                 """,
-                (nombre, subtitulo, logo_url, favicon_url, dias_vencida, dias_por_vencer, dias_hilo),
+                (
+                    nombre,
+                    subtitulo,
+                    logo_url,
+                    favicon_url,
+                    dias_vencida,
+                    dias_por_vencer,
+                    dias_hilo,
+                    body["plazo_sup_dias"],
+                    body["plazo_entidad_dias"],
+                    body["plazo_muni_dias"],
+                    body["plazo_jrd_dias"],
+                    body["plazo_ro_dias"],
+                ),
             )
         db.commit()
     except pymysql.err.DataError:
@@ -730,6 +853,7 @@ def api_update_config():
         cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
         fresh = cur.fetchone()
 
+    _apply_plazos_from_config(dict(fresh) if fresh else None)
     return jsonify({"ok": True, "config": fresh, "message": "Configuración guardada correctamente"})
 
 
@@ -821,6 +945,7 @@ def api_pendientes():
     if request.headers.get("If-None-Match") == etag:
         return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
     rows = scoped_cartas()
+    _apply_plazos_from_config()
     resp = jsonify(public_pendientes(rows))
     resp.headers["ETag"] = etag
     resp.headers["Cache-Control"] = "no-cache"
@@ -858,6 +983,7 @@ def api_hilos():
         return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
 
     rows = scoped_cartas()
+    _apply_plazos_from_config()
     payload = list_hilos_api(
         rows,
         solo_abiertos=solo,
@@ -969,16 +1095,23 @@ def api_cartas_add():
         return jsonify({"error": "Uno de los campos supera la capacidad de almacenamiento permitida"}), 400
 
     invalidate_cartas_cache()
-    close_info = try_close_referenced_cartas(db, {**data, "id": new_id}, cerrar=bool(cerrar_refs))
+    full = row_to_dict(r)
+    hilo_link = assign_carta_hilo(db, new_id, full)
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM cartas WHERE id=%s", (new_id,))
+        r = cur.fetchone()
+    full = row_to_dict(r)
+    close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
     hilos_info = _rebuild_hilos(db)
     out = row_to_dict(r)
     out["_cierre_referencias"] = close_info
+    out["_hilo_vinculo"] = hilo_link
     out["_hilos"] = hilos_info
     return jsonify(out), 201
 
 
 @app.route("/api/cartas/<int:cid>", methods=["PUT"])
-@require_auth
+@require_perm("can_edit_cartas")
 def api_cartas_edit(cid):
     db = get_db()
     with db.cursor() as cur:
@@ -992,13 +1125,8 @@ def api_cartas_edit(cid):
 
     d = request.get_json(silent=True) or {}
     u = current_user()
-    # Si el usuario es un ingeniero (no tiene can_edit_formal), solo puede actualizar datos operativos
-    if u and not u.get("can_edit_formal"):
-        allowed_ops = {"especialidad", "estado", "referencias", "referencia", "observacion", "area"}
-        d = {k: v for k, v in d.items() if k in allowed_ops}
-        merged = {**existing, **d}
-    else:
-        merged = {**existing, **d}
+    # Solo administrador puede editar cartas (ingeniero: solo lectura; residente: crea, no edita).
+    merged = {**existing, **d}
 
     data, err = _validate_carta_payload(merged)
     if err:
@@ -1025,10 +1153,17 @@ def api_cartas_edit(cid):
         return jsonify({"error": "Uno de los campos supera la capacidad de almacenamiento permitida"}), 400
 
     invalidate_cartas_cache()
-    close_info = try_close_referenced_cartas(db, {**data, "id": cid}, cerrar=bool(cerrar_refs))
+    full = row_to_dict(r2)
+    hilo_link = assign_carta_hilo(db, cid, full)
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+        r2 = cur.fetchone()
+    full = row_to_dict(r2)
+    close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
     hilos_info = _rebuild_hilos(db)
     out = row_to_dict(r2)
     out["_cierre_referencias"] = close_info
+    out["_hilo_vinculo"] = hilo_link
     out["_hilos"] = hilos_info
     return jsonify(out)
 
@@ -1078,9 +1213,8 @@ def api_stats():
             by_month[f[:7]] = by_month.get(f[:7], 0) + 1
 
     db = get_db()
-    with db.cursor() as cur:
-        cur.execute("SELECT dias_vencida, dias_por_vencer, dias_hilo FROM configuracion_sistema WHERE id=1")
-        cfg_row = cur.fetchone() or {}
+    cfg_row = _get_system_config(db)
+    _apply_plazos_from_config(cfg_row)
     v_dias = cfg_row.get("dias_vencida") or 15
     pv_dias = cfg_row.get("dias_por_vencer") or 10
 
@@ -1097,6 +1231,14 @@ def api_stats():
             "actores_meta": ACTORES,
             "alertas": classified["counts"],
             "plazos": plazos_config(v_dias, pv_dias),
+            "plazos_respuesta": plazos_respuesta_config(cfg_row),
+            "plazos_contractuales": {
+                "plazo_sup_dias": cfg_row.get("plazo_sup_dias") or 5,
+                "plazo_entidad_dias": cfg_row.get("plazo_entidad_dias") or 15,
+                "plazo_muni_dias": cfg_row.get("plazo_muni_dias") or 15,
+                "plazo_jrd_dias": cfg_row.get("plazo_jrd_dias") or 15,
+                "plazo_ro_dias": cfg_row.get("plazo_ro_dias") or 5,
+            },
             "pendientes": {
                 "counts": pendientes["counts"],
                 "debo_by_actor": pendientes["debo"]["by_actor"],
@@ -1106,6 +1248,7 @@ def api_stats():
             },
             "vista_parcial": bool(u and u.get("vista_parcial")),
             "user": public_user(u),
+            "catalogo": catalogo_payload(),
         }
     )
 

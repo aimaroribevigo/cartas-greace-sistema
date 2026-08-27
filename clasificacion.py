@@ -18,10 +18,14 @@ ACTORES = {
     "residente": "Residente",
     "supervisor": "Supervisión",
     "rl": "Representante Legal",
-    "entidad": "Entidad",
+    "entidad": "PRONIS",
     "otro": "Otro",
     "municipalidad": "Municipalidad",
+    "jrd": "Junta Resol. Disputas",
 }
+
+# Contrapartes externas con plazo de respuesta (Pendientes Yo debo / Me deben)
+PEND_CONTRAPARTES = ("supervisor", "entidad", "municipalidad", "jrd")
 
 NATURALEZA_RESPUESTA = "respuesta"
 NATURALEZA_COMUNICACION = "comunicacion"
@@ -122,6 +126,19 @@ def infer_contraparte(c: dict) -> str:
     if any(
         k in dirigido
         for k in (
+            "JUNTA DE RESOLUCION",
+            "RESOLUCION DE DISPUTAS",
+            "RESOLUCIÓN DE DISPUTAS",
+            " DISPUTAS",
+            "JRD",
+            "ARBITRAJE",
+            "JUNTA RESOL",
+        )
+    ):
+        return "jrd"
+    if any(
+        k in dirigido
+        for k in (
             "CARRION",
             "CARRIÓN",
             "CCC",
@@ -202,7 +219,7 @@ def classify_carta(c: dict) -> dict[str, Any]:
 
     # Para saldos, municipalidad se consolida con entidad (como KPI Excel)
     contraparte_saldo = "entidad" if contraparte == "municipalidad" else contraparte
-    if contraparte_saldo not in ("supervisor", "entidad", "otro", "rl", "residente"):
+    if contraparte_saldo not in ("supervisor", "entidad", "otro", "rl", "residente", "jrd"):
         contraparte_saldo = "otro"
 
     # Mapeo oficial de actores documentarios: RO, RL, SUP, PRONIS, MUNI, OTRO
@@ -212,6 +229,7 @@ def classify_carta(c: dict) -> dict[str, Any]:
         "supervisor": "SUP",
         "entidad": "PRONIS",
         "municipalidad": "MUNI",
+        "jrd": "JRD",
         "otro": "OTRO",
     }
     if sentido == "emitida":
@@ -254,6 +272,8 @@ def enrich_carta(c: dict) -> dict:
 
 def build_pendientes(rows: list[dict], include_items: bool = False) -> dict:
     """Resumen de pendientes por deuda × actor × especialidad."""
+    from plazos_respuesta import serialize_pendiente_item
+
     debo, me_deben, comunicacion = [], [], []
     for raw in rows:
         c = enrich_carta(raw)
@@ -265,14 +285,27 @@ def build_pendientes(rows: list[dict], include_items: bool = False) -> dict:
         elif cl["deuda"] == DEUDA_ME_DEBEN:
             me_deben.append(c)
 
+    def _solo_contrapartes_pend(items: list[dict]) -> list[dict]:
+        out = []
+        for c in items:
+            cp = (c.get("clasificacion") or {}).get("contraparte")
+            if cp in PEND_CONTRAPARTES:
+                out.append(c)
+        return out
+
+    debo = _solo_contrapartes_pend(debo)
+    me_deben = _solo_contrapartes_pend(me_deben)
+
     def matrix(items: list[dict], key_actor: str) -> dict:
         """key_actor: 'contraparte' para agrupar con quién está la deuda."""
-        by_actor: dict[str, int] = {k: 0 for k in ACTORES}
+        by_actor: dict[str, int] = {k: 0 for k in PEND_CONTRAPARTES}
         by_esp: dict[str, int] = {}
-        by_actor_esp: dict[str, dict[str, int]] = {k: {} for k in ACTORES}
+        by_actor_esp: dict[str, dict[str, int]] = {k: {} for k in PEND_CONTRAPARTES}
         for c in items:
             cl = c["clasificacion"]
             actor = cl.get(key_actor) or "supervisor"
+            if actor not in PEND_CONTRAPARTES:
+                continue
             esp = cl.get("especialidad_norm") or "SIN ESPECIALIDAD"
             by_actor[actor] = by_actor.get(actor, 0) + 1
             by_esp[esp] = by_esp.get(esp, 0) + 1
@@ -290,7 +323,10 @@ def build_pendientes(rows: list[dict], include_items: bool = False) -> dict:
 
     return {
         "ok": True,
-        "actores": [{"id": k, "label": v} for k, v in ACTORES.items()],
+        "actores": [{"id": k, "label": ACTORES[k]} for k in PEND_CONTRAPARTES],
+        "contrapartes_pendientes": [
+            {"id": k, "label": ACTORES[k]} for k in PEND_CONTRAPARTES
+        ],
         "counts": {
             "debo": len(debo),
             "me_deben": len(me_deben),
@@ -299,13 +335,17 @@ def build_pendientes(rows: list[dict], include_items: bool = False) -> dict:
         },
         "debo": {
             "label": "Yo debo responder",
-            "hint": "Cartas recibidas abiertas (no traslado). La contraparte te escribió y aún no contestas.",
+            "hint": "Cartas recibidas abiertas. Te escribió Supervisión, PRONIS, Municipalidad o JRD y aún no respondes.",
             **matrix(debo, "contraparte"),
+            "items": [serialize_pendiente_item(c, "debo") for c in sorted(debo, key=_fecha_sort_key)],
         },
         "me_deben": {
             "label": "Me deben respuesta",
-            "hint": "Cartas emitidas abiertas (no traslado). Tú escribiste y la contraparte aún no responde.",
+            "hint": "Cartas emitidas por RO o RL hacia Supervisión, PRONIS, Municipalidad o JRD sin respuesta.",
             **matrix(me_deben, "contraparte"),
+            "items": [
+                serialize_pendiente_item(c, "me_deben") for c in sorted(me_deben, key=_fecha_sort_key)
+            ],
         },
         "comunicacion": {
             "label": "Solo comunicación / traslado",
@@ -432,9 +472,12 @@ def build_whatsapp_me_deben_summary(rows: list[dict], max_especialidades: int = 
 
 def public_pendientes(rows: list[dict]) -> dict:
     """Respuesta API sin payloads internos (_debo_items)."""
+    from plazos_respuesta import plazos_respuesta_config
+
     pend = build_pendientes(rows)
     pend.pop("_debo_items", None)
     pend.pop("_me_deben_items", None)
+    pend["plazos_reglas"] = plazos_respuesta_config()
     return pend
 
 
