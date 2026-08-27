@@ -75,6 +75,13 @@ services:
       # Copia el Excel a ./data/ si quieres reimportar (opcional; el clone trae seed MySQL).
       - ./data:/app/data:ro
       - ./dashboard.html:/app/dashboard.html:ro
+      - ./app.py:/app/app.py:ro
+      - ./normalizers.py:/app/normalizers.py:ro
+      - ./hilos.py:/app/hilos.py:ro
+      - ./clasificacion.py:/app/clasificacion.py:ro
+      - ./auth.py:/app/auth.py:ro
+      - ./plazos.py:/app/plazos.py:ro
+      - ./plazos_respuesta.py:/app/plazos_respuesta.py:ro
     ports:
       - "${WEB_HOST_PORT:-5080}:5000"
     networks:

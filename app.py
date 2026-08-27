@@ -17,7 +17,7 @@ from pymysql.cursors import DictCursor
 from backfill_cartas import backfill_cartas
 from import_excel import import_excel_to_db
 from plazos_respuesta import plazos_respuesta_config, set_plazos_config
-from plazos import set_sla_config
+from plazos import build_whatsapp_message, classify_cartas, plazos_config, set_sla_config
 from normalizers import normalize_especialidad, normalize_estado, normalize_referencias_antecedentes, refresh_normalized_fields, carta_matches_especialidad, catalogo_payload
 from clasificacion import (
     ACTORES,
@@ -83,6 +83,7 @@ CARTA_FIELDS = [
     "n_orden",
     "fecha",
     "n_documento",
+    "tipo_documento",
     "asunto",
     "especialidad",
     "estado",
@@ -215,7 +216,10 @@ def get_db():
 def close_db(exc):
     db = g.pop("db", None)
     if db is not None:
-        db.close()
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 def init_db(conn=None):
@@ -271,6 +275,12 @@ def init_db(conn=None):
                 cur.execute(
                     "ALTER TABLE cartas ADD COLUMN hilo_id INT NULL, "
                     "ADD KEY idx_cartas_hilo (hilo_id)"
+                )
+            cur.execute("SHOW COLUMNS FROM cartas LIKE 'tipo_documento'")
+            if not cur.fetchone():
+                cur.execute(
+                    "ALTER TABLE cartas ADD COLUMN tipo_documento VARCHAR(80) NULL "
+                    "AFTER n_documento"
                 )
             cur.execute("SHOW COLUMNS FROM cartas LIKE 'referencia'")
             if not cur.fetchone():
@@ -453,6 +463,8 @@ def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
             return {}, "Formato de fecha inválido. Usa el formato AAAA-MM-DD"
 
     field_limits = [
+        ("n_documento", 255, "El N° de documento"),
+        ("tipo_documento", 80, "El tipo de documento"),
         ("asunto", 5000, "El asunto"),
         ("especialidad", 150, "La especialidad"),
         ("estado", 80, "El estado"),
@@ -483,10 +495,7 @@ def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
     if esp_norm in ("SIN ESPECIALIDAD", "MIXTA", ""):
         return {}, "Seleccione una especialidad válida del catálogo (no puede quedar sin especialidad)."
     if str(ban).startswith("recibida") and not area:
-        return {}, (
-            "Las cartas recibidas requieren asignar el especialista responsable interno "
-            "(quién de Residencia elaborará la respuesta — el Residente deriva al especialista)."
-        )
+        d["area"] = "RESIDENTE"
 
     return _prepare_carta_payload(d), None
 
@@ -664,16 +673,10 @@ def api_auth_users_set_password(uid):
 
 
 def _get_system_config(conn=None) -> dict:
-    own = conn is None
-    if own:
-        conn = get_db()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
-            row = cur.fetchone()
-    finally:
-        if own:
-            conn.close()
+    c = conn or get_db()
+    with c.cursor() as cur:
+        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        row = cur.fetchone()
     if not row:
         return {
             "dias_vencida": 15,
@@ -1260,19 +1263,40 @@ def api_import_excel():
         body = request.get_json(silent=True) or {}
         if request.headers.get("X-Notify-Secret") != NOTIFY_SECRET and body.get("secret") != NOTIFY_SECRET:
             return jsonify({"error": "No autorizado"}), 401
-    body = request.get_json(silent=True) or {}
-    force = bool(body.get("force"))
-    db = get_db()
-    result = import_excel_to_db(db, force=force)
-    if result.get("ok") and not result.get("skipped"):
-        norms = refresh_normalized_fields(db)
-        result["normalize"] = norms
-        try:
-            result["hilos"] = _rebuild_hilos(db)
-        except Exception as exc:
-            result["hilos_error"] = str(exc)
-    code = 200 if result.get("ok") else 500
-    return jsonify(result), code
+
+    uploaded_file = request.files.get("file")
+    temp_path = None
+    try:
+        excel_target = None
+        if uploaded_file and uploaded_file.filename:
+            ext = os.path.splitext(uploaded_file.filename)[1].lower()
+            if ext not in (".xlsx", ".xlsm", ".xltx", ".xltm", ".xls"):
+                return jsonify({"error": "Solo se permiten archivos Excel (.xlsx, .xlsm, .xls)"}), 400
+            import tempfile
+            fd, temp_path = tempfile.mkstemp(suffix=ext)
+            os.close(fd)
+            uploaded_file.save(temp_path)
+            excel_target = Path(temp_path)
+
+        force = True if uploaded_file else bool((request.get_json(silent=True) or {}).get("force", True))
+        db = get_db()
+        result = import_excel_to_db(db, excel_path=excel_target, force=force)
+        if result.get("ok") and not result.get("skipped"):
+            norms = refresh_normalized_fields(db)
+            result["normalize"] = norms
+            try:
+                result["hilos"] = _rebuild_hilos(db)
+            except Exception as exc:
+                result["hilos_error"] = str(exc)
+            invalidate_cartas_cache()
+        code = 200 if result.get("ok") else 500
+        return jsonify(result), code
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
 
 
 @app.route("/api/backfill/cartas", methods=["POST"])

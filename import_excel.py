@@ -67,17 +67,40 @@ SHEETS = [
 
 INSERT_SQL = """
     INSERT INTO cartas (
-        bandeja, sentido, n_orden, fecha, n_documento, asunto,
+        bandeja, sentido, n_orden, fecha, n_documento, tipo_documento, asunto,
         especialidad, especialidad_norm, estado, estado_norm,
         referencias, folios, cd, dirigido_a, receptor, cargo,
         observacion, area, empresa, caducidad, fecha_respuesta, carta_respuesta
     ) VALUES (
-        %s,%s,%s,%s,%s,%s,
+        %s,%s,%s,%s,%s,%s,%s,
         %s,%s,%s,%s,
         %s,%s,%s,%s,%s,%s,
         %s,%s,%s,%s,%s,%s
     )
 """
+
+
+def infer_tipo_documento(doc_str: str | None) -> str:
+    if not doc_str:
+        return "CARTA"
+    d = str(doc_str).upper()
+    if "INFORME" in d:
+        return "INFORME"
+    if "OFICIO" in d:
+        return "OFICIO"
+    if "ASIENTO" in d or "CUADERNO" in d:
+        return "ASIENTO DE CUADERNO"
+    if "MEMO" in d:
+        return "MEMORANDO"
+    if "NOTARIAL" in d:
+        return "CARTA NOTARIAL"
+    if "FICHA" in d:
+        return "FICHA TÉCNICA"
+    if "PLANO" in d:
+        return "PLANOS"
+    if "CONSULTA" in d:
+        return "CONSULTA"
+    return "CARTA"
 
 
 def _as_date(v):
@@ -88,10 +111,7 @@ def _as_date(v):
     if isinstance(v, date):
         return v
     s = str(v).strip()
-    if not s:
-        return None
-    s = s[:10]
-    for fmt in ("%Y-%m-%d", "%d.%m.%y", "%d/%m/%Y", "%d-%m-%Y"):
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d", "%d-%m-%Y", "%d.%m.%Y"):
         try:
             return datetime.strptime(s, fmt).date()
         except ValueError:
@@ -133,21 +153,18 @@ def _val(cells, idx):
     return cells[i]
 
 
-def parse_cells(layout: str, cells) -> dict | None:
-    n_documento = _as_str(_val(cells, 3), 255)
-    if not n_documento:
-        return None
-    up = n_documento.upper()
-    if up in ("N° DE DOCUMENTO", "Nº DE DOCUMENTO", "TOTAL", "N°"):
+def parse_cells(layout: str, cells: tuple) -> dict | None:
+    # A=1 N°, B=2 fecha, C=3 doc, D=4 vacío(asunto col E), E=5 asunto…
+    n_doc = _as_str(_val(cells, 3), 255)
+    asunto = _as_str(_val(cells, 5))
+    if not n_doc and not asunto:
         return None
 
     base = {
         "n_orden": _as_int(_val(cells, 1)),
         "fecha": _as_date(_val(cells, 2)),
-        "n_documento": n_documento,
-        "asunto": _as_str(_val(cells, 5)),
-        "empresa": None,
-        "area": None,
+        "n_documento": n_doc or "S/N",
+        "asunto": asunto,
         "especialidad": None,
         "estado": None,
         "referencias": None,
@@ -157,12 +174,15 @@ def parse_cells(layout: str, cells) -> dict | None:
         "receptor": None,
         "cargo": None,
         "observacion": None,
+        "area": None,
+        "empresa": None,
         "caducidad": None,
         "fecha_respuesta": None,
         "carta_respuesta": None,
     }
 
     if layout == "emitida":
+        # Hojas 1 y 2
         base.update(
             {
                 "especialidad": _as_str(_val(cells, 6), 255),
@@ -177,6 +197,7 @@ def parse_cells(layout: str, cells) -> dict | None:
             }
         )
     elif layout == "recibida_sup":
+        # Hoja 3: F=6 ref_ant, G=7 fecha_sup, H=8 doc_sup, I=9 vac, J=10 esp_resp, K=11 esp, L=12 estado…
         base.update(
             {
                 "area": _as_str(_val(cells, 9), 255),
@@ -247,12 +268,14 @@ def parse_cells(layout: str, cells) -> dict | None:
 
 
 def _row_tuple(cfg, row):
+    doc = row["n_documento"]
     return (
         cfg["bandeja"],
         cfg["sentido"],
         row["n_orden"],
         row["fecha"],
-        row["n_documento"],
+        doc,
+        infer_tipo_documento(doc),
         row["asunto"],
         row["especialidad"],
         row["especialidad_norm"],

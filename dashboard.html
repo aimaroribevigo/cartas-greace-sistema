@@ -162,34 +162,55 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .table-card-body{padding:16px 20px 0}
 .table-card-body .pend-mode{margin-bottom:12px}
 .table-card-body .pend-actor-row{margin-bottom:0;padding-bottom:12px}
-table.data-table{width:100%;min-width:1160px;border-collapse:collapse;font-size:13px}
+table.data-table{width:100%;min-width:1580px;border-collapse:collapse;font-size:12.5px}
 table.data-table th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);text-align:left;padding:12px 14px;border-bottom:2px solid var(--border);white-space:nowrap;background:#FAF9F6;position:sticky;top:0;z-index:2}
 table.data-table td{padding:12px 14px;border-bottom:1px solid #EDE9E2;vertical-align:middle;line-height:1.45}
 table.data-table tr:hover td{background:#FAF9F5}
 table.data-table tr.row-vencida td{background:#FCF4F3}
 table.data-table tr.row-por-vencer td{background:#FCF8EE}
-table.data-table td.col-acc{text-align:center;white-space:nowrap}
+table.data-table td.col-acc{text-align:right;white-space:nowrap}
 
 /* Sticky Action Column */
 table.data-table th.col-acc,
-table.data-table th:last-child{text-align:center;position:sticky;right:0;z-index:3;background:#FAF9F6;box-shadow:-3px 0 6px rgba(0,0,0,0.04);min-width:85px;width:90px}
-table.data-table td.col-acc{text-align:center;white-space:nowrap;position:sticky;right:0;z-index:2;background:#FFFFFF;box-shadow:-3px 0 6px rgba(0,0,0,0.04);min-width:85px;width:90px}
+table.data-table th:last-child{text-align:right;position:sticky;right:0;z-index:3;background:#FAF9F6;box-shadow:-3px 0 6px rgba(0,0,0,0.04);min-width:115px;width:125px}
+table.data-table td.col-acc{text-align:right;white-space:nowrap;position:sticky;right:0;z-index:2;background:#FFFFFF;box-shadow:-3px 0 6px rgba(0,0,0,0.04);min-width:115px;width:125px}
 table.data-table tr:hover td.col-acc{background:#FAF9F5}
 table.data-table tr.row-vencida td.col-acc{background:#FCF4F3}
 table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 
-/* Cell Wrapping and Column Sizing for Cartas Table */
+/* Action Buttons Group & Compact Styles */
+.actions-group{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;vertical-align:middle}
+.btn-act{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;border:1px solid #E2DDD3;background:#FAF9F6;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .15s ease;text-decoration:none;padding:0;outline:none;box-sizing:border-box}
+.btn-act:hover{background:#EDE8DE;color:var(--text-primary);border-color:#D0C9BD;transform:translateY(-1px);box-shadow:0 2px 5px rgba(0,0,0,0.06)}
+
+/* Reply / Responder button: Compact terracotta accent icon button */
+.btn-act.btn-act-reply{background:rgba(196,91,62,0.1);border-color:rgba(196,91,62,0.28);color:var(--accent)}
+.btn-act.btn-act-reply:hover{background:var(--accent);border-color:var(--accent);color:#FFFFFF;box-shadow:0 2px 6px rgba(196,91,62,0.35)}
+
+/* Edit / View button */
+.btn-act.btn-act-edit{background:#F7F6F2;border-color:#E0DBD0;color:var(--text-secondary)}
+.btn-act.btn-act-edit:hover{background:var(--teal);border-color:var(--teal);color:#FFFFFF;box-shadow:0 2px 6px rgba(42,122,120,0.3)}
+
+/* Delete button */
+.btn-act.btn-act-del{background:#FDF5F5;border-color:#F0D8D5;color:#C45B3E}
+.btn-act.btn-act-del:hover{background:var(--rose);border-color:var(--rose);color:#FFFFFF;box-shadow:0 2px 6px rgba(160,82,92,0.35)}
+
+/* Cell Wrapping and Column Sizing for Cartas Table (13 Columns + Acciones) */
 .cell-wrap{word-break:break-word;overflow-wrap:anywhere}
-#view-cartas table.data-table th:nth-child(1), #view-cartas table.data-table td:nth-child(1){min-width:130px;max-width:180px;font-weight:600}
-#view-cartas table.data-table th:nth-child(2), #view-cartas table.data-table td:nth-child(2){min-width:85px;white-space:nowrap}
-#view-cartas table.data-table th:nth-child(3), #view-cartas table.data-table td:nth-child(3){min-width:90px;white-space:nowrap}
-#view-cartas table.data-table th:nth-child(4), #view-cartas table.data-table td:nth-child(4){min-width:110px;max-width:150px}
-#view-cartas table.data-table th:nth-child(5), #view-cartas table.data-table td:nth-child(5){min-width:110px;max-width:140px}
-#view-cartas table.data-table th:nth-child(6), #view-cartas table.data-table td:nth-child(6){min-width:160px;max-width:240px;font-size:11.5px}
-#view-cartas table.data-table th:nth-child(7), #view-cartas table.data-table td:nth-child(7){min-width:115px;max-width:150px}
-#view-cartas table.data-table th:nth-child(8), #view-cartas table.data-table td:nth-child(8){min-width:105px;max-width:135px}
-#view-cartas table.data-table th:nth-child(9), #view-cartas table.data-table td:nth-child(9){min-width:180px;max-width:320px}
-#view-cartas table.data-table th:nth-child(10), #view-cartas table.data-table td:nth-child(10){min-width:105px;white-space:nowrap}
+#view-cartas table.data-table th:nth-child(1), #view-cartas table.data-table td:nth-child(1){width:45px;min-width:45px;text-align:center}
+#view-cartas table.data-table th:nth-child(2), #view-cartas table.data-table td:nth-child(2){min-width:135px;max-width:190px;font-weight:700}
+#view-cartas table.data-table th:nth-child(3), #view-cartas table.data-table td:nth-child(3){min-width:85px;white-space:nowrap}
+#view-cartas table.data-table th:nth-child(4), #view-cartas table.data-table td:nth-child(4){min-width:120px;max-width:160px;font-weight:600}
+#view-cartas table.data-table th:nth-child(5), #view-cartas table.data-table td:nth-child(5){min-width:110px;max-width:150px}
+#view-cartas table.data-table th:nth-child(6), #view-cartas table.data-table td:nth-child(6){min-width:110px;max-width:150px}
+#view-cartas table.data-table th:nth-child(7), #view-cartas table.data-table td:nth-child(7){min-width:110px;max-width:150px}
+#view-cartas table.data-table th:nth-child(8), #view-cartas table.data-table td:nth-child(8){min-width:180px;max-width:280px}
+#view-cartas table.data-table th:nth-child(9), #view-cartas table.data-table td:nth-child(9){min-width:130px;max-width:200px}
+#view-cartas table.data-table th:nth-child(10), #view-cartas table.data-table td:nth-child(10){min-width:130px;max-width:170px}
+#view-cartas table.data-table th:nth-child(11), #view-cartas table.data-table td:nth-child(11){min-width:110px;white-space:nowrap}
+#view-cartas table.data-table th:nth-child(12), #view-cartas table.data-table td:nth-child(12){min-width:115px;max-width:160px}
+#view-cartas table.data-table th:nth-child(13), #view-cartas table.data-table td:nth-child(13){min-width:130px;max-width:240px}
+#view-cartas table.data-table th:nth-child(14), #view-cartas table.data-table td:nth-child(14){min-width:115px;width:125px;text-align:right}
 .status-badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 8px;border-radius:12px;line-height:1.25;max-width:180px}
 .status-badge.abierto{background:var(--lavender-light);color:var(--lavender)}
 .status-badge.cerrado{background:var(--sage-light);color:var(--sage)}
@@ -215,7 +236,7 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 .pend-card .big{font-size:36px;font-weight:700;line-height:1;margin-bottom:12px}
 .pend-card.debo .big{color:var(--rose)}
 .pend-card.me_deben .big{color:#8A6A20}
-.pend-oper-table{font-size:12px;min-width:960px}
+.pend-oper-table{font-size:12px;min-width:1150px}
 .pend-oper-table th{white-space:nowrap;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
 .pend-oper-table td{vertical-align:top;padding:8px 10px}
 .pend-oper-table .cell-doc{font-weight:600;max-width:180px}
@@ -374,8 +395,10 @@ table.data-table tbody tr.row-rendered,
 .modal-overlay.closing .modal-card{transform:translateY(8px) translateZ(0);opacity:0}
 @keyframes modalShake{0%,100%{transform:scale(1)}35%{transform:scale(1.02)}70%{transform:scale(0.985)}}
 .modal-card.shake{animation:modalShake .22s cubic-bezier(0.36,0.07,0.19,0.97) both}
-.modal-draft-hint{display:none;margin:0 24px;padding:8px 12px;font-size:12px;color:var(--teal);background:#F3F7F7;border:1px solid var(--teal-light);border-radius:6px}
-.modal-draft-hint.visible{display:block}
+.modal-draft-hint{display:none;align-items:center;justify-content:space-between;gap:10px;margin:14px 24px 4px;padding:10px 14px;font-size:12.5px;font-weight:500;color:var(--teal);background:#F0F6F6;border:1px solid var(--teal-light);border-radius:8px;box-shadow:0 1px 3px rgba(74,124,126,.08);transition:opacity .3s ease,transform .3s ease}
+.modal-draft-hint.visible{display:flex}
+.modal-draft-close{background:none;border:none;font-size:16px;color:var(--teal);cursor:pointer;padding:2px 4px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .15s,background .15s}
+.modal-draft-close:hover{opacity:1;background:rgba(74,124,126,.12)}
 .modal-header{padding:20px 24px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .modal-header h2{font-family:var(--font-display);font-size:20px;font-weight:400}
 .modal-close{background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:6px}
@@ -397,8 +420,18 @@ table.data-table tbody tr.row-rendered,
 /* User & Carta Modal Redesign */
 .user-modal-card{max-width:640px;width:95%;max-height:92vh;display:flex;flex-direction:column}
 .user-modal-card .modal-body{overflow-y:auto;max-height:calc(92vh - 130px)}
-.carta-modal-card{max-width:760px;width:95%;max-height:92vh;display:flex;flex-direction:column}
+.carta-modal-card{max-width:820px;width:95%;max-height:92vh;display:flex;flex-direction:column}
 .carta-modal-card .modal-body{overflow-y:auto;max-height:calc(92vh - 130px)}
+.carta-padre-widget{position:relative}
+.carta-padre-search-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#FAFAF8}
+.carta-padre-search-input:focus{outline:none;border-color:var(--accent);background:#fff}
+.carta-padre-suggest{position:absolute;top:100%;left:0;right:0;max-height:220px;overflow-y:auto;background:#FFFFFF;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:1000;display:none;margin-top:4px}
+.carta-padre-item{padding:9px 12px;border-bottom:1px solid #F0EEEA;cursor:pointer;font-size:12px;transition:background .15s}
+.carta-padre-item:hover{background:var(--accent-light)}
+.carta-padre-selected-card{display:flex;align-items:center;justify-content:space-between;background:#FAF8F4;border:1px solid #DFD9CD;border-radius:8px;padding:10px 14px;gap:12px}
+.btn-responder-act{display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:#fff;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;white-space:nowrap}
+.btn-responder-act:hover{background:#A8452B;transform:translateY(-1px);box-shadow:0 1px 4px rgba(196,91,62,.3)}
+.btn-responder-act i{font-size:12px}
 .user-sec{background:#FAF9F6;border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:14px}
 .user-sec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .user-sec-title i{color:var(--accent);font-size:15px}
@@ -516,6 +549,7 @@ table.data-table tbody tr.row-rendered,
 .splash-card{text-align:center;animation:fadeUp .2s ease}
 .splash-spinner{width:22px;height:22px;border:2.5px solid rgba(196,91,62,0.2);border-top-color:var(--accent);border-radius:50%;margin:12px auto 0;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes indet{0%{left:-40%;width:30%}50%{left:30%;width:50%}100%{left:100%;width:30%}}
 .login-gate{position:fixed;inset:0;z-index:5000;background:linear-gradient(145deg,#EDE9E3 0%,#F5F3EF 45%,#E8C4B8 100%);display:flex;align-items:center;justify-content:center;padding:24px}
 .login-gate.hidden{display:none}
 .login-card{width:100%;max-width:420px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:28px 28px 22px;box-shadow:var(--shadow-lg)}
@@ -1041,7 +1075,20 @@ body.app-locked .app-layout{visibility:hidden}
           <span class="cartas-search-hint" id="cartasSearchHint"></span>
         </div>
         <table class="data-table"><thead><tr>
-          <th>N° doc</th><th>Fecha</th><th>Flujo</th><th>Especialidad</th><th>Responsable</th><th>Referencia</th><th>Estado</th><th>Deuda</th><th>Asunto</th><th>Plazo</th><th class="col-acc">Acciones</th>
+          <th style="width:45px;text-align:center">#</th>
+          <th>N° Carta</th>
+          <th>Fecha</th>
+          <th>Tipo de Documento</th>
+          <th>Especialidad</th>
+          <th>Quién Envía</th>
+          <th>Quién Recibe</th>
+          <th>Asunto</th>
+          <th>Referencia</th>
+          <th>Quién Responde</th>
+          <th>Fecha de Atraso</th>
+          <th>Estado de Trámite</th>
+          <th>Observación</th>
+          <th class="col-acc" style="text-align:right">Acciones</th>
         </tr></thead><tbody id="tableBody"></tbody></table>
       </div>
     </div>
@@ -1328,19 +1375,29 @@ body.app-locked .app-layout{visibility:hidden}
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal-card carta-modal-card">
+  <div class="modal-card carta-modal-card" style="max-width:820px">
     <div class="modal-header">
       <div>
         <h2 id="modalTitle" style="font-size:20px;margin:0" tabindex="-1">Nueva Carta</h2>
-        <p id="modalSub" style="font-size:12px;color:var(--text-muted);margin:2px 0 0">Registra un nuevo documento con su bandeja, plazos y referencias</p>
+        <p id="modalSub" style="font-size:12px;color:var(--text-muted);margin:2px 0 0">Control y registro de cartas de obra</p>
       </div>
     </div>
-    <div class="modal-draft-hint" id="modalDraftHint"><i class="ri-draft-line"></i> Se restauró un borrador previo no guardado.</div>
-    <div class="modal-body" style="padding:16px 20px">
+    <div class="modal-draft-hint" id="modalDraftHint">
+      <div style="display:flex;align-items:center;gap:8px">
+        <i class="ri-draft-line" style="font-size:15px"></i>
+        <span>Se restauró un borrador previo no guardado.</span>
+      </div>
+      <button type="button" class="modal-draft-close" title="Cerrar aviso" onclick="setDraftHint(false)">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:18px 24px">
       <form id="cartaForm" novalidate onsubmit="return false;">
         <input type="hidden" id="f_id">
+        <input type="hidden" id="f_referencia">
+        <input type="hidden" id="f_hilo_id">
 
-        <!-- Resumen Informativo de Solo Lectura para Modo Especialista -->
+        <!-- Resumen Informativo de Solo Lectura para Modo Consulta -->
         <div id="cartaReadonlySummary" style="display:none;background:#F8F7F4;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px">
             <div>
@@ -1355,135 +1412,274 @@ body.app-locked .app-layout{visibility:hidden}
               <strong id="csum_fecha" style="font-size:12.5px;color:var(--text-secondary)">—</strong>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr;gap:8px;font-size:12px;border-top:1px solid #E8E4DC;padding-top:10px">
-            <div><strong style="color:var(--text-secondary)">Área / Especialidad:</strong> <span id="csum_area_text" style="font-weight:600;color:var(--text-primary)">—</span></div>
-            <div><strong style="color:var(--text-secondary)">Trámite / Salida Formal:</strong> <span id="csum_salida_text" style="font-weight:600;color:var(--accent)">—</span></div>
-            <div><strong style="color:var(--text-secondary)">Destinatario / Entidad:</strong> <span id="csum_destinatario">—</span></div>
-            <div><strong style="color:var(--text-secondary)">Asunto:</strong> <span id="csum_asunto" style="color:var(--text-primary);font-style:italic">—</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;border-top:1px solid #E8E4DC;padding-top:10px">
+            <div><strong style="color:var(--text-secondary)">¿Quién la firma? (Emisor):</strong> <span id="csum_remite">—</span></div>
+            <div><strong style="color:var(--text-secondary)">¿A quién va? (Destinatario):</strong> <span id="csum_destinatario">—</span></div>
+            <div><strong style="color:var(--text-secondary)">Carta Padre:</strong> <span id="csum_padre">—</span></div>
+            <div><strong style="color:var(--text-secondary)">Estado / Plazo:</strong> <span id="csum_salida_text" style="font-weight:600;color:var(--accent)">—</span></div>
+            <div style="grid-column:1/-1"><strong style="color:var(--text-secondary)">Asunto:</strong> <span id="csum_asunto" style="color:var(--text-primary);font-style:italic">—</span></div>
+            <div style="grid-column:1/-1" id="csum_respaldo_wrap"><strong style="color:var(--text-secondary)">Sustento / Respaldo:</strong> <span id="csum_respaldo" style="color:var(--text-secondary)">—</span></div>
           </div>
         </div>
 
-        <!-- Sección 1: Datos Principales del Documento (Formal) -->
-        <div class="user-sec sec-formal">
-          <div class="user-sec-title"><i class="ri-file-text-line"></i> Identificación del Documento</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>N° de Documento <span class="req">*</span></label>
-              <input type="text" id="f_n_documento" required maxlength="250" placeholder="Ej: CARTA N° 015-2026-CGGC/RL" autocomplete="off">
-            </div>
-            <div class="form-group">
-              <label>Fecha de Emisión / Registro</label>
-              <input type="date" id="f_fecha" min="1990-01-01" max="2099-12-31">
-            </div>
-            <div class="form-group full-width">
-              <label>Referencia operativa <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(búsqueda rápida)</span></label>
-              <input type="text" id="f_referencia" maxlength="255" placeholder="Ej: Informe 34 de Pinturas, Carta 015 Arquitectura…" autocomplete="off">
-              <span style="font-size:11px;color:var(--text-muted);margin-top:3px">Etiqueta corta para encontrar el trámite al buscar «Informe 34», «Carta 015», etc.</span>
-            </div>
-            <div class="form-group full-width">
-              <label>Bandeja y Sentido <span class="req">*</span></label>
-              <select id="f_bandeja" required style="font-weight:600"></select>
-              <span style="font-size:11.5px;color:var(--text-muted);margin-top:4px" id="f_bandeja_hint">Selecciona la bandeja de procedencia o destino del documento.</span>
-            </div>
-            <div class="form-group full-width">
-              <label>Asunto o Descripción del Documento</label>
-              <textarea id="f_asunto" rows="2" maxlength="5000" placeholder="Describe brevemente el objeto del documento…" style="resize:vertical;min-height:54px"></textarea>
-            </div>
-          </div>
-        </div>
+        <datalist id="tipoDocList">
+          <option value="Consulta"></option>
+          <option value="Ficha Técnica"></option>
+          <option value="Planos"></option>
+          <option value="Carta"></option>
+          <option value="Informe"></option>
+          <option value="Oficio"></option>
+          <option value="Memorando"></option>
+          <option value="Asiento de Cuaderno"></option>
+          <option value="Carta Notarial"></option>
+          <option value="Solicitud"></option>
+          <option value="Acta"></option>
+          <option value="Notificación"></option>
+        </datalist>
 
-        <!-- Sección 2: Especialidad y Estado (Operativo) -->
-        <div class="user-sec">
-          <div class="user-sec-title"><i class="ri-tools-line"></i> Especialidad Técnica y Asignación</div>
-          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.45">
-            <strong>Operación (solo Admin):</strong> crea la carta inicial → asigna especialidad/especialista → cuando llega la respuesta en persona, crea <em>otra carta</em> citando antecedentes (mismo hilo) → al cerrar, se cierra el trámite completo.
-          </p>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Estado de Gestión</label>
-              <select id="f_estado" style="font-weight:600"></select>
-            </div>
-            <div class="form-group">
-              <label>Especialidad Técnica <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(tema del documento)</span></label>
-              <select id="f_especialidad" required style="font-weight:600">
-                <option value="">— Seleccione especialidad —</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group full-width" id="f_area_wrap" style="margin-top:12px">
-            <label id="f_area_label">Especialista Responsable <span class="req" id="f_area_req" style="display:none">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Admin asigna al ingeniero que elabora la respuesta)</span></label>
-            <select id="f_area" style="font-weight:600">
-              <option value="">— Seleccione especialista —</option>
-            </select>
-            <div id="f_area_hint_out" style="display:none;font-size:11.5px;color:var(--text-muted);margin-top:4px;background:#F8F7F4;padding:6px 10px;border-radius:6px;border:1px dashed #E8E4DC">
-              Documento emitido hacia afuera: la respuesta formal corresponde a la entidad externa (Supervisión / PRONIS / Municipalidad).
-            </div>
-            <div id="f_area_suggest_hint" style="display:none;font-size:11px;color:var(--teal);margin-top:6px;line-height:1.4"></div>
-          </div>
-        </div>
-
-        <!-- Sección 3: Destinatario, Receptor y Soporte (Formal) -->
-        <div class="user-sec sec-formal">
-          <div class="user-sec-title"><i class="ri-user-shared-line"></i> Destinatario, Receptor y Soportes</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Dirigido a (Destinatario)</label>
-              <input type="text" id="f_dirigido_a" maxlength="250" placeholder="Ej: CONSORCIO SUPERVISOR LEONCIO PRADO">
-            </div>
-            <div class="form-group">
-              <label>Receptor y Cargo</label>
-              <div style="display:flex;gap:6px">
-                <input type="text" id="f_receptor" maxlength="150" placeholder="Receptor" style="flex:1">
-                <input type="text" id="f_cargo" maxlength="150" placeholder="Cargo" style="flex:1">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>N° de Folios</label>
-              <input type="text" id="f_folios" maxlength="100" placeholder="Ej: 15 folios">
-            </div>
-            <div class="form-group">
-              <label>Anexos Digitales / CD / USB</label>
-              <input type="text" id="f_cd" maxlength="150" placeholder="Ej: 01 CD, 01 USB, Link Drive…">
-            </div>
-          </div>
-        </div>
-
-        <!-- Sección 4: Trazabilidad y Cierre Inteligente -->
-        <div class="user-sec" style="margin-bottom:0">
-          <div class="user-sec-title"><i class="ri-git-branch-line"></i> Trazabilidad y Cierre de Trámite</div>
+        <!-- FORMULARIO EXACTO SEGÚN ESPECIFICACIÓN -->
+        <div class="carta-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          
+          <!-- 1. Tipo de Documento -->
           <div class="form-group">
-            <label>Documentos de Referencia / Antecedentes</label>
-            <div class="ref-ant-wrap" id="refAntecedentesWrap">
-              <div class="ref-ant-chips" id="refAntecedentesChips"></div>
-              <div class="ref-ant-add-row">
-                <input type="text" id="refAntecedentesInput" maxlength="500" placeholder="Busca o escribe el N° completo — luego Enter o Agregar" autocomplete="off">
-                <button type="button" class="btn-cancel" id="refAntecedentesAddBtn" style="font-size:12px;padding:6px 12px;white-space:nowrap"><i class="ri-add-line"></i> Agregar</button>
+            <label>Tipo de Documento <span class="req">*</span></label>
+            <input type="text" id="f_tipo_documento" list="tipoDocList" required maxlength="80" placeholder="Ej: CARTA, INFORME, OFICIO…" autocomplete="off" style="font-weight:600" value="CARTA">
+          </div>
+
+          <!-- 2. Número de Carta / Documento -->
+          <div class="form-group">
+            <label>Número de Carta / Documento <span class="req">*</span></label>
+            <input type="text" id="f_n_documento" required maxlength="250" placeholder="Ej: CARTA N° 304-2026-CGGC-HLP-RO" autocomplete="off" style="font-weight:600">
+          </div>
+
+          <!-- 3. Fecha de Emisión / Recepción -->
+          <div class="form-group">
+            <label>Fecha de Emisión / Recepción <span class="req">*</span></label>
+            <input type="date" id="f_fecha" required min="1990-01-01" max="2099-12-31">
+          </div>
+
+          <!-- 4. ¿Quién Envía? (Emisor) -->
+          <div class="form-group">
+            <label>¿Quién Envía? (Emisor) <span class="req">*</span></label>
+            <select id="f_emisor" required style="font-weight:600">
+              <option value="RO">Residente (RO)</option>
+              <option value="RL">Representante Legal (RL)</option>
+              <option value="SUPERVISOR">Supervisión</option>
+              <option value="PRONIS">Pronis</option>
+              <option value="JRD">JRD</option>
+              <option value="MUNICIPALIDAD">Municipalidad</option>
+            </select>
+          </div>
+
+          <!-- 5. ¿Quién Recibe? (Destinatario) -->
+          <div class="form-group">
+            <label>¿Quién Recibe? (Destinatario) <span class="req">*</span></label>
+            <select id="f_destinatario" required style="font-weight:600">
+              <!-- Se puebla dinámicamente según emisor -->
+            </select>
+          </div>
+
+          <!-- 6. Plazo / Fecha de Atraso (días) -->
+          <div class="form-group">
+            <label>Plazo / Fecha de Atraso (días) <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(cálculo de días para responder)</span></label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="number" id="f_plazo_dias" min="0" max="180" placeholder="5" style="width:90px;font-weight:700">
+              <span style="font-size:11.5px;color:var(--text-muted)" id="plazoHint">Días para responder</span>
+            </div>
+          </div>
+
+          <!-- 7. Especialidad(es) (Selección Múltiple) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span>Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(en blanco si viene del Supervisor; clic para seleccionar una o varias)</span></span>
+              <span id="f_esp_count_badge" style="font-size:11.5px;font-weight:700;color:var(--accent)">0 seleccionadas</span>
+            </label>
+            <input type="hidden" id="f_especialidad">
+            <div class="esp-chip-picker" id="f_esp_chips_container" style="max-height:130px;overflow-y:auto;padding:8px;background:#FAFAF8;border:1px solid var(--border);border-radius:8px;display:flex;flex-wrap:wrap;gap:6px">
+              <!-- Chips generados dinámicamente -->
+            </div>
+          </div>
+
+          <!-- 8. Asunto -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>Asunto <span class="req">*</span></label>
+            <textarea id="f_asunto" rows="2" required maxlength="5000" placeholder="Describe el objeto o tema principal de la carta…" style="resize:vertical;min-height:56px"></textarea>
+          </div>
+
+          <!-- 9. Observación (Texto libre) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
+            <textarea id="f_observacion" rows="2" maxlength="3000" placeholder="Ej: Notas o informe N° 34-2026 del Especialista de Estructuras adjunto…" style="resize:vertical;min-height:50px"></textarea>
+          </div>
+
+          <!-- 9. Carta Padre (Buscador interactivo del sistema) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>Carta Padre <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(dejar en blanco si es la primera carta; si es respuesta o réplica, busca y selecciona la carta inicial)</span></label>
+            
+            <div class="carta-padre-widget">
+              <!-- Vista cuando hay Carta Padre seleccionada -->
+              <div id="cartaPadreSelectedCard" class="carta-padre-selected-card" style="display:none">
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                    <span class="status-badge abierto" style="font-size:10px;padding:2px 6px">CARTA PADRE VINCULADA</span>
+                    <strong id="cartaPadreSelectedDoc" style="font-size:13px;color:var(--text-primary)">—</strong>
+                  </div>
+                  <span id="cartaPadreSelectedSub" style="font-size:11.5px;color:var(--text-muted)">—</span>
+                </div>
+                <button type="button" class="btn-cancel" id="btnRemoveCartaPadre" title="Desvincular carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
+                  <i class="ri-close-line"></i> Quitar
+                </button>
               </div>
-              <div class="ref-ant-pending" id="refAntPending"><i class="ri-information-line"></i> Pulsa <strong>Enter</strong> o <strong>Agregar</strong> para confirmar el antecedente arriba.</div>
-              <div class="ref-ant-suggest" id="refAntSuggest" role="listbox" aria-label="Cartas sugeridas"></div>
+
+              <!-- Input buscador cuando no hay Carta Padre seleccionada -->
+              <div id="cartaPadreSearchWrap" style="position:relative">
+                <input type="text" id="cartaPadreSearchInput" class="carta-padre-search-input" placeholder="🔍 Escribe N° de carta o asunto para buscar carta padre en el sistema…" autocomplete="off">
+                <div id="cartaPadreSuggest" class="carta-padre-suggest" role="listbox"></div>
+              </div>
             </div>
-            <textarea id="f_referencias" maxlength="2000" style="display:none" aria-hidden="true"></textarea>
-            <span style="font-size:11px;color:var(--text-muted);margin-top:6px;display:block;line-height:1.45">Cada antecedente se muestra como <strong>etiqueta separada</strong>. Pega texto del Excel y el sistema separa los N° automáticamente. No confundir con «Referencia operativa» (arriba).</span>
-            <!-- Contenedor dinámico de detección de cartas vinculadas / trazabilidad -->
-            <div id="refTraceLinksContainer" class="ref-trace-wrap" style="display:none"></div>
           </div>
-          <div class="form-group" style="margin-top:12px">
-            <label>Observaciones Adicionales</label>
-            <textarea id="f_observacion" rows="2" maxlength="3000" placeholder="Notas técnicas, contingencias o plazos especiales…" style="resize:vertical;min-height:50px"></textarea>
+
+          <!-- 10. Referencias adicionales -->
+          <div class="form-group">
+            <label>Referencias adicionales</label>
+            <input type="text" id="f_referencias" maxlength="2000" placeholder="Ej: Oficio N° 12-2026, Asiento N° 45…">
           </div>
-          <div class="user-toggle-box" style="margin-top:14px">
-            <div class="user-toggle-info">
-              <span class="user-toggle-title">Cierre inteligente del hilo de trámite</span>
-              <span class="user-toggle-sub">Flujo admin: crea la carta → cuando llega la respuesta en persona, crea <em>otra carta</em> citando antecedentes (queda en el mismo hilo) → al marcar <strong>CERRADO</strong> o <strong>ABSUELTO</strong> se cierra de golpe todo el hilo. En respuestas intermedias solo cierra los antecedentes citados.</span>
-            </div>
-            <input type="checkbox" id="f_cerrar_referenciadas" checked>
+
+          <!-- 11. Categoría Carta (Requiere Respuesta vs Informativa) -->
+          <div class="form-group" style="justify-content:center">
+            <label style="margin-bottom:6px">Categoría de la Carta</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-primary);background:#FAF9F6;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+              <input type="checkbox" id="f_requiere_respuesta" checked style="width:16px;height:16px;cursor:pointer">
+              <span>Requiere respuesta operativa <span style="font-size:11px;font-weight:normal;color:var(--text-muted);display:block">(si se desmarca, queda solo informativa / comunicado sin deuda)</span></span>
+            </label>
           </div>
+
         </div>
       </form>
     </div>
-    <div class="modal-footer" style="padding:14px 20px">
+    <div class="modal-footer" style="padding:14px 24px">
       <button type="button" class="btn-cancel" id="btnCancelForm">Cancelar</button>
       <button type="button" class="btn-save" id="btnSaveForm"><i class="ri-save-line"></i> Guardar Carta</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Especializado: Grabar Carta Recibida / Respuesta -->
+<div class="modal-overlay" id="responderModalOverlay">
+  <div class="modal-card carta-modal-card" style="max-width:760px">
+    <div class="modal-header">
+      <div>
+        <h2 id="responderModalTitle" style="font-size:20px;margin:0" tabindex="-1">📬 Grabar Carta Recibida / Respuesta</h2>
+        <p id="responderModalSub" style="font-size:12px;color:var(--text-muted);margin:2px 0 0">Registra el documento físico de entrada y amárralo automáticamente a la última carta del trámite</p>
+      </div>
+    </div>
+    <div class="modal-body" style="padding:18px 24px">
+      <form id="responderForm" novalidate onsubmit="return false;">
+        <input type="hidden" id="rf_padre_id">
+        <input type="hidden" id="rf_padre_doc">
+        <input type="hidden" id="rf_hilo_id">
+
+        <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          
+          <!-- 1. Tipo de Documento -->
+          <div class="form-group">
+            <label>Tipo de Documento <span class="req">*</span></label>
+            <input type="text" id="rf_tipo_documento" list="tipoDocList" required maxlength="80" placeholder="Ej: CARTA, INFORME, OFICIO…" autocomplete="off" style="font-weight:600" value="CARTA">
+          </div>
+
+          <!-- 2. N° de Documento que llegó -->
+          <div class="form-group">
+            <label>N° de Documento que llegó <span class="req">*</span></label>
+            <input type="text" id="rf_n_documento" required maxlength="250" placeholder="Ej: CARTA Nº 089-2026-SUPERVISIÓN o OFICIO Nº 012-PRONIS" autocomplete="off" style="font-weight:600">
+          </div>
+
+          <!-- 3. Fecha de Recepción -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>Fecha de Recepción <span class="req">*</span></label>
+            <input type="date" id="rf_fecha" required min="1990-01-01" max="2099-12-31">
+          </div>
+
+          <!-- 3. Flujo -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>3. Flujo <span class="req">*</span></label>
+            <select id="rf_flujo" required style="font-weight:600">
+              <option value="SUP_TO_RO">Supervisión a RO</option>
+              <option value="PRONIS_TO_RL">Pronis a RL</option>
+              <option value="SUP_TO_RL">Supervisión a RL</option>
+              <option value="PRONIS_TO_RO">Pronis a RO</option>
+              <option value="MUNI_TO_RO">Municipalidad a RO</option>
+              <option value="JRD_TO_RL">JRD a RL</option>
+              <option value="RO_TO_SUP">RO a Supervisión</option>
+              <option value="RL_TO_PRONIS">RL a Pronis</option>
+            </select>
+          </div>
+
+          <!-- 4. Asunto / Texto corto -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>4. Asunto / Texto corto <span class="req">*</span></label>
+            <textarea id="rf_asunto" rows="2" required maxlength="5000" placeholder="Escribe lo que dice el papel (ej: 'Se acepta el clavito' o 'Procedente el acero')…" style="resize:vertical;min-height:56px"></textarea>
+          </div>
+
+          <!-- 5. Especialidad(es) (Selección Múltiple) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span>5. Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(haz clic para seleccionar una o varias)</span></span>
+              <span id="rf_esp_count_badge" style="font-size:11.5px;font-weight:700;color:var(--accent)">0 seleccionadas</span>
+            </label>
+            <input type="hidden" id="rf_especialidad">
+            <div class="esp-chip-picker" id="rf_esp_chips_container" style="max-height:130px;overflow-y:auto;padding:8px;background:#FAFAF8;border:1px solid var(--border);border-radius:8px;display:flex;flex-wrap:wrap;gap:6px">
+              <!-- Chips generados dinámicamente -->
+            </div>
+          </div>
+
+          <!-- 6. Observación (Texto libre) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>6. Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
+            <textarea id="rf_observacion" rows="2" maxlength="3000" placeholder="Ej: Notas o informe N° 34-2026 del especialista, sustento de la respuesta…" style="resize:vertical;min-height:50px"></textarea>
+          </div>
+
+          <!-- 7. Carta Padre (El buscador de amarre) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label>7. Carta Padre (Buscador de amarre al hilo) <span class="req">*</span></label>
+            
+            <div class="carta-padre-widget">
+              <!-- Tarjeta de Carta Padre seleccionada -->
+              <div id="rf_cartaPadreSelectedCard" class="carta-padre-selected-card" style="display:none">
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                    <span class="status-badge abierto" style="font-size:10px;padding:2px 6px">AMARRE AUTOMÁTICO AL HILO</span>
+                    <strong id="rf_cartaPadreSelectedDoc" style="font-size:13px;color:var(--text-primary)">—</strong>
+                  </div>
+                  <span id="rf_cartaPadreSelectedSub" style="font-size:11.5px;color:var(--text-muted)">—</span>
+                  <div id="rf_hiloBreadcrumb" style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600"></div>
+                </div>
+                <button type="button" class="btn-cancel" id="rf_btnRemoveCartaPadre" title="Cambiar carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
+                  <i class="ri-refresh-line"></i> Cambiar
+                </button>
+              </div>
+
+              <!-- Input buscador -->
+              <div id="rf_cartaPadreSearchWrap" style="position:relative">
+                <input type="text" id="rf_cartaPadreSearchInput" class="carta-padre-search-input" placeholder="🔍 Escribe el N° de carta inicial o cualquier documento del trámite (ej. Carta 015)…" autocomplete="off">
+                <div id="rf_cartaPadreSuggest" class="carta-padre-suggest" role="listbox"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkbox de Cierre o Continuación del hilo -->
+          <div class="form-group full-width" style="grid-column:1/-1;margin-top:2px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-primary);background:#FAF9F6;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+              <input type="checkbox" id="rf_cierra_tramite" checked style="width:16px;height:16px;cursor:pointer">
+              <span>Cerrar la carta anterior y dar por absuelto/respondido el trámite <span style="font-size:11px;font-weight:normal;color:var(--text-muted);display:block">(si esta carta física responde y resuelve la consulta anterior)</span></span>
+            </label>
+          </div>
+
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer" style="padding:14px 24px">
+      <button type="button" class="btn-cancel" id="rf_btnCancel">Cancelar</button>
+      <button type="button" class="btn-save" id="rf_btnSave"><i class="ri-save-line"></i> Grabar Carta</button>
     </div>
   </div>
 </div>
@@ -1491,6 +1687,43 @@ body.app-locked .app-layout{visibility:hidden}
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-card"><h3 id="confirmTitle">Confirmar</h3><p id="confirmMsg">¿Continuar?</p>
     <div class="confirm-btns"><button type="button" class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button><button type="button" class="btn-confirm-del" id="btnConfirmOk">Confirmar</button></div>
+  </div>
+</div>
+
+<!-- Input file oculto para cargar archivo Excel desde la computadora -->
+<input type="file" id="excelFileInput" accept=".xlsx, .xlsm, .xls" style="display:none">
+
+<!-- Modal de Progreso / Loading de Reimportación -->
+<div class="confirm-overlay" id="importLoadingOverlay" style="z-index:100002;backdrop-filter:blur(4px)">
+  <div class="confirm-card" style="max-width:440px;text-align:center;padding:28px 24px">
+    <div style="width:54px;height:54px;border-radius:50%;background:rgba(196,91,62,0.1);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;animation:spin 1.2s linear infinite">
+      <i class="ri-loader-4-line"></i>
+    </div>
+    <h3 style="font-size:18px;font-weight:700;color:var(--text-primary);margin:0 0 6px">Procesando archivo Excel…</h3>
+    <p id="importLoadingMsg" style="font-size:12.5px;color:var(--text-secondary);margin:0 0 16px;line-height:1.45">
+      Subiendo archivo, analizando hojas y reconstruyendo hilos de cartas. Por favor espera unos momentos…
+    </p>
+    <div style="height:6px;width:100%;background:#EDEAE3;border-radius:3px;overflow:hidden;position:relative">
+      <div style="position:absolute;height:100%;background:linear-gradient(90deg,var(--accent),#D86B50);width:40%;border-radius:3px;animation:indet 1.4s ease-in-out infinite"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Éxito / Confirmación de Recarga -->
+<div class="confirm-overlay" id="importSuccessOverlay" style="z-index:100002;backdrop-filter:blur(4px)">
+  <div class="confirm-card" style="max-width:460px;text-align:center;padding:28px 24px">
+    <div style="width:56px;height:56px;border-radius:50%;background:rgba(42,122,120,0.12);color:var(--teal);display:inline-flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:14px">
+      <i class="ri-checkbox-circle-fill"></i>
+    </div>
+    <h3 style="font-size:18px;font-weight:700;color:var(--text-primary);margin:0 0 6px">¡Reimportación completada!</h3>
+    <p id="importSuccessMsg" style="font-size:13px;color:var(--text-secondary);margin:0 0 18px;line-height:1.45">
+      Los nuevos datos se han cargado exitosamente. Es necesario refrescar la página para visualizar las cartas y estadísticas actualizadas.
+    </p>
+    <div style="display:flex;justify-content:center;gap:10px">
+      <button type="button" class="btn-save" id="btnReloadApp" style="padding:10px 24px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:8px">
+        <i class="ri-refresh-line"></i> Refrescar página ahora
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1633,16 +1866,19 @@ const OPEN_STATES=new Set(['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIEN
 const CLOSED_PEND_STATES=new Set(['CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD']);
 let VENCIDA_DIAS=15,POR_VENCER_DIAS=10,HILO_PLAZO_DIAS=5;
 const PAGE_SIZE=20,DRAFT_KEY='sistemagreace_nueva_carta_draft';
-const FORM_FIELDS=['bandeja','fecha','n_documento','referencia','asunto','especialidad','estado','referencias','folios','cd','dirigido_a','receptor','cargo','observacion','area'];
-const ESTADO_OPTS=['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','SIN RESPUESTA','REINGRESO','CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','ANULADA','PARA CONOCIMIENTO'];
+const FORM_FIELDS=['n_documento','tipo_documento','fecha','emisor','destinatario','especialidad','asunto','observacion','referencias','referencia','hilo_id','plazo_dias'];
+const ESTADO_OPTS=['ABSUELTA POR SUPERVISOR','ABSUELTA POR ENTIDAD','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PARA RESPUESTA','EN PROCESO','C. OBSERVADA','SIN RESPUESTA','REINGRESO','CERRADO','PARA CONOCIMIENTO','ANULADA'];
 const BANDEJA_IDS=['residente','rl','recibida_sup','recibida_pronis','recibida_mpsc','recibida_otros'];
 const PALETTE=['#C45B3E','#4A7C7E','#7A8B6F','#7B6E8A','#C49A3E','#A0525C','#5C6370','#6E9EAF','#8B9E6F','#B87045'];
 let ALL_CARTAS=[],STATS={},PENDIENTES={},SALDOS={},STATUS_SUP={},HILOS={hilos:[],counts:{}},filtered=[],charts={},editingId=null,deleteId=null,confirmAction=null,switchEditTargetId=null,cartaFormSnapshot=null,currentView='reportes',currentPage=1,activeBandeja='all',BANDEJAS_META={},ACTORES_META={},modalClosing=false,qTimer=null,pendMode='debo',pendActor='all',hiloExpanded=null,hiloFoco='operativo',hilosLoadToken=0,cartasSearchObserver=null,CURRENT_USER=null,AUTH_REQUIRED=true,USERS_ADMIN=[],editingUserId=null,userModalClosing=false;
 
 async function apiFetch(url, opts={}){
   const o={credentials:'same-origin',...opts};
-  if(o.body&&!o.headers)o.headers={'Content-Type':'application/json'};
-  else if(o.body&&o.headers&&!o.headers['Content-Type'])o.headers={...o.headers,'Content-Type':'application/json'};
+  const isFormData = o.body instanceof FormData;
+  if(o.body && !isFormData){
+    if(!o.headers)o.headers={'Content-Type':'application/json'};
+    else if(!o.headers['Content-Type'])o.headers={...o.headers,'Content-Type':'application/json'};
+  }
   const r=await fetch(url,o);
   if(r.status===401){
     const e=await r.json().catch(()=>({}));
@@ -2004,6 +2240,57 @@ function pendPlazoBadgeHtml(plazo){
 }
 
 function isOpen(est){return OPEN_STATES.has((est||'').toUpperCase());}
+function isClosedState(est){
+  const e=String(est||'').trim().toUpperCase();
+  if(CLOSED_PEND_STATES.has(e)) return true;
+  if(e.includes('ABSUELT')||e.includes('CERRAD')||e.includes('ANULAD')||e==='PARA CONOCIMIENTO') return true;
+  return false;
+}
+function canRespondCarta(c){
+  if(!c) return false;
+  const est = String(c.estado_norm || c.estado || '').trim().toUpperCase();
+  if(!isOpen(est) || isClosedState(est)) return false;
+
+  const cl = (typeof classif === 'function') ? classif(c) : (c.clasificacion || {});
+  if(cl.solo_comunicacion || cl.naturaleza === 'comunicacion') return false;
+
+  // 1. Si alguna otra carta en el sistema ya tomó esta carta como referencia, ya fue continuada/respondida
+  const cDocNorm = typeof normalize_doc_key === 'function' ? normalize_doc_key(c.n_documento) : String(c.n_documento||'').trim().toUpperCase();
+  if(cDocNorm && (ALL_CARTAS||[]).some(other => {
+    if(!other || other.id === c.id) return false;
+    const oRef = typeof normalize_doc_key === 'function' ? normalize_doc_key(other.referencia) : String(other.referencia||'').trim().toUpperCase();
+    if(oRef && oRef === cDocNorm) return true;
+    if(c.hilo_id && other.hilo_id === c.hilo_id && (other.id > c.id || String(other.fecha||'') > String(c.fecha||''))) return true;
+    return false;
+  })){
+    return false;
+  }
+
+  // 2. Revisar el hilo en HILOS
+  const hilo = (typeof findHiloForCarta === 'function') ? findHiloForCarta(c) : null;
+  if(hilo){
+    if(hilo.abierto === false || hilo.estado === 'cerrado') return false;
+    if(hilo.n_abiertas === 0) return false;
+  }
+
+  // 3. Revisar la cadena completa: solo la última carta activa de la línea de trámite puede responderse
+  const chain = (typeof getHiloChainCartas === 'function') ? getHiloChainCartas(c) : [c];
+  if(chain && chain.length > 0){
+    const latest = chain[chain.length - 1];
+    if(latest && latest.id !== c.id) return false;
+
+    const sLatest = String(latest.estado_norm || latest.estado || '').trim().toUpperCase();
+    if(!isOpen(sLatest) || isClosedState(sLatest)) return false;
+
+    const hasAnyOpen = chain.some(ch => {
+      const s = String(ch.estado_norm || ch.estado || '').trim().toUpperCase();
+      return isOpen(s) && !isClosedState(s);
+    });
+    if(!hasAnyOpen) return false;
+  }
+
+  return true;
+}
 function parseDate(v){if(!v)return null;const s=String(v).trim().slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;const d=new Date(s+'T12:00:00');return isNaN(d)?null:d;}
 function today(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate(),12,0,0);}
 function fmtDate(d){
@@ -2197,7 +2484,7 @@ function plazoRank(kind){return({vencida:0,por_vencer:1,ok:2,sin_plazo:3,comunic
 function estadoBadgeClass(est){
   const e=(est||'').toUpperCase();
   if(OPEN_STATES.has(e))return'abierto';
-  if(e.includes('CERR')||e.includes('ABSUELTO'))return'cerrado';
+  if(e.includes('CERR')||e.includes('ABSUELT'))return'cerrado';
   if(e.includes('OBSERV'))return'observado';
   return'otro';
 }
@@ -2299,8 +2586,10 @@ function initBandejas(){
   sel.value=(keep==='all'||BANDEJA_IDS.includes(keep))?keep:'all';
   activeBandeja=sel.value;
   const fSel=document.getElementById('f_bandeja');
-  fSel.innerHTML='';
-  BANDEJA_IDS.forEach(id=>{const o=document.createElement('option');o.value=id;o.textContent=bandejaLabel(id);fSel.appendChild(o);});
+  if(fSel){
+    fSel.innerHTML='';
+    BANDEJA_IDS.forEach(id=>{const o=document.createElement('option');o.value=id;o.textContent=bandejaLabel(id);fSel.appendChild(o);});
+  }
 }
 
 function splitEspecialidades(raw){
@@ -2353,12 +2642,7 @@ function ensureSelectOption(sel,val,suffix){
 }
 
 function populateCartaEspSelect(selected){
-  const sel=document.getElementById('f_especialidad');
-  if(!sel)return;
-  const catalog=getCatalogoEspecialidadesForUser();
-  sel.innerHTML='<option value="">— Seleccione especialidad —</option>'+
-    catalog.map(e=>`<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
-  if(selected)ensureSelectOption(sel,normalizeEspSelectValue(selected));
+  populateFormEspChips(selected);
 }
 
 function populateCartaAreaSelect(selected){
@@ -2444,24 +2728,46 @@ function getCartaEspecialidades(c){
   return splitEspecialidades(norm||'');
 }
 
+function getTipoDocumentoDisplay(c){
+  const t = String(c.tipo_documento || '').trim();
+  if(t) return t;
+  const doc = String(c.n_documento || '').toUpperCase();
+  if(doc.includes('INFORME')) return 'Informe';
+  if(doc.includes('OFICIO')) return 'Oficio';
+  if(doc.includes('ASIENTO')) return 'Asiento de Cuaderno';
+  if(doc.includes('MEMO')) return 'Memorando';
+  if(doc.includes('NOTARIAL')) return 'Carta Notarial';
+  if(doc.includes('FICHA')) return 'Ficha Técnica';
+  if(doc.includes('PLANO')) return 'Planos';
+  if(doc.includes('CONSULTA')) return 'Consulta';
+  if(doc.includes('CARTA')) return 'Carta';
+  return 'Carta';
+}
+
 function getCartaReferencia(c){
-  const ref=String(c.referencia||'').trim();
-  if(ref)return ref;
-  const doc=String(c.n_documento||'').trim();
-  if(!doc)return'';
-  const skip=new Set(['RO','RL','SUP','PRONIS','MUNI','OTRO','RESIDENTE','RESIDENCIA','CAMPO','MIXTA','SIN ESPECIALIDAD']);
-  const esp=getCartaEspecialidades(c).find(e=>!skip.has(e))||'';
-  const m=doc.match(/\bINFORME\s*N[°º.]?\s*0*(\d+)/i);
-  if(m){
-    const num=parseInt(m[1],10);
-    return esp?`Informe ${num} de ${esp}`:`Informe ${num}`;
+  const ref = String(c.referencia || '').trim();
+  const refs = String(c.referencias || '').trim();
+  const parts = [];
+  if(ref && ref !== '—') parts.push(ref);
+  if(refs && refs !== '—' && !parts.includes(refs)) {
+    if(typeof parseReferenciasAntecedentes === 'function'){
+      const parsed = parseReferenciasAntecedentes(refs);
+      if(parsed.length) {
+        parsed.forEach(p => { if(p && !parts.includes(p)) parts.push(p); });
+      } else {
+        parts.push(refs);
+      }
+    } else {
+      parts.push(refs);
+    }
   }
-  const mc=doc.match(/\bCARTA\s*N[°º.]?\s*0*(\d+)/i);
-  if(mc){
-    const num=parseInt(mc[1],10);
-    return esp?`Carta ${num} de ${esp}`:`Carta ${num}`;
-  }
-  return'';
+  if(parts.length) return parts.join(', ');
+  return '';
+}
+
+function getCartaReferenciaDisplay(c){
+  const r = getCartaReferencia(c);
+  return r || '—';
 }
 
 let PEND_MATRIX_IDS={};
@@ -2518,8 +2824,10 @@ function initFilters(){
   [...espSet].sort().forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;selEsp.appendChild(o);});
   if(prevEsp!=='all'&&[...selEsp.options].some(o=>o.value===prevEsp))selEsp.value=prevEsp;
   const fEst=document.getElementById('f_estado');
-  fEst.innerHTML='<option value="">—</option>';
-  ESTADO_OPTS.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;fEst.appendChild(o);});
+  if(fEst){
+    fEst.innerHTML='<option value="">—</option>';
+    ESTADO_OPTS.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;fEst.appendChild(o);});
+  }
 }
 
 const ESP_TO_AREA={
@@ -2544,6 +2852,35 @@ function inferAreaFromEspecialidad(c){
     if(t&&t!=='OFICINA TECNICA')return t;
   }
   return 'OFICINA TECNICA';
+}
+
+function quienEnviaLabel(c){
+  const ban=String(c.bandeja||'').trim();
+  const sentido=c.sentido||(ban.startsWith('recibida')?'recibida':'emitida');
+  if(sentido==='emitida'||ban==='residente'||ban==='rl'){
+    return c.receptor || (ban==='rl'?'Representante Legal (RL)':'Residente (RO)');
+  }
+  return c.receptor || (ban==='recibida_sup'?'Supervisión':(ban==='recibida_pronis'?'PRONIS':(ban==='recibida_mpsc'?'Municipalidad':'Entidad Externa')));
+}
+
+function quienRecibeLabel(c){
+  const ban=String(c.bandeja||'').trim();
+  const sentido=c.sentido||(ban.startsWith('recibida')?'recibida':'emitida');
+  if(c.dirigido_a) return c.dirigido_a;
+  if(sentido==='recibida'){
+    return ban==='recibida_pronis'||ban==='recibida_otros'?'Representante Legal (RL)':'Residente (RO)';
+  }
+  return 'Supervisión';
+}
+
+function getEspecialidadDisplay(c){
+  const ban=String(c.bandeja||'').trim();
+  const isSup = ban==='recibida_sup' || String(c.receptor||'').toUpperCase().includes('SUPERVIS');
+  const esp = String(c.especialidad||c.especialidad_norm||'').trim();
+  if(isSup && (!esp || esp==='SIN ESPECIALIDAD' || esp==='GENERAL' || esp==='MIXTA')) {
+    return '—';
+  }
+  return esp || '—';
 }
 
 function yoDeboResponderLabel(c){
@@ -3028,16 +3365,19 @@ function renderTableSkeleton(count=8){
     const wDir=95+(i%2)*25;
     html+=`
       <tr class="skeleton-row">
+        <td><div class="skeleton skeleton-text" style="width:20px"></div></td>
         <td><div class="skeleton skeleton-text" style="width:${wDoc}px"></div></td>
         <td><div class="skeleton skeleton-text" style="width:75px"></div></td>
-        <td><div class="skeleton skeleton-pill" style="width:85px"></div></td>
         <td><div class="skeleton skeleton-pill" style="width:80px"></div></td>
-        <td><div class="skeleton skeleton-badge" style="width:75px"></div></td>
+        <td><div class="skeleton skeleton-pill" style="width:80px"></div></td>
+        <td><div class="skeleton skeleton-text" style="width:85px"></div></td>
+        <td><div class="skeleton skeleton-text" style="width:85px"></div></td>
+        <td><div class="skeleton skeleton-text" style="width:${wAsunto}px"></div></td>
         <td><div class="skeleton skeleton-text" style="width:90px"></div></td>
         <td><div class="skeleton skeleton-badge" style="width:80px"></div></td>
-        <td><div class="skeleton skeleton-badge" style="width:95px"></div></td>
-        <td><div class="skeleton skeleton-text" style="width:${wAsunto}px"></div></td>
         <td><div class="skeleton skeleton-badge" style="width:85px"></div></td>
+        <td><div class="skeleton skeleton-badge" style="width:80px"></div></td>
+        <td><div class="skeleton skeleton-text" style="width:110px"></div></td>
         <td class="col-acc"><div class="skeleton skeleton-icon"></div></td>
       </tr>`;
   }
@@ -3050,30 +3390,36 @@ function updateTable(){
   tbody.innerHTML='';
   const start=(currentPage-1)*PAGE_SIZE;
   const rows=filtered.slice(start,start+PAGE_SIZE);
-  if(!rows.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';updatePagination(start,0);return;}
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';updatePagination(start,0);return;}
   rows.forEach((c,idx)=>{
     const st=deadlineStatus(c);
-    const db=debtBadge(c);
     const tr=document.createElement('tr');
     tr.className='row-rendered';
     tr.style.animationDelay=`${Math.min(idx*12,180)}ms`;
     if(st.kind==='vencida')tr.classList.add('row-vencida');
     if(st.kind==='por_vencer')tr.classList.add('row-por-vencer');
     const pb=st.kind==='por_vencer'?'por-vencer':st.kind.replace('_','-');
+    const itemNumber=start+idx+1;
     tr.innerHTML=`
-      <td class="cell-wrap">${escapeHtml(c.n_documento||'—')}</td>
-      <td>${escapeHtml(c.fecha||'—')}</td>
-      <td>${flujoBadge(c)}</td>
-      <td class="cell-wrap">${escapeHtml(c.especialidad||c.especialidad_norm||'—')}</td>
-      <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
-      <td class="cell-wrap" style="font-size:11.5px"><span style="font-weight:600;color:var(--text-primary)">${escapeHtml(getCartaReferencia(c)||'—')}</span>${c.referencias?`<span class="ref-ant-list" title="${escapeHtml(formatReferenciasAntecedentes(c.referencias))}">${formatReferenciasAntecedentesListHtml(c.referencias)}</span>`:''}</td>
-      <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
-      <td><span class="debt-badge ${db.cls}">${escapeHtml(db.label)}</span></td>
+      <td style="text-align:center;font-weight:600;color:var(--text-muted);font-size:11.5px">${itemNumber}</td>
+      <td class="cell-wrap" style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento||'—')}</td>
+      <td style="white-space:nowrap">${escapeHtml(fmtDate(c.fecha)||'—')}</td>
+      <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
+      <td class="cell-wrap">${escapeHtml(getEspecialidadDisplay(c))}</td>
+      <td class="cell-wrap" style="font-size:12px">${escapeHtml(quienEnviaLabel(c))}</td>
+      <td class="cell-wrap" style="font-size:12px">${escapeHtml(quienRecibeLabel(c))}</td>
       <td class="cell-wrap">${escapeHtml(c.asunto||'—')}</td>
+      <td class="cell-wrap" style="font-weight:600;color:var(--text-primary)">${escapeHtml(getCartaReferenciaDisplay(c))}</td>
+      <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
       <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
+      <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
+      <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(c.observacion||'')}">${escapeHtml(c.observacion||'—')}</td>
       <td class="col-acc">
-        <button class="btn-row-action" title="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'Editar carta':'Ver carta (solo lectura)'}" onclick="openEditModal(${c.id})"><i class="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'ri-edit-line':'ri-eye-line'}"></i></button>
-        ${(CURRENT_USER&&CURRENT_USER.can_delete_cartas)?`<button class="btn-row-action btn-del" title="Eliminar" onclick="confirmDelete(${c.id})"><i class="ri-delete-bin-line"></i></button>`:''}
+        <div class="actions-group">
+          ${(CURRENT_USER&&CURRENT_USER.can_create_cartas&&canRespondCarta(c))?`<button type="button" class="btn-act btn-act-reply" title="Responder a este trámite" onclick="openResponderModal(${c.id})"><i class="ri-reply-line"></i></button>`:''}
+          <button type="button" class="btn-act btn-act-edit" title="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'Editar carta':'Ver carta (solo lectura)'}" onclick="openEditModal(${c.id})"><i class="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'ri-edit-line':'ri-eye-line'}"></i></button>
+          ${(CURRENT_USER&&CURRENT_USER.can_delete_cartas)?`<button type="button" class="btn-act btn-act-del" title="Eliminar carta" onclick="confirmDelete(${c.id})"><i class="ri-delete-bin-line"></i></button>`:''}
+        </div>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -3208,10 +3554,10 @@ function renderPendOperTable(){
     const items=pendItemsForMode();
     if(title)title.textContent='Respondidos — ya no están en pendientes';
     if(sub)sub.textContent='Cartas cerradas (CERRADO / ABSUELTO) que fueron Yo debo o Me deben. Ordenadas por fecha de documento.';
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo</th><th>Contraparte</th><th>Fecha doc.</th><th>Estado cierre</th><th>Especialista / área</th><th>Asunto</th><th></th></tr>';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Modo</th><th>Contraparte</th><th>Fecha doc.</th><th>Estado cierre</th><th>Especialista / área</th><th>Asunto</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
     tbody.innerHTML='';
     if(!items.length){
-      tbody.innerHTML='<tr><td colspan="8" style="color:var(--text-muted);padding:16px">Sin cartas respondidas/cerradas en este filtro</td></tr>';
+      tbody.innerHTML='<tr><td colspan="10" style="color:var(--text-muted);padding:16px">Sin cartas respondidas/cerradas en este filtro</td></tr>';
       return;
     }
     items.forEach((c,idx)=>{
@@ -3224,13 +3570,19 @@ function renderPendOperTable(){
       const cp=inferContraparteHistorica(c);
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
+        <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td>${eraDebo?'Yo debía':'Me debían'}</td>
         <td>${escapeHtml(ACTOR_LABELS[cp]||cp||'—')}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
         <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
         <td>${escapeHtml(eraDebo?yoDeboResponderLabel(c):(cl.contraparte_label||'—'))}</td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
-        <td><button type="button" class="btn-jump-ref" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button></td>`;
+        <td class="col-acc">
+          <div class="actions-group">
+            <button type="button" class="btn-act btn-act-edit" title="Ver detalle de la carta" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button>
+          </div>
+        </td>`;
       tbody.appendChild(tr);
     });
     return;
@@ -3252,17 +3604,17 @@ function renderPendOperTable(){
   }
   if(sub){
     sub.textContent=pendMode==='me_deben'
-      ?'Cartas emitidas por RO/RL: fecha de envío, destinatario, plazo contractual (Sup. 5 hábiles · PRONIS/Muni/JRD 15 días) y atraso.'
-      :'Cartas recibidas: contraparte emisora, especialista interno asignado (área), plazo contractual y atraso.';
+      ?'Cartas emitidas por RO/RL: tipo de documento, especialidad, fecha de envío, destinatario, plazo contractual y atraso.'
+      :'Cartas recibidas: tipo de documento, especialidad, contraparte emisora, especialista interno asignado (área), plazo contractual y atraso.';
   }
   if(pendMode==='me_deben'){
-    thead.innerHTML='<tr><th>N° carta</th><th>Emitida por</th><th>Fecha envío</th><th>Enviada a</th><th>Debe responder</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th></th></tr>';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Emitida por</th><th>Fecha envío</th><th>Enviada a</th><th>Debe responder</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }else{
-    thead.innerHTML='<tr><th>N° carta</th><th>Recibida de</th><th>Fecha</th><th>Flujo</th><th>Especialista / área</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th></th></tr>';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Recibida de</th><th>Fecha</th><th>Flujo</th><th>Especialista / área</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }
   tbody.innerHTML='';
   if(!items.length){
-    tbody.innerHTML='<tr><td colspan="10" style="color:var(--text-muted);padding:16px">Sin cartas en este modo'+(pendActor!=='all'?' y contraparte':'')+'</td></tr>';
+    tbody.innerHTML='<tr><td colspan="12" style="color:var(--text-muted);padding:16px">Sin cartas en este modo'+(pendActor!=='all'?' y contraparte':'')+'</td></tr>';
     return;
   }
   items.forEach((row,idx)=>{
@@ -3275,6 +3627,8 @@ function renderPendOperTable(){
     if(pendMode==='me_deben'){
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
+        <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td>${escapeHtml(emitidorCartaLabel(c))}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
         <td>${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'—')}</td>
@@ -3283,11 +3637,18 @@ function renderPendOperTable(){
         <td style="white-space:nowrap">${limiteFmt}</td>
         <td>${pendPlazoBadgeHtml(plazo)}</td>
         <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
-        <td><button type="button" class="btn-jump-ref" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button></td>`;
+        <td class="col-acc">
+          <div class="actions-group">
+            ${(CURRENT_USER&&CURRENT_USER.can_create_cartas&&canRespondCarta(c))?`<button type="button" class="btn-act btn-act-reply" title="Responder a este trámite" onclick="openResponderModal(${c.id})"><i class="ri-reply-line"></i></button>`:''}
+            <button type="button" class="btn-act btn-act-edit" title="Ver detalle de la carta" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button>
+          </div>
+        </td>`;
     }else{
       const respLabel=yoDeboResponderLabel(c);
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
+        <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td>${escapeHtml(cl.contraparte_label||'—')}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
         <td>${flujoBadge(c)}</td>
@@ -3296,7 +3657,12 @@ function renderPendOperTable(){
         <td style="white-space:nowrap">${limiteFmt}</td>
         <td>${pendPlazoBadgeHtml(plazo)}</td>
         <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
-        <td><button type="button" class="btn-jump-ref" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button></td>`;
+        <td class="col-acc">
+          <div class="actions-group">
+            ${(CURRENT_USER&&CURRENT_USER.can_create_cartas&&canRespondCarta(c))?`<button type="button" class="btn-act btn-act-reply" title="Responder a este trámite" onclick="openResponderModal(${c.id})"><i class="ri-reply-line"></i></button>`:''}
+            <button type="button" class="btn-act btn-act-edit" title="Ver detalle de la carta" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button>
+          </div>
+        </td>`;
     }
     tbody.appendChild(tr);
   });
@@ -3781,6 +4147,10 @@ function renderSaldos(){
   });
 }
 
+async function refreshData(){
+  return await loadData();
+}
+
 async function loadData(){
   try{
     const ok=await ensureSession();
@@ -3828,90 +4198,914 @@ function updatePagination(start,shown){
   mk('<i class="ri-arrow-right-s-line"></i>',currentPage+1,currentPage>=pages);
 }
 
-async function refreshData(){await loadData();}
+const DESTINATARIOS_BY_EMISOR = {
+  RO: [
+    { value: 'Supervisión', label: 'Supervisión' },
+    { value: 'Municipalidad', label: 'Municipalidad' }
+  ],
+  RL: [
+    { value: 'Supervisión', label: 'Supervisión' },
+    { value: 'Pronis', label: 'Pronis' },
+    { value: 'JRD', label: 'JRD' }
+  ],
+  SUPERVISOR: [
+    { value: 'Residente (RO)', label: 'Residente (RO)' },
+    { value: 'Representante Legal (RL)', label: 'Representante Legal (RL)' }
+  ],
+  PRONIS: [
+    { value: 'Representante Legal (RL)', label: 'Representante Legal (RL)' },
+    { value: 'Residente (RO)', label: 'Residente (RO)' }
+  ],
+  JRD: [
+    { value: 'Representante Legal (RL)', label: 'Representante Legal (RL)' },
+    { value: 'Residente (RO)', label: 'Residente (RO)' }
+  ],
+  MUNICIPALIDAD: [
+    { value: 'Residente (RO)', label: 'Residente (RO)' },
+    { value: 'Representante Legal (RL)', label: 'Representante Legal (RL)' }
+  ]
+};
 
-function collectForm(){syncRefAntecedentesField();const d={};FORM_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);d[f]=el?el.value.trim():'';});return d;}
+function updateDestinatarioOptions(selectedDest){
+  const emisor = document.getElementById('f_emisor')?.value || 'RO';
+  const destSel = document.getElementById('f_destinatario');
+  if(!destSel) return;
+  const opts = DESTINATARIOS_BY_EMISOR[emisor] || DESTINATARIOS_BY_EMISOR.RO;
+  destSel.innerHTML = opts.map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('');
+  
+  if(selectedDest){
+    const found = opts.find(o => o.value.toUpperCase() === String(selectedDest).toUpperCase() || selectedDest.toUpperCase().includes(o.value.toUpperCase()));
+    if(found){
+      destSel.value = found.value;
+    } else {
+      ensureSelectOption(destSel, selectedDest);
+      destSel.value = selectedDest;
+    }
+  } else if(opts.length > 0){
+    destSel.value = opts[0].value;
+  }
+  updatePlazoFromActors();
+}
+
+function updatePlazoFromActors(){
+  const emisor = document.getElementById('f_emisor')?.value || 'RO';
+  const dest = document.getElementById('f_destinatario')?.value || '';
+  const reqResp = document.getElementById('f_requiere_respuesta')?.checked ?? true;
+  const plazoInput = document.getElementById('f_plazo_dias');
+  const hint = document.getElementById('plazoHint');
+  if(!plazoInput) return;
+
+  if(!reqResp){
+    plazoInput.value = '0';
+    if(hint) hint.textContent = 'Solo informativa / No genera plazo';
+    return;
+  }
+
+  const cfg = (typeof SYSTEM_CONFIG === 'object' && SYSTEM_CONFIG) || {};
+  let defaultPlazo = 5;
+  const target = (['SUPERVISOR', 'PRONIS', 'MUNICIPALIDAD', 'JRD'].includes(emisor)) ? emisor : dest.toUpperCase();
+
+  if (target.includes('SUPERVIS')) defaultPlazo = parseInt(cfg.plazo_sup_dias || 5, 10);
+  else if (target.includes('PRONIS') || target.includes('ENTIDAD')) defaultPlazo = parseInt(cfg.plazo_entidad_dias || 15, 10);
+  else if (target.includes('MUNICIPAL')) defaultPlazo = parseInt(cfg.plazo_muni_dias || 15, 10);
+  else if (target.includes('JRD')) defaultPlazo = parseInt(cfg.plazo_jrd_dias || 15, 10);
+  else defaultPlazo = parseInt(cfg.plazo_ro_dias || 5, 10);
+
+  if(!plazoInput.value || plazoInput.dataset.auto === '1' || editingId == null){
+    plazoInput.value = defaultPlazo;
+    plazoInput.dataset.auto = '1';
+  }
+  if(hint) hint.textContent = `Días contractuales (${defaultPlazo} d según config)`;
+}
+
+let cartaPadreSearchInitialized = false;
+function setupCartaPadreSearch(){
+  if(cartaPadreSearchInitialized) return;
+  cartaPadreSearchInitialized = true;
+
+  const searchInput = document.getElementById('cartaPadreSearchInput');
+  const suggestBox = document.getElementById('cartaPadreSuggest');
+  const removeBtn = document.getElementById('btnRemoveCartaPadre');
+  const emisorSel = document.getElementById('f_emisor');
+  const destSel = document.getElementById('f_destinatario');
+  const reqCheck = document.getElementById('f_requiere_respuesta');
+
+  emisorSel?.addEventListener('change', () => updateDestinatarioOptions());
+  destSel?.addEventListener('change', () => {
+    if(document.getElementById('f_plazo_dias')) document.getElementById('f_plazo_dias').dataset.auto = '1';
+    updatePlazoFromActors();
+  });
+  reqCheck?.addEventListener('change', () => updatePlazoFromActors());
+
+  if(searchInput && suggestBox){
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if(!q || q.length < 2){
+        suggestBox.style.display = 'none';
+        suggestBox.innerHTML = '';
+        return;
+      }
+      const currentDoc = document.getElementById('f_n_documento')?.value?.trim()?.toLowerCase() || '';
+      const currentId = editingId;
+      const matches = (ALL_CARTAS || []).filter(c => {
+        if(currentId && c.id === currentId) return false;
+        const doc = String(c.n_documento || '').toLowerCase();
+        if(currentDoc && doc === currentDoc) return false;
+        const asunto = String(c.asunto || '').toLowerCase();
+        const esp = String(c.especialidad || '').toLowerCase();
+        return doc.includes(q) || asunto.includes(q) || esp.includes(q);
+      }).slice(0, 10);
+
+      if(!matches.length){
+        suggestBox.innerHTML = '<div style="padding:10px 14px;color:var(--text-muted);font-size:12px">No se encontraron cartas que coincidan</div>';
+        suggestBox.style.display = 'block';
+        return;
+      }
+
+      suggestBox.innerHTML = matches.map(c => {
+        const est = String(c.estado_norm || c.estado || 'ABIERTO').toUpperCase();
+        const closed = isClosedState(est);
+        const stBadge = closed 
+          ? `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;background:var(--sage-light);color:var(--sage)">🔒 ${escapeHtml(est)}</span>`
+          : `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;background:var(--lavender-light);color:var(--lavender)">⚡ EN TRÁMITE</span>`;
+        return `
+        <div class="carta-padre-item" data-id="${c.id}" style="${closed?'background:#FAFAF9;opacity:0.9':''}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento || 'ID ' + c.id)} <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(${fmtDate(c.fecha) || 'Sin fecha'})</span></span>
+            ${stBadge}
+          </div>
+          <div style="font-size:11.5px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:550px;margin-top:2px">${escapeHtml(c.asunto || 'Sin asunto')}</div>
+          <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">${escapeHtml(c.especialidad || c.especialidad_norm || 'GENERAL')} · ${escapeHtml(quienEnviaLabel(c))} ➔ ${escapeHtml(quienRecibeLabel(c))}</div>
+        </div>`;
+      }).join('');
+      suggestBox.style.display = 'block';
+
+      suggestBox.querySelectorAll('.carta-padre-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = parseInt(item.dataset.id, 10);
+          const carta = ALL_CARTAS.find(x => x.id === id);
+          if(carta) selectCartaPadre(carta);
+        });
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('.carta-padre-widget')){
+        suggestBox.style.display = 'none';
+      }
+    });
+  }
+
+  if(removeBtn){
+    removeBtn.addEventListener('click', () => clearCartaPadre());
+  }
+}
+
+function normalize_doc_key(raw){
+  if(!raw) return '';
+  return String(raw).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/N[°º]/g, 'N ').replace(/\./g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function findHiloForCarta(cartaOrId){
+  if(!cartaOrId) return null;
+  const c = typeof cartaOrId === 'object' ? cartaOrId : (ALL_CARTAS||[]).find(x => x.id === cartaOrId);
+  if(!c) return null;
+
+  const docNorm = typeof normalize_doc_key === 'function' ? normalize_doc_key(c.n_documento) : String(c.n_documento||'').trim().toUpperCase();
+
+  if(HILOS && HILOS.hilos){
+    for(const h of HILOS.hilos){
+      if((h.carta_ids || []).includes(c.id)){
+        return h;
+      }
+      if(docNorm && (h.docs || []).map(d => (typeof normalize_doc_key === 'function' ? normalize_doc_key(d) : String(d||'').trim().toUpperCase())).includes(docNorm)){
+        return h;
+      }
+    }
+  }
+
+  if(c.hilo_id){
+    const cartasInHilo = (ALL_CARTAS || []).filter(x => x.hilo_id === c.hilo_id);
+    if(cartasInHilo.length){
+      return {
+        hilo_id: c.hilo_id,
+        titulo: c.asunto || c.n_documento,
+        cartas: cartasInHilo
+      };
+    }
+  }
+
+  const visitedIds = new Set([c.id]);
+  const chain = [c];
+  let changed = true;
+  while(changed){
+    changed = false;
+    for(const item of (ALL_CARTAS || [])){
+      if(visitedIds.has(item.id)) continue;
+      const ref = typeof normalize_doc_key === 'function' ? normalize_doc_key(item.referencia) : String(item.referencia||'').trim().toUpperCase();
+      const refs = String(item.referencias || '').toUpperCase();
+      const doc = typeof normalize_doc_key === 'function' ? normalize_doc_key(item.n_documento) : String(item.n_documento||'').trim().toUpperCase();
+      const isLinked = chain.some(ch => {
+        const chDoc = typeof normalize_doc_key === 'function' ? normalize_doc_key(ch.n_documento) : String(ch.n_documento||'').trim().toUpperCase();
+        const chRef = typeof normalize_doc_key === 'function' ? normalize_doc_key(ch.referencia) : String(ch.referencia||'').trim().toUpperCase();
+        const chRefs = String(ch.referencias || '').toUpperCase();
+        return (ref && chDoc && ref === chDoc) ||
+               (doc && chRef && chRef === doc) ||
+               (chDoc && refs.includes(chDoc)) ||
+               (doc && chRefs.includes(doc));
+      });
+      if(isLinked){
+        visitedIds.add(item.id);
+        chain.push(item);
+        changed = true;
+      }
+    }
+  }
+
+  return {
+    hilo_id: c.hilo_id || null,
+    titulo: c.asunto || c.n_documento,
+    cartas: chain
+  };
+}
+
+function getHiloChainCartas(cartaOrId){
+  const hilo = findHiloForCarta(cartaOrId);
+  let cartas = [];
+  if(hilo){
+    if(hilo.carta_ids && hilo.carta_ids.length){
+      cartas = hilo.carta_ids.map(id => (ALL_CARTAS||[]).find(x => x.id === id)).filter(Boolean);
+    } else if(hilo.cartas && hilo.cartas.length){
+      cartas = hilo.cartas;
+    }
+  }
+  if(!cartas.length){
+    const c = typeof cartaOrId === 'object' ? cartaOrId : (ALL_CARTAS||[]).find(x => x.id === cartaOrId);
+    if(c) cartas = [c];
+  }
+  cartas.sort((a, b) => {
+    const fa = String(a.fecha || '');
+    const fb = String(b.fecha || '');
+    if(fa !== fb) return fa.localeCompare(fb);
+    return (a.id || 0) - (b.id || 0);
+  });
+  return cartas;
+}
+
+function getLatestCartaInHilo(cartaOrId){
+  const chain = getHiloChainCartas(cartaOrId);
+  return chain.length ? chain[chain.length - 1] : (typeof cartaOrId === 'object' ? cartaOrId : (ALL_CARTAS||[]).find(x => x.id === cartaOrId));
+}
+
+function selectCartaPadre(c){
+  if(!c) return;
+  if(editingId != null && c.id === editingId){
+    showToast('Una carta no puede ser su propia carta padre.', 'warning');
+    return;
+  }
+  const latest = getLatestCartaInHilo(c) || c;
+  const chain = getHiloChainCartas(c);
+
+  document.getElementById('f_referencia').value = latest.n_documento || '';
+  document.getElementById('f_hilo_id').value = latest.hilo_id || latest.id || '';
+  
+  const isDifferent = latest.id !== c.id;
+  const note = isDifferent ? ` <span style="color:var(--teal);font-weight:600">(Última carta activa del hilo: ${escapeHtml(latest.n_documento||'')})</span>` : '';
+  
+  document.getElementById('cartaPadreSelectedDoc').innerHTML = escapeHtml(latest.n_documento || ('ID ' + latest.id)) + note;
+  
+  let breadcrumb = '';
+  if(chain.length > 1){
+    breadcrumb = `<div style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600">Trámite: ${chain.map((ch, idx) => (idx === chain.length - 1 ? `<strong>${escapeHtml(ch.n_documento || 'ID ' + ch.id)} (actual)</strong>` : escapeHtml(ch.n_documento || 'ID ' + ch.id))).join(' ➔ ')}</div>`;
+  }
+  
+  document.getElementById('cartaPadreSelectedSub').innerHTML = `Fecha: ${fmtDate(latest.fecha) || '—'} · Especialidad: ${latest.especialidad || latest.especialidad_norm || '—'} · Asunto: ${escapeHtml((latest.asunto || '—').slice(0, 80))}${breadcrumb}`;
+  document.getElementById('cartaPadreSelectedCard').style.display = 'flex';
+  document.getElementById('cartaPadreSearchWrap').style.display = 'none';
+  document.getElementById('cartaPadreSuggest').style.display = 'none';
+
+  // Solo pre-llenar Tipo de Documento si el formulario no tiene uno definido
+  const currentTipo = document.getElementById('f_tipo_documento')?.value?.trim();
+  if(latest.tipo_documento && (!currentTipo || currentTipo === 'CARTA')){
+    document.getElementById('f_tipo_documento').value = latest.tipo_documento;
+  }
+  if(latest.especialidad && fSelectedEspecialidades.size === 0){
+    populateFormEspChips(latest.especialidad);
+  }
+
+  if(editingId == null){
+    const sLatest = String(latest.estado_norm || latest.estado || '').trim().toUpperCase();
+    if(isClosedState(sLatest)){
+      showToast(`Nota: Este trámite (${latest.n_documento}) figura como ${sLatest}.`, 'info');
+    }
+  }
+}
+
+function clearCartaPadre(){
+  document.getElementById('f_referencia').value = '';
+  document.getElementById('f_hilo_id').value = '';
+  document.getElementById('cartaPadreSelectedCard').style.display = 'none';
+  document.getElementById('cartaPadreSearchWrap').style.display = 'block';
+  document.getElementById('cartaPadreSearchInput').value = '';
+  document.getElementById('cartaPadreSuggest').style.display = 'none';
+}
+
+let fSelectedEspecialidades = new Set();
+
+function populateFormEspChips(initialValues){
+  const container = document.getElementById('f_esp_chips_container');
+  if(!container) return;
+  
+  fSelectedEspecialidades = new Set();
+  if(initialValues){
+    let rawList = [];
+    if(Array.isArray(initialValues)){
+      rawList = initialValues;
+    } else if(typeof initialValues === 'string'){
+      rawList = splitEspecialidades(initialValues);
+    }
+    rawList.map(s => String(s).trim().toUpperCase()).filter(s => s && s !== 'SIN ESPECIALIDAD' && s !== 'MIXTA').forEach(p => fSelectedEspecialidades.add(p));
+  }
+
+  const catalog = getCatalogoEspecialidadesForUser();
+  container.innerHTML = catalog.map(esp => {
+    const isActive = fSelectedEspecialidades.has(esp.toUpperCase());
+    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(esp)}">
+      <i class="${isActive ? 'ri-checkbox-circle-fill' : 'ri-add-line'}"></i>
+      <span>${escapeHtml(esp)}</span>
+    </button>`;
+  }).join('');
+
+  container.querySelectorAll('.esp-chip-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const esp = btn.dataset.esp.toUpperCase();
+      if(fSelectedEspecialidades.has(esp)){
+        fSelectedEspecialidades.delete(esp);
+        btn.classList.remove('active');
+        const icon = btn.querySelector('i');
+        if(icon) icon.className = 'ri-add-line';
+      } else {
+        fSelectedEspecialidades.add(esp);
+        btn.classList.add('active');
+        const icon = btn.querySelector('i');
+        if(icon) icon.className = 'ri-checkbox-circle-fill';
+      }
+      updateFormEspState();
+    });
+  });
+
+  updateFormEspState();
+}
+
+function updateFormEspState(){
+  const countBadge = document.getElementById('f_esp_count_badge');
+  const hiddenInput = document.getElementById('f_especialidad');
+  const arr = Array.from(fSelectedEspecialidades);
+  if(hiddenInput){
+    hiddenInput.value = arr.join(', ');
+  }
+  if(countBadge){
+    const n = arr.length;
+    countBadge.textContent = n ? `${n} seleccionada${n === 1 ? '' : 's'}` : '0 seleccionadas';
+  }
+}
+
+let responderParentCarta = null;
+let responderSearchInitialized = false;
+
+let rfSelectedEspecialidades = new Set();
+
+function populateResponderEspChips(initialValues){
+  const container = document.getElementById('rf_esp_chips_container');
+  if(!container) return;
+  
+  rfSelectedEspecialidades = new Set();
+  if(initialValues){
+    let rawList = [];
+    if(Array.isArray(initialValues)){
+      rawList = initialValues;
+    } else if(typeof initialValues === 'string'){
+      rawList = splitEspecialidades(initialValues);
+    }
+    rawList.map(s => String(s).trim().toUpperCase()).filter(s => s && s !== 'SIN ESPECIALIDAD' && s !== 'MIXTA').forEach(p => rfSelectedEspecialidades.add(p));
+  }
+
+  const catalog = getCatalogoEspecialidadesForUser();
+  container.innerHTML = catalog.map(esp => {
+    const isActive = rfSelectedEspecialidades.has(esp.toUpperCase());
+    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(esp)}">
+      <i class="${isActive ? 'ri-checkbox-circle-fill' : 'ri-add-line'}"></i>
+      <span>${escapeHtml(esp)}</span>
+    </button>`;
+  }).join('');
+
+  container.querySelectorAll('.esp-chip-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const esp = btn.dataset.esp.toUpperCase();
+      if(rfSelectedEspecialidades.has(esp)){
+        rfSelectedEspecialidades.delete(esp);
+        btn.classList.remove('active');
+        const icon = btn.querySelector('i');
+        if(icon) icon.className = 'ri-add-line';
+      } else {
+        rfSelectedEspecialidades.add(esp);
+        btn.classList.add('active');
+        const icon = btn.querySelector('i');
+        if(icon) icon.className = 'ri-checkbox-circle-fill';
+      }
+      updateResponderEspState();
+    });
+  });
+
+  updateResponderEspState();
+}
+
+function updateResponderEspState(){
+  const countBadge = document.getElementById('rf_esp_count_badge');
+  const hiddenInput = document.getElementById('rf_especialidad');
+  const arr = Array.from(rfSelectedEspecialidades);
+  if(hiddenInput){
+    hiddenInput.value = arr.join(', ');
+  }
+  if(countBadge){
+    const n = arr.length;
+    countBadge.textContent = n ? `${n} seleccionada${n === 1 ? '' : 's'}` : '0 seleccionadas';
+  }
+}
+
+function openResponderModal(parentCartaId){
+  if (CURRENT_USER && !CURRENT_USER.can_create_cartas) {
+    showToast('Solo el Administrador puede registrar respuestas de cartas.', 'error');
+    return;
+  }
+  let baseCarta = null;
+  if(parentCartaId){
+    baseCarta = (ALL_CARTAS||[]).find(x => x.id === parentCartaId);
+    if(baseCarta && !canRespondCarta(baseCarta)){
+      showToast('Este trámite / hilo de carta ya se encuentra cerrado o absuelto y no requiere respuesta.', 'warning');
+      return;
+    }
+  }
+  setupResponderCartaPadreSearch();
+  document.getElementById('responderForm').reset();
+  
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('rf_fecha').value = today;
+  document.getElementById('rf_cierra_tramite').checked = true;
+  if(document.getElementById('rf_tipo_documento')){
+    document.getElementById('rf_tipo_documento').value = baseCarta?.tipo_documento || 'CARTA';
+  }
+
+  if(parentCartaId && baseCarta){
+    selectResponderCartaPadre(baseCarta);
+  } else {
+    clearResponderCartaPadre();
+    populateResponderEspChips([]);
+  }
+
+  showResponderModal();
+  setTimeout(() => document.getElementById('rf_n_documento')?.focus(), 50);
+}
+
+function showResponderModal(){
+  const o = document.getElementById('responderModalOverlay');
+  if(o){
+    o.classList.remove('closing');
+    o.classList.add('active');
+  }
+}
+
+function closeResponderModal(){
+  const o = document.getElementById('responderModalOverlay');
+  if(!o || !o.classList.contains('active')) return;
+  o.classList.add('closing');
+  setTimeout(() => {
+    o.classList.remove('active', 'closing');
+    responderParentCarta = null;
+  }, 160);
+}
+
+function selectResponderCartaPadre(c){
+  const latest = getLatestCartaInHilo(c) || c;
+  responderParentCarta = latest;
+  const chain = getHiloChainCartas(c);
+
+  document.getElementById('rf_padre_id').value = latest.id || '';
+  document.getElementById('rf_padre_doc').value = latest.n_documento || '';
+  document.getElementById('rf_hilo_id').value = latest.hilo_id || latest.id || '';
+
+  if(document.getElementById('rf_tipo_documento')){
+    document.getElementById('rf_tipo_documento').value = latest.tipo_documento || c.tipo_documento || 'CARTA';
+  }
+
+  const isDifferent = latest.id !== c.id;
+  const note = isDifferent ? ` <span style="color:var(--teal);font-weight:600">(Última carta activa del hilo: ${escapeHtml(latest.n_documento||'')})</span>` : '';
+
+  document.getElementById('rf_cartaPadreSelectedDoc').innerHTML = escapeHtml(latest.n_documento || ('ID ' + latest.id)) + note;
+  document.getElementById('rf_cartaPadreSelectedSub').textContent = `Fecha: ${fmtDate(latest.fecha) || '—'} · Emisor: ${latest.receptor || latest.sentido || '—'} · Destinatario: ${latest.dirigido_a || '—'}`;
+
+  const bcEl = document.getElementById('rf_hiloBreadcrumb');
+  if(bcEl){
+    if(chain.length > 1){
+      bcEl.innerHTML = `Secuencia del hilo: ${chain.map((ch, idx) => (idx === chain.length - 1 ? `<strong>${escapeHtml(ch.n_documento || 'ID ' + ch.id)} (última)</strong>` : escapeHtml(ch.n_documento || 'ID ' + ch.id))).join(' ➔ ')}`;
+      bcEl.style.display = 'block';
+    } else {
+      bcEl.style.display = 'none';
+    }
+  }
+
+  document.getElementById('rf_cartaPadreSelectedCard').style.display = 'flex';
+  document.getElementById('rf_cartaPadreSearchWrap').style.display = 'none';
+  document.getElementById('rf_cartaPadreSuggest').style.display = 'none';
+
+  if(latest.especialidad){
+    populateResponderEspChips(latest.especialidad);
+  } else {
+    populateResponderEspChips([]);
+  }
+
+  const flujoSel = document.getElementById('rf_flujo');
+  if(flujoSel){
+    const ban = latest.bandeja || '';
+    const dir = String(latest.dirigido_a || '').toUpperCase();
+    if(ban === 'residente'){
+      flujoSel.value = 'SUP_TO_RO';
+    } else if(ban === 'rl'){
+      flujoSel.value = dir.includes('PRONIS') ? 'PRONIS_TO_RL' : 'SUP_TO_RL';
+    } else if(ban === 'recibida_sup'){
+      flujoSel.value = 'RO_TO_SUP';
+    } else if(ban === 'recibida_pronis'){
+      flujoSel.value = 'RL_TO_PRONIS';
+    } else if(ban === 'recibida_mpsc'){
+      flujoSel.value = 'MUNI_TO_RO';
+    } else if(ban === 'recibida_otros'){
+      flujoSel.value = 'JRD_TO_RL';
+    }
+  }
+}
+
+function clearResponderCartaPadre(){
+  responderParentCarta = null;
+  document.getElementById('rf_padre_id').value = '';
+  document.getElementById('rf_padre_doc').value = '';
+  document.getElementById('rf_hilo_id').value = '';
+  document.getElementById('rf_cartaPadreSelectedCard').style.display = 'none';
+  document.getElementById('rf_cartaPadreSearchWrap').style.display = 'block';
+  document.getElementById('rf_cartaPadreSearchInput').value = '';
+  document.getElementById('rf_cartaPadreSuggest').style.display = 'none';
+  populateResponderEspChips([]);
+}
+
+function setupResponderCartaPadreSearch(){
+  if(responderSearchInitialized) return;
+  responderSearchInitialized = true;
+
+  const searchInput = document.getElementById('rf_cartaPadreSearchInput');
+  const suggestBox = document.getElementById('rf_cartaPadreSuggest');
+  const removeBtn = document.getElementById('rf_btnRemoveCartaPadre');
+  const cancelBtn = document.getElementById('rf_btnCancel');
+  const saveBtn = document.getElementById('rf_btnSave');
+
+  cancelBtn?.addEventListener('click', closeResponderModal);
+  saveBtn?.addEventListener('click', handleSaveResponder);
+  removeBtn?.addEventListener('click', clearResponderCartaPadre);
+
+  if(searchInput && suggestBox){
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if(!q || q.length < 2){
+        suggestBox.style.display = 'none';
+        suggestBox.innerHTML = '';
+        return;
+      }
+      const matches = (ALL_CARTAS || []).filter(c => {
+        const doc = String(c.n_documento || '').toLowerCase();
+        const asunto = String(c.asunto || '').toLowerCase();
+        const esp = String(c.especialidad || '').toLowerCase();
+        return (doc.includes(q) || asunto.includes(q) || esp.includes(q)) && canRespondCarta(c);
+      }).slice(0, 10);
+
+      if(!matches.length){
+        suggestBox.innerHTML = '<div style="padding:10px 14px;color:var(--text-muted);font-size:12px">No se encontraron trámites abiertos pendientes de respuesta</div>';
+        suggestBox.style.display = 'block';
+        return;
+      }
+
+      suggestBox.innerHTML = matches.map(c => `
+        <div class="carta-padre-item" data-id="${c.id}">
+          <div style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento || 'ID ' + c.id)} <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(${fmtDate(c.fecha) || 'Sin fecha'})</span></div>
+          <div style="font-size:11.5px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:550px">${escapeHtml(c.asunto || 'Sin asunto')}</div>
+          <div style="font-size:10.5px;color:var(--accent);margin-top:2px">${escapeHtml(c.especialidad || c.especialidad_norm || 'GENERAL')} · ${escapeHtml(c.estado_norm || c.estado || 'ABIERTO')}</div>
+        </div>
+      `).join('');
+      suggestBox.style.display = 'block';
+
+      suggestBox.querySelectorAll('.carta-padre-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = parseInt(item.dataset.id, 10);
+          const carta = (ALL_CARTAS||[]).find(x => x.id === id);
+          if(carta) selectResponderCartaPadre(carta);
+        });
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('#responderModalOverlay .carta-padre-widget')){
+        suggestBox.style.display = 'none';
+      }
+    });
+  }
+}
+
+async function handleSaveResponder(){
+  const canCreate = CURRENT_USER && CURRENT_USER.can_create_cartas;
+  if (!canCreate) {
+    showToast('Solo el Administrador puede registrar respuestas de cartas.', 'error');
+    return;
+  }
+
+  const doc = document.getElementById('rf_n_documento')?.value?.trim() || '';
+  const tipoDoc = document.getElementById('rf_tipo_documento')?.value?.trim() || (responderParentCarta?.tipo_documento || 'CARTA');
+  const fecha = document.getElementById('rf_fecha')?.value || '';
+  const flujo = document.getElementById('rf_flujo')?.value || 'SUP_TO_RO';
+  const esp = document.getElementById('rf_especialidad')?.value?.trim() || '';
+  const asunto = document.getElementById('rf_asunto')?.value?.trim() || '';
+  const observacion = document.getElementById('rf_observacion')?.value?.trim() || '';
+  const padreDoc = document.getElementById('rf_padre_doc')?.value?.trim() || '';
+  const hiloId = document.getElementById('rf_hilo_id')?.value?.trim() || '';
+  const cierraTramite = document.getElementById('rf_cierra_tramite')?.checked ?? true;
+
+  if (!doc) {
+    showToast('El N° de Documento que llegó es obligatorio', 'error');
+    document.getElementById('rf_n_documento')?.focus();
+    return;
+  }
+  if (!esp) {
+    showToast('Debe seleccionar al menos una Especialidad', 'error');
+    return;
+  }
+  if (!asunto) {
+    showToast('El Asunto / Texto corto es obligatorio', 'error');
+    document.getElementById('rf_asunto')?.focus();
+    return;
+  }
+  if (!padreDoc) {
+    showToast('Debe buscar y seleccionar la Carta Padre (amarre del trámite)', 'error');
+    document.getElementById('rf_cartaPadreSearchInput')?.focus();
+    return;
+  }
+
+  let ban = 'recibida_sup', sentido = 'recibida', receptor = 'SUPERVISOR', dirigido_a = 'Residente (RO)', area = 'RESIDENTE';
+  let estado = cierraTramite ? 'ABSUELTA POR SUPERVISOR' : 'PENDIENTE CGGC';
+
+  if (flujo === 'SUP_TO_RO') {
+    ban = 'recibida_sup'; sentido = 'recibida'; receptor = 'SUPERVISOR'; dirigido_a = 'Residente (RO)'; area = 'RESIDENTE';
+    estado = cierraTramite ? 'ABSUELTA POR SUPERVISOR' : 'PENDIENTE CGGC';
+  } else if (flujo === 'PRONIS_TO_RL') {
+    ban = 'recibida_pronis'; sentido = 'recibida'; receptor = 'PRONIS'; dirigido_a = 'Representante Legal (RL)'; area = 'RESIDENTE';
+    estado = cierraTramite ? 'ABSUELTA POR ENTIDAD' : 'PENDIENTE CGGC';
+  } else if (flujo === 'SUP_TO_RL') {
+    ban = 'recibida_sup'; sentido = 'recibida'; receptor = 'SUPERVISOR'; dirigido_a = 'Representante Legal (RL)'; area = 'RESIDENTE';
+    estado = cierraTramite ? 'ABSUELTA POR SUPERVISOR' : 'PENDIENTE CGGC';
+  } else if (flujo === 'PRONIS_TO_RO') {
+    ban = 'recibida_pronis'; sentido = 'recibida'; receptor = 'PRONIS'; dirigido_a = 'Residente (RO)'; area = 'RESIDENTE';
+    estado = cierraTramite ? 'ABSUELTA POR ENTIDAD' : 'PENDIENTE CGGC';
+  } else if (flujo === 'MUNI_TO_RO') {
+    ban = 'recibida_mpsc'; sentido = 'recibida'; receptor = 'MUNICIPALIDAD'; dirigido_a = 'Residente (RO)'; area = 'RESIDENTE';
+    estado = cierraTramite ? 'CERRADO' : 'PENDIENTE CGGC';
+  } else if (flujo === 'JRD_TO_RL') {
+    ban = 'recibida_otros'; sentido = 'recibida'; receptor = 'JRD'; dirigido_a = 'Representante Legal (RL)'; area = 'RESIDENTE';
+    estado = cierraTramite ? 'CERRADO' : 'PENDIENTE CGGC';
+  } else if (flujo === 'RO_TO_SUP') {
+    ban = 'residente'; sentido = 'emitida'; receptor = 'RESIDENTE'; dirigido_a = 'Supervisión'; area = 'Supervisión';
+    estado = cierraTramite ? 'CERRADO' : 'PENDIENTE SUPERVISION';
+  } else if (flujo === 'RL_TO_PRONIS') {
+    ban = 'rl'; sentido = 'emitida'; receptor = 'REPRESENTANTE LEGAL'; dirigido_a = 'Pronis'; area = 'Pronis';
+    estado = cierraTramite ? 'CERRADO' : 'PENDIENTE ENTIDAD';
+  }
+
+  const payload = {
+    n_documento: doc,
+    tipo_documento: tipoDoc,
+    fecha: fecha || null,
+    bandeja: ban,
+    sentido: sentido,
+    receptor: receptor,
+    dirigido_a: dirigido_a,
+    especialidad: esp,
+    asunto: asunto,
+    observacion: observacion,
+    referencia: padreDoc,
+    area: area,
+    estado: estado,
+    cerrar_referenciadas: Boolean(cierraTramite)
+  };
+
+  if (hiloId) {
+    payload.hilo_id = parseInt(hiloId, 10);
+  }
+
+  const btn = document.getElementById('rf_btnSave');
+  btn.disabled = true;
+  btn.textContent = 'Grabando…';
+  try {
+    await saveCarta(payload);
+    closeResponderModal();
+    showToast('Carta recibida y vinculada exitosamente al hilo', 'success');
+    await refreshData();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ri-save-line"></i> Grabar Carta';
+  }
+}
+
+function collectForm(){
+  const d = {};
+  FORM_FIELDS.forEach(f => {
+    const el = document.getElementById('f_' + f);
+    d[f] = el ? el.value.trim() : '';
+  });
+  d.requiere_respuesta = document.getElementById('f_requiere_respuesta')?.checked ?? true;
+  return d;
+}
+
 function snapshotCartaForm(){
-  syncRefAntecedentesField();
-  cartaFormSnapshot=JSON.stringify(collectForm());
+  cartaFormSnapshot = JSON.stringify(collectForm());
 }
+
 function cartaFormIsDirty(){
-  if(!document.getElementById('modalOverlay')?.classList.contains('active'))return false;
-  syncRefAntecedentesField();
-  return cartaFormSnapshot!==JSON.stringify(collectForm());
+  if(!document.getElementById('modalOverlay')?.classList.contains('active')) return false;
+  return cartaFormSnapshot !== JSON.stringify(collectForm());
 }
+
 function getCurrentEditingLabel(){
   if(editingId){
-    const c=ALL_CARTAS.find(x=>x.id===editingId);
-    return c?.n_documento||('ID '+editingId);
+    const c = ALL_CARTAS.find(x => x.id === editingId);
+    return c?.n_documento || ('ID ' + editingId);
   }
-  const doc=document.getElementById('f_n_documento')?.value?.trim();
-  return doc||'carta nueva (sin guardar)';
+  const doc = document.getElementById('f_n_documento')?.value?.trim();
+  return doc || 'carta nueva (sin guardar)';
 }
+
 function focusCartaModalHeader(){
-  const title=document.getElementById('modalTitle');
+  const title = document.getElementById('modalTitle');
   if(title){
-    title.focus({preventScroll:true});
-    title.scrollIntoView({behavior:'smooth',block:'nearest'});
+    title.focus({preventScroll: true});
+    title.scrollIntoView({behavior: 'smooth', block: 'nearest'});
   }
 }
-function formHasContent(d){if(!d)return false;const meaningful=['n_documento','referencia','asunto','especialidad','referencias','folios','cd','dirigido_a','receptor','cargo','observacion'];return meaningful.some(f=>String(d[f]||'').trim()!=='');}
+
+function formHasContent(d){
+  if(!d) return false;
+  const meaningful = ['n_documento', 'asunto', 'especialidad', 'observacion', 'referencias'];
+  return meaningful.some(f => String(d[f] || '').trim() !== '');
+}
+
 function applyForm(d){
-  FORM_FIELDS.forEach(f=>{
-    const el=document.getElementById('f_'+f);
-    if(!el)return;
-    let v=d&&d[f]!=null?String(d[f]):'';
-    if(el.type==='date'&&v)v=v.slice(0,10);
-    if(f!=='especialidad'&&f!=='area')el.value=v;
-  });
-  initCartaCatalogSelects(d&&d.especialidad,d&&d.area);
-  loadRefAntecedentesFromField();
+  if(!d) return;
+  document.getElementById('f_n_documento').value = d.n_documento || '';
+  
+  let fVal = d.fecha || '';
+  if(fVal) fVal = fVal.slice(0, 10);
+  document.getElementById('f_fecha').value = fVal;
+
+  let emisorVal = 'RO';
+  const ban = d.bandeja || '';
+  const rec = (d.receptor || '').toUpperCase();
+  if(ban === 'residente') emisorVal = 'RO';
+  else if(ban === 'rl') emisorVal = 'RL';
+  else if(ban === 'recibida_sup') emisorVal = 'SUPERVISOR';
+  else if(ban === 'recibida_pronis') emisorVal = 'PRONIS';
+  else if(ban === 'recibida_mpsc') emisorVal = 'MUNICIPALIDAD';
+  else if(ban === 'recibida_otros'){
+    if(rec.includes('JRD') || (d.dirigido_a||'').toUpperCase().includes('JRD')) emisorVal = 'JRD';
+    else emisorVal = 'SUPERVISOR';
+  } else {
+    if(rec.includes('LEGAL') || rec.includes('RL')) emisorVal = 'RL';
+    else if(rec.includes('SUPERVIS')) emisorVal = 'SUPERVISOR';
+    else if(rec.includes('PRONIS') || rec.includes('MINSA')) emisorVal = 'PRONIS';
+    else if(rec.includes('MUNICIPAL')) emisorVal = 'MUNICIPALIDAD';
+    else emisorVal = 'RO';
+  }
+  document.getElementById('f_emisor').value = emisorVal;
+  updateDestinatarioOptions(d.dirigido_a || (emisorVal === 'RO' ? 'Supervisión' : 'Residente (RO)'));
+
+  if(document.getElementById('f_tipo_documento')){
+    document.getElementById('f_tipo_documento').value = d.tipo_documento || 'CARTA';
+  }
+  populateFormEspChips(d.especialidad || []);
+
+  document.getElementById('f_asunto').value = d.asunto || '';
+  document.getElementById('f_observacion').value = d.observacion || '';
+  document.getElementById('f_referencias').value = d.referencias || '';
+
+  const est = String(d.estado_norm || d.estado || '').toUpperCase();
+  const isSoloInfo = est === 'PARA CONOCIMIENTO';
+  const reqCheck = document.getElementById('f_requiere_respuesta');
+  if(reqCheck) reqCheck.checked = !isSoloInfo;
+
+  const pInput = document.getElementById('f_plazo_dias');
+  if(pInput){
+    pInput.value = d.caducidad != null && d.caducidad !== '' ? d.caducidad : '';
+    pInput.dataset.auto = (d.caducidad == null || d.caducidad === '') ? '1' : '0';
+  }
+  updatePlazoFromActors();
+
+  const ref = String(d.referencia || '').trim();
+  if(ref && ref !== '—' && ref !== d.n_documento){
+    const parentCarta = (ALL_CARTAS || []).find(x => x.n_documento === ref);
+    document.getElementById('f_referencia').value = ref;
+    document.getElementById('f_hilo_id').value = d.hilo_id || parentCarta?.id || '';
+    
+    document.getElementById('cartaPadreSelectedDoc').textContent = ref;
+    const parentSub = parentCarta ? `Fecha: ${fmtDate(parentCarta.fecha) || '—'} · Especialidad: ${parentCarta.especialidad || parentCarta.especialidad_norm || '—'} · Asunto: ${escapeHtml((parentCarta.asunto || '—').slice(0, 80))}` : 'Antecedente / Carta inicial citada';
+    
+    const chain = getHiloChainCartas(d);
+    let breadcrumb = '';
+    if(chain.length > 1){
+      breadcrumb = `<div style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600">Trámite: ${chain.map((ch) => (ch.id === d.id ? `<strong>${escapeHtml(ch.n_documento || 'ID ' + ch.id)} (actual)</strong>` : escapeHtml(ch.n_documento || 'ID ' + ch.id))).join(' ➔ ')}</div>`;
+    }
+    document.getElementById('cartaPadreSelectedSub').innerHTML = parentSub + breadcrumb;
+    document.getElementById('cartaPadreSelectedCard').style.display = 'flex';
+    document.getElementById('cartaPadreSearchWrap').style.display = 'none';
+    document.getElementById('cartaPadreSuggest').style.display = 'none';
+  } else {
+    clearCartaPadre();
+  }
+
+  // Asegurar que se preserve el tipo de documento y especialidad propios de la carta al editar
+  if(d.tipo_documento && document.getElementById('f_tipo_documento')){
+    document.getElementById('f_tipo_documento').value = d.tipo_documento;
+  }
+  if(d.especialidad){
+    populateFormEspChips(d.especialidad);
+  }
 }
-function saveDraft(){const d=collectForm();if(!formHasContent(d)){localStorage.removeItem(DRAFT_KEY);return false;}localStorage.setItem(DRAFT_KEY,JSON.stringify({savedAt:new Date().toISOString(),data:d}));return true;}
-function loadDraft(){try{const r=localStorage.getItem(DRAFT_KEY);if(!r)return null;const p=JSON.parse(r);return p&&p.data?p.data:null;}catch{return null;}}
-function clearDraft(){localStorage.removeItem(DRAFT_KEY);}
-function setDraftHint(v){document.getElementById('modalDraftHint').classList.toggle('visible',!!v);}
 
-function showModal(){const o=document.getElementById('modalOverlay');modalClosing=false;o.classList.remove('closing');o.classList.add('active');}
-function hideModal(cb){const o=document.getElementById('modalOverlay');if(!o.classList.contains('active')||modalClosing){cb&&cb();return;}modalClosing=true;o.classList.add('closing');setTimeout(()=>{o.classList.remove('active','closing');modalClosing=false;setDraftHint(false);cb&&cb();},160);}
-
-function updateBandejaHint(){
-  const val=document.getElementById('f_bandeja')?.value;
-  const hintEl=document.getElementById('f_bandeja_hint');
-  if(hintEl){
-    const hints={
-      residente:'📤 <strong>Emitida Residente:</strong> Carta enviada por el Residente de Obra hacia la Supervisión.',
-      rl:'📤 <strong>Emitida RL:</strong> Carta enviada por el Representante Legal hacia la Supervisión / Entidad.',
-      recibida_sup:'📥 <strong>Recibida Supervisión:</strong> Carta remitida por la Supervisión hacia el Contratista (CGGC).',
-      recibida_pronis:'📥 <strong>Recibida PRONIS:</strong> Carta remitida directamente por la Entidad (PRONIS / MINSA).',
-      recibida_mpsc:'📥 <strong>Recibida Municipalidad:</strong> Carta remitida por la Municipalidad Provincial Sánchez Carrión.',
-      recibida_otros:'📥 <strong>Recibida Terceros / Otros:</strong> Comunicaciones recibidas de Municipalidad, Servicios o Proveedores.'
-    };
-    hintEl.innerHTML=hints[val]||'Selecciona la bandeja de procedencia o destino del documento.';
+function saveDraft(){
+  const d = collectForm();
+  if(!formHasContent(d)){ localStorage.removeItem(DRAFT_KEY); return false; }
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({savedAt: new Date().toISOString(), data: d}));
+  return true;
+}
+function loadDraft(){
+  try {
+    const r = localStorage.getItem(DRAFT_KEY);
+    if(!r) return null;
+    const p = JSON.parse(r);
+    return p && p.data ? p.data : null;
+  } catch { return null; }
+}
+function clearDraft(){ localStorage.removeItem(DRAFT_KEY); }
+let draftHintTimeout = null;
+function setDraftHint(v){
+  const el = document.getElementById('modalDraftHint');
+  if(!el) return;
+  if(draftHintTimeout){
+    clearTimeout(draftHintTimeout);
+    draftHintTimeout = null;
   }
-
-  // Lógica de Responsabilidad de Respuesta:
-  const isOut = val === 'residente' || val === 'rl' || String(val||'').startsWith('emitida');
-  const areaWrap = document.getElementById('f_area_wrap');
-  const areaLabel = document.getElementById('f_area_label');
-  const areaInput = document.getElementById('f_area');
-  const hintOut = document.getElementById('f_area_hint_out');
-
-  if(isOut){
-    if(areaWrap) areaWrap.style.display = 'none';
-    if(hintOut) hintOut.style.display = 'none';
-    const areaReq=document.getElementById('f_area_req');
-    if(areaReq)areaReq.style.display='none';
-    const suggestHint=document.getElementById('f_area_suggest_hint');
-    if(suggestHint)suggestHint.style.display='none';
-  }else{
-    if(areaWrap) areaWrap.style.display = 'block';
-    if(hintOut) hintOut.style.display = 'none';
-    const areaReq=document.getElementById('f_area_req');
-    if(areaReq)areaReq.style.display='inline';
-    if(areaLabel) areaLabel.innerHTML = 'Especialista Responsable <span class="req" id="f_area_req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Admin asigna al ingeniero que elabora la respuesta)</span>';
-    suggestAreaFromEspecialidad(false);
+  if(v){
+    el.classList.add('visible');
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+    draftHintTimeout = setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-4px)';
+      setTimeout(() => {
+        el.classList.remove('visible');
+        el.style.opacity = '';
+        el.style.transform = '';
+      }, 300);
+    }, 3000);
+  } else {
+    el.classList.remove('visible');
+    el.style.opacity = '';
+    el.style.transform = '';
   }
+}
+
+function showModal(){
+  const o = document.getElementById('modalOverlay');
+  modalClosing = false;
+  o.classList.remove('closing');
+  o.classList.add('active');
+}
+function hideModal(cb){
+  const o = document.getElementById('modalOverlay');
+  if(!o.classList.contains('active') || modalClosing){ cb && cb(); return; }
+  modalClosing = true;
+  o.classList.add('closing');
+  setTimeout(() => {
+    o.classList.remove('active', 'closing');
+    modalClosing = false;
+    setDraftHint(false);
+    cb && cb();
+  }, 160);
 }
 
 function openNewModal(){
@@ -3919,121 +5113,125 @@ function openNewModal(){
     showToast('Solo el Administrador puede registrar cartas. Su rol es de consulta.', 'error');
     return;
   }
-  editingId=null;
+  setupCartaPadreSearch();
+  editingId = null;
   const sumEl = document.getElementById('cartaReadonlySummary');
   if (sumEl) sumEl.style.display = 'none';
-  document.querySelectorAll('.sec-formal').forEach(s => s.style.display = '');
 
-  document.getElementById('modalTitle').textContent='Nueva Carta';
-  const sub=document.getElementById('modalSub');
-  if(sub)sub.textContent='Admin: registra el documento. Si es respuesta a una carta previa, agregue antecedentes para unir el hilo.';
-  document.getElementById('btnSaveForm').innerHTML='<i class="ri-save-line"></i> Guardar Carta';
+  document.getElementById('modalTitle').textContent = 'Nueva Carta';
+  const sub = document.getElementById('modalSub');
+  if (sub) sub.textContent = 'Registra un nuevo documento en el control de cartas';
+  document.getElementById('btnSaveForm').innerHTML = '<i class="ri-save-line"></i> Guardar Carta';
   document.getElementById('cartaForm').reset();
-  document.getElementById('f_id').value='';
-  const draft=loadDraft();
-  if(draft&&formHasContent(draft)){applyForm(draft);setDraftHint(true);showToast('Borrador restaurado.','info');}
-  else {
-    clearDraft();setDraftHint(false);
-    const today=new Date().toISOString().slice(0,10);
-    const fFecha=document.getElementById('f_fecha');
-    if(fFecha&&!fFecha.value)fFecha.value=today;
+  document.getElementById('f_id').value = '';
+  
+  populateFormEspChips([]);
+  clearCartaPadre();
+  if(document.getElementById('f_tipo_documento')){
+    document.getElementById('f_tipo_documento').value = 'CARTA';
   }
-  if(activeBandeja!=='all')document.getElementById('f_bandeja').value=activeBandeja;
-  loadRefAntecedentesFromField();
-  hideRefAntSuggest();
-  updateRefAntPendingHint();
-  initCartaCatalogSelects(draft&&draft.especialidad,draft&&draft.area);
-  updateBandejaHint();
-  updateRefTraceUI();
+  document.getElementById('f_emisor').value = 'RO';
+  updateDestinatarioOptions('Supervisión');
+  document.getElementById('f_requiere_respuesta').checked = true;
+
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('f_fecha').value = today;
+
+  const draft = loadDraft();
+  if(draft && formHasContent(draft)){
+    applyForm(draft);
+    setDraftHint(true);
+    showToast('Borrador restaurado.', 'info');
+  } else {
+    clearDraft();
+    setDraftHint(false);
+    updatePlazoFromActors();
+  }
+
   setCartaFormReadOnly(false);
-  document.getElementById('btnSaveForm').innerHTML='<i class="ri-save-line"></i> Guardar Carta';
   snapshotCartaForm();
   showModal();
+  setTimeout(() => document.getElementById('f_n_documento')?.focus(), 50);
 }
 
 function setCartaFormReadOnly(ro){
-  const form=document.getElementById('cartaForm');
-  if(!form)return;
-  form.querySelectorAll('input,select,textarea,button').forEach(el=>{
-    if(el.id==='f_id')return;
-    if(el.closest('.modal-footer'))return;
-    if(el.type==='hidden')return;
-    if(el.tagName==='BUTTON'){
-      el.disabled=!!ro;
-      el.style.pointerEvents=ro?'none':'';
-      el.style.opacity=ro?'0.55':'';
+  const form = document.getElementById('cartaForm');
+  if(!form) return;
+  form.querySelectorAll('input,select,textarea,button').forEach(el => {
+    if(el.id === 'f_id' || el.id === 'f_referencia' || el.id === 'f_hilo_id') return;
+    if(el.closest('.modal-footer')) return;
+    if(el.type === 'hidden') return;
+    if(el.tagName === 'BUTTON'){
+      el.disabled = !!ro;
+      el.style.pointerEvents = ro ? 'none' : '';
+      el.style.opacity = ro ? '0.55' : '';
       return;
     }
-    el.disabled=!!ro;
-    el.readOnly=!!ro;
+    el.disabled = !!ro;
+    el.readOnly = !!ro;
   });
-  const saveBtn=document.getElementById('btnSaveForm');
+  const saveBtn = document.getElementById('btnSaveForm');
   if(saveBtn){
-    saveBtn.style.display=ro?'none':'';
-    saveBtn.disabled=!!ro;
+    saveBtn.style.display = ro ? 'none' : '';
+    saveBtn.disabled = !!ro;
   }
-  const cancelBtn=document.getElementById('btnCancelForm');
+  const cancelBtn = document.getElementById('btnCancelForm');
   if(cancelBtn){
-    cancelBtn.disabled=false;
-    cancelBtn.style.pointerEvents='';
-    cancelBtn.style.opacity='';
-    if(ro)cancelBtn.textContent='Cerrar';
-    else cancelBtn.textContent='Cancelar';
+    cancelBtn.disabled = false;
+    cancelBtn.style.pointerEvents = '';
+    cancelBtn.style.opacity = '';
+    cancelBtn.textContent = ro ? 'Cerrar' : 'Cancelar';
   }
 }
 
 async function openEditModal(id){
   try {
-    let c=ALL_CARTAS.find(x=>x.id===id);
+    setupCartaPadreSearch();
+    let c = ALL_CARTAS.find(x => x.id === id);
     if(!c){
-      const r=await apiFetch('/api/cartas/'+id);
-      if(!r.ok)throw new Error('No se pudo cargar la información de la carta');
-      c=await r.json();
+      const r = await apiFetch('/api/cartas/' + id);
+      if(!r.ok) throw new Error('No se pudo cargar la información de la carta');
+      c = await r.json();
     }
-    editingId=id;
+    editingId = id;
     const canEdit = CURRENT_USER && (CURRENT_USER.can_edit_cartas || CURRENT_USER.can_edit_formal);
     const sumEl = document.getElementById('cartaReadonlySummary');
-    const secFormals = document.querySelectorAll('.sec-formal');
 
     const docLabel = c.n_documento || ('ID ' + id);
     const estadoLabel = c.estado_norm || c.estado || '—';
 
     if (!canEdit) {
-      // Solo lectura (ingeniero u otros sin permiso de edición)
       if (sumEl) {
         sumEl.style.display = 'block';
         const sentido = c.sentido || (String(c.bandeja || '').startsWith('recibida') ? 'recibida' : 'emitida');
-        const bLab = (sentido === 'recibida' ? '📥 ' : '📤 ') + bandejaLabel(c.bandeja);
+        const bLab = (sentido === 'recibida' ? '📥 ' : '📤 ') + (BANDEJA_LABELS[c.bandeja] || bandejaLabel(c.bandeja));
         const espTxt = c.especialidad_norm || c.especialidad || 'GENERAL';
         document.getElementById('csum_bandeja').textContent = bLab;
-        const espBadge = document.getElementById('csum_especialidad');
-        if (espBadge) espBadge.textContent = '👷 ' + espTxt;
-        const espField = document.getElementById('csum_area_text');
-        if (espField) espField.textContent = (c.area || '').trim() || espTxt;
-        document.getElementById('csum_doc').textContent = docLabel;
-        document.getElementById('csum_fecha').textContent = fmtDate(c.fecha) || '—';
-        document.getElementById('csum_destinatario').textContent = c.dirigido_a || c.receptor || '—';
-        document.getElementById('csum_asunto').textContent = c.asunto || 'Sin asunto registrado';
+        if (document.getElementById('csum_especialidad')) document.getElementById('csum_especialidad').textContent = '👷 ' + espTxt;
+        if (document.getElementById('csum_doc')) document.getElementById('csum_doc').textContent = docLabel;
+        if (document.getElementById('csum_fecha')) document.getElementById('csum_fecha').textContent = fmtDate(c.fecha) || '—';
+        if (document.getElementById('csum_remite')) document.getElementById('csum_remite').textContent = c.receptor || (sentido === 'recibida' ? 'SUPERVISOR' : 'RESIDENTE');
+        if (document.getElementById('csum_destinatario')) document.getElementById('csum_destinatario').textContent = c.dirigido_a || (sentido === 'recibida' ? 'RESIDENTE' : 'SUPERVISOR');
+        if (document.getElementById('csum_padre')) document.getElementById('csum_padre').textContent = c.referencia || '— (Inicia tema)';
+        if (document.getElementById('csum_salida_text')) document.getElementById('csum_salida_text').textContent = estadoLabel;
+        if (document.getElementById('csum_asunto')) document.getElementById('csum_asunto').textContent = c.asunto || 'Sin asunto registrado';
+        if (document.getElementById('csum_respaldo')) document.getElementById('csum_respaldo').textContent = c.observacion || 'Sin sustento registrado';
       }
-      secFormals.forEach(s => s.style.display = 'none');
       document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
       if (sub) sub.textContent = `Solo lectura · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
     } else {
       if (sumEl) sumEl.style.display = 'none';
-      secFormals.forEach(s => s.style.display = '');
       document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
       if (sub) sub.textContent = `Editando · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
       document.getElementById('btnSaveForm').innerHTML = '<i class="ri-save-line"></i> Actualizar Carta';
     }
 
-    document.getElementById('f_id').value=id;
+    document.getElementById('f_id').value = id;
     setDraftHint(false);
+    populateFormEspChips(c.especialidad);
     applyForm(c);
-    initCartaCatalogSelects(c.especialidad,c.area);
-    updateBandejaHint();
-    updateRefTraceUI();
     setCartaFormReadOnly(!canEdit);
     snapshotCartaForm();
     showModal();
@@ -4045,81 +5243,112 @@ async function openEditModal(id){
 }
 
 function closeModal(opts={}){
-  const isNew=editingId==null;
-  if(isNew&&!opts.fromSave&&saveDraft())showToast('Borrador guardado. Al abrir Nueva Carta lo verás de nuevo.','info');
-  hideModal(()=>{editingId=null;cartaFormSnapshot=null;});
+  const isNew = editingId == null;
+  if(isNew && !opts.fromSave && saveDraft()) showToast('Borrador guardado. Al abrir Nueva Carta lo verás de nuevo.', 'info');
+  hideModal(() => { editingId = null; cartaFormSnapshot = null; });
 }
 
 async function handleSave(){
-  syncRefAntecedentesField();
   const canEdit = CURRENT_USER && (CURRENT_USER.can_edit_cartas || CURRENT_USER.can_edit_formal);
   const canCreate = CURRENT_USER && CURRENT_USER.can_create_cartas;
   if (editingId != null && !canEdit) {
-    showToast('Solo el Administrador puede editar cartas (p. ej. si se confundió al crear).', 'error');
+    showToast('Solo el Administrador puede editar cartas.', 'error');
     return;
   }
   if (editingId == null && !canCreate) {
-    showToast('Solo el Administrador puede registrar cartas y respuestas (hilos).', 'error');
+    showToast('Solo el Administrador puede registrar cartas.', 'error');
     return;
   }
-  const canEditFormal = canEdit;
-  const doc = document.getElementById('f_n_documento').value.trim();
-  const ban = document.getElementById('f_bandeja').value;
-  const fecha = document.getElementById('f_fecha').value;
-  const asunto = document.getElementById('f_asunto').value.trim();
-  const esp = document.getElementById('f_especialidad').value.trim();
-  const refLabel = document.getElementById('f_referencia').value.trim();
-  const ref = document.getElementById('f_referencias').value.trim();
-  const folios = document.getElementById('f_folios').value.trim();
-  const cd = document.getElementById('f_cd').value.trim();
-  const dir = document.getElementById('f_dirigido_a').value.trim();
-  const receptor = document.getElementById('f_receptor').value.trim();
-  const cargo = document.getElementById('f_cargo').value.trim();
-  const obs = document.getElementById('f_observacion').value.trim();
-  const area = document.getElementById('f_area').value.trim();
-  const isRecibida = String(ban || '').startsWith('recibida');
 
-  // En modo formal o creación nueva, validar datos obligatorios
-  if (canEditFormal || editingId == null) {
-    if (!doc) { showToast('El N° de Documento es obligatorio', 'error'); return; }
-    if (doc.length > 250) { showToast('El N° de Documento no puede superar los 250 caracteres', 'error'); return; }
-    if (!ban) { showToast('Debes seleccionar una bandeja para la carta', 'error'); return; }
-    if (fecha) {
-      const yr = parseInt(fecha.slice(0, 4), 10);
-      if (isNaN(yr) || yr < 1990 || yr > 2099) {
-        showToast('La fecha debe estar en un rango válido (1990 a 2099)', 'error');
-        return;
-      }
-    }
-    if (asunto.length > 5000) { showToast('El asunto no puede superar los 5,000 caracteres', 'error'); return; }
-    if (folios.length > 100) { showToast('El campo folios no puede superar los 100 caracteres', 'error'); return; }
-    if (cd.length > 150) { showToast('El campo anexos/CD no puede superar los 150 caracteres', 'error'); return; }
-    if (dir.length > 250) { showToast('El destinatario no puede superar los 250 caracteres', 'error'); return; }
-    if (receptor.length > 150) { showToast('El receptor no puede superar los 150 caracteres', 'error'); return; }
-    if (cargo.length > 150) { showToast('El cargo no puede superar los 150 caracteres', 'error'); return; }
+  const doc = document.getElementById('f_n_documento')?.value?.trim() || '';
+  const tipoDoc = document.getElementById('f_tipo_documento')?.value?.trim() || 'CARTA';
+  const fecha = document.getElementById('f_fecha')?.value || '';
+  const emisor = document.getElementById('f_emisor')?.value || 'RO';
+  const dest = document.getElementById('f_destinatario')?.value || '';
+  const esp = document.getElementById('f_especialidad')?.value?.trim() || '';
+  const asunto = document.getElementById('f_asunto')?.value?.trim() || '';
+  const observacion = document.getElementById('f_observacion')?.value?.trim() || '';
+  const cartaPadreRef = document.getElementById('f_referencia')?.value?.trim() || '';
+  const cartaPadreHilo = document.getElementById('f_hilo_id')?.value?.trim() || '';
+  const refs = document.getElementById('f_referencias')?.value?.trim() || '';
+  const plazoDias = document.getElementById('f_plazo_dias')?.value?.trim() || '';
+  const requiereResp = document.getElementById('f_requiere_respuesta')?.checked ?? true;
+
+  if (!doc) {
+    showToast('El Número de Documento / Carta es obligatorio', 'error');
+    document.getElementById('f_n_documento')?.focus();
+    return;
   }
-
-  // Validaciones operativas: especialidad obligatoria; especialista en recibidas
+  if (doc.length > 250) {
+    showToast('El Número de Documento no puede superar los 250 caracteres', 'error');
+    return;
+  }
   if (!esp) {
-    showToast('Debe seleccionar la especialidad técnica (tema del documento)', 'error');
-    document.getElementById('f_especialidad')?.focus();
+    showToast('Debe seleccionar al menos una Especialidad', 'error');
     return;
   }
-  if (isRecibida && !area) {
-    showToast('En cartas recibidas debe asignar el especialista responsable (quién elabora la respuesta)', 'error');
-    document.getElementById('f_area')?.focus();
-    updateBandejaHint();
+  if (!asunto) {
+    showToast('El Asunto es obligatorio', 'error');
+    document.getElementById('f_asunto')?.focus();
     return;
   }
-  if (area.length > 150) { showToast('El especialista responsable no puede superar los 150 caracteres', 'error'); return; }
-  if (esp.length > 150) { showToast('La especialidad no puede superar los 150 caracteres', 'error'); return; }
-  if (refLabel.length > 255) { showToast('La referencia no puede superar los 255 caracteres', 'error'); return; }
-  if (ref.length > 2000) { showToast('Las referencias no pueden superar los 2,000 caracteres', 'error'); return; }
-  if (obs.length > 3000) { showToast('Las observaciones no pueden superar los 3,000 caracteres', 'error'); return; }
+  if (fecha) {
+    const yr = parseInt(fecha.slice(0, 4), 10);
+    if (isNaN(yr) || yr < 1990 || yr > 2099) {
+      showToast('La fecha debe estar en un rango válido (1990 a 2099)', 'error');
+      return;
+    }
+  }
 
-  const data = collectForm(), wasEdit = editingId != null;
+  // Bandeja & Sentido mapping
+  let ban = 'residente', sentido = 'emitida', receptorLabel = 'RESIDENTE';
+  if (emisor === 'RO') { ban = 'residente'; sentido = 'emitida'; receptorLabel = 'RESIDENTE'; }
+  else if (emisor === 'RL') { ban = 'rl'; sentido = 'emitida'; receptorLabel = 'REPRESENTANTE LEGAL'; }
+  else if (emisor === 'SUPERVISOR') { ban = 'recibida_sup'; sentido = 'recibida'; receptorLabel = 'SUPERVISOR'; }
+  else if (emisor === 'PRONIS') { ban = 'recibida_pronis'; sentido = 'recibida'; receptorLabel = 'PRONIS'; }
+  else if (emisor === 'JRD') { ban = 'recibida_otros'; sentido = 'recibida'; receptorLabel = 'JRD'; }
+  else if (emisor === 'MUNICIPALIDAD') { ban = 'recibida_mpsc'; sentido = 'recibida'; receptorLabel = 'MUNICIPALIDAD'; }
+
+  // Estado mapping
+  let estado = 'ABIERTO';
+  if (!requiereResp) {
+    estado = 'PARA CONOCIMIENTO';
+  } else if (sentido === 'recibida') {
+    estado = 'PENDIENTE CGGC';
+  } else {
+    if (dest.toUpperCase().includes('SUPERVIS')) estado = 'PENDIENTE SUPERVISION';
+    else if (dest.toUpperCase().includes('PRONIS')) estado = 'PENDIENTE ENTIDAD';
+    else if (dest.toUpperCase().includes('MUNICIPAL')) estado = 'PENDIENTE MUNICIPALIDAD';
+    else if (dest.toUpperCase().includes('JRD')) estado = 'PENDIENTE JRD';
+    else estado = 'ABIERTO';
+  }
+
+  const data = {
+    n_documento: doc,
+    tipo_documento: tipoDoc,
+    fecha: fecha || null,
+    bandeja: ban,
+    sentido: sentido,
+    receptor: receptorLabel,
+    dirigido_a: dest,
+    especialidad: esp,
+    asunto: asunto,
+    observacion: observacion,
+    referencia: cartaPadreRef || null,
+    referencias: refs || null,
+    caducidad: plazoDias || null,
+    area: (sentido === 'recibida' ? 'RESIDENTE' : dest),
+    estado: estado,
+    cerrar_referenciadas: Boolean(cartaPadreRef)
+  };
+
+  if (cartaPadreHilo) {
+    data.hilo_id = parseInt(cartaPadreHilo, 10);
+  }
+
+  const wasEdit = editingId != null;
   if (wasEdit) data.id = editingId;
-  data.cerrar_referenciadas = !!document.getElementById('f_cerrar_referenciadas')?.checked;
+
   const btn = document.getElementById('btnSaveForm');
   btn.disabled = true;
   btn.textContent = 'Guardando…';
@@ -4127,20 +5356,7 @@ async function handleSave(){
     const saved = await saveCarta(data);
     if (!wasEdit) clearDraft();
     closeModal({ fromSave: true });
-    const cr=saved&&saved._cierre_referencias;
-    const closed=(cr&&cr.closed)||0;
-    let extra='';
-    if(closed){
-      extra=cr&&cr.mode==='hilo'
-        ?` · hilo cerrado (${closed} carta${closed===1?'':'s'} del trámite)`
-        :` · ${closed} antecedente${closed===1?'':'s'} cerrado${closed===1?'':'s'}`;
-    }
-    const hv=saved&&saved._hilo_vinculo;
-    if(hv&&hv.hilo_id){
-      const tit=hv.titulo?` (${hv.titulo})`:'';
-      extra+=` · vinculada al hilo #${hv.hilo_id}${tit}`;
-    }
-    showToast((wasEdit?'Carta actualizada':'Carta registrada')+extra,'success');
+    showToast(wasEdit ? 'Carta actualizada exitosamente' : 'Carta registrada exitosamente', 'success');
     await refreshData();
   }
   catch (e) {
@@ -4165,18 +5381,6 @@ function confirmDelete(id){
   if(okBtn){
     okBtn.disabled=false;
     okBtn.textContent='Eliminar';
-    okBtn.style.background='';
-  }
-  document.getElementById('confirmOverlay').classList.add('active');
-}
-function confirmReimport(){
-  confirmAction='reimport';deleteId=null;
-  document.getElementById('confirmTitle').textContent='Reimportar Excel';
-  document.getElementById('confirmMsg').textContent='Se borrarán las cartas actuales y se volverán a cargar desde el Excel montado (Control de Cartas HLP). Las ediciones manuales en la base se perderán.';
-  const okBtn=document.getElementById('btnConfirmOk');
-  if(okBtn){
-    okBtn.disabled=false;
-    okBtn.textContent='Reimportar';
     okBtn.style.background='';
   }
   document.getElementById('confirmOverlay').classList.add('active');
@@ -4214,23 +5418,58 @@ async function executeDelete(){
     if(btn)btn.disabled=false;
   }
 }
-async function executeReimport(){
-  const buttons=[document.getElementById('btnReimport'),document.getElementById('btnReimportFooter'),document.getElementById('btnConfirmOk')].filter(Boolean);
-  buttons.forEach(b=>{b.disabled=true;});
-  showToast('Reimportando Excel… puede tomar unos segundos','info');
-  renderTableSkeleton(10);
-  renderSaldosSkeleton();
-  renderPendientesSkeleton();
-  renderReportesSkeleton();
-  try{
-    const r=await apiFetch('/api/import/excel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({force:true})});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.ok)throw new Error(d.error||'Fallo al importar');
-    closeConfirm();
-    showToast(`Importadas ${d.inserted||0} cartas`,'success');
-    await refreshData();
-  }catch(e){showToast('Error reimport: '+e.message,'error');showCartasLoading(false);}
-  finally{buttons.forEach(b=>{b.disabled=false;});}
+
+let selectedExcelFile = null;
+function confirmReimport(){
+  const fileInput = document.getElementById('excelFileInput');
+  if(fileInput){
+    fileInput.value = '';
+    fileInput.click();
+  }
+}
+
+async function executeReimportFile(){
+  if(!selectedExcelFile) return;
+  const file = selectedExcelFile;
+  closeConfirm();
+
+  const loadingOverlay = document.getElementById('importLoadingOverlay');
+  const loadingMsg = document.getElementById('importLoadingMsg');
+  if(loadingMsg) loadingMsg.textContent = `Subiendo ${file.name}, leyendo hojas y reconstruyendo hilos de cartas. Por favor espera…`;
+  if(loadingOverlay) loadingOverlay.classList.add('active');
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('force', 'true');
+
+  try {
+    const res = await apiFetch('/api/import/excel', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok || !data.ok){
+      throw new Error(data.error || 'Error al procesar el archivo Excel');
+    }
+
+    if(loadingOverlay) loadingOverlay.classList.remove('active');
+
+    const successOverlay = document.getElementById('importSuccessOverlay');
+    const successMsg = document.getElementById('importSuccessMsg');
+    if(successMsg){
+      const count = data.inserted || 0;
+      successMsg.innerHTML = `
+        Se han importado exitosamente <strong>${count.toLocaleString()} cartas</strong> desde el archivo <strong>${escapeHtml(file.name)}</strong>.<br><br>
+        Toda la información anterior ha sido reemplazada. Haz clic en el botón a continuación para <strong>refrescar la página</strong> y visualizar los nuevos datos.`;
+    }
+    if(successOverlay) successOverlay.classList.add('active');
+  } catch(err){
+    if(loadingOverlay) loadingOverlay.classList.remove('active');
+    console.error('Error reimportando archivo:', err);
+    showToast(err.message || 'Error al reimportar el archivo Excel', 'error');
+  } finally {
+    selectedExcelFile = null;
+  }
 }
 
 function formatBackfillSummary(d){
@@ -4401,6 +5640,7 @@ function confirmOpenCartaInEditor(targetId){
 }
 
 async function handleConfirmOk(){
+  if(confirmAction==='reimport_file')return executeReimportFile();
   if(confirmAction==='reimport')return executeReimport();
   if(confirmAction==='delete')return executeDelete();
   if(confirmAction==='user_toggle')return executeToggleUser();
@@ -4430,18 +5670,16 @@ async function sendWhatsapp(){
 function filterVencidas(go){document.getElementById('filterPlazo').value='vencida';applyFilters();if(go)goToCartasWithFilters();else showToast('Filtro: cartas vencidas','info');}
 
 function exportCSV(){
-  const headers=['N° doc','Fecha','Bandeja','Especialidad','Responsable','Referencia','Estado','Deuda','Asunto','Dirigido a','Plazo','Días'];
-  const rows=filtered.map(c=>{
+  const headers=['#','N° Carta','Fecha','Tipo de Documento','Especialidad','Quién Envía','Quién Recibe','Asunto','Referencia','Quién Responde','Fecha de Atraso','Estado de Trámite','Observación'];
+  const rows=filtered.map((c,idx)=>{
     const st=deadlineStatus(c);
-    const db=debtBadge(c);
-    const cl=classif(c);
-    const isOut=c.sentido==='emitida'||String(c.bandeja||'').startsWith('emitida')||c.bandeja==='residente'||c.bandeja==='rl';
-    const resp=isOut?(cl.contraparte_label||cl.dest_code||'Entidad Externa'):((c.area||'').trim()||'Sin asignar');
-    return[c.n_documento||'',c.fecha||'',bandejaLabel(c.bandeja),c.especialidad||c.especialidad_norm||'',resp,getCartaReferencia(c)||'',c.estado_norm||'',db.label||'',c.asunto||'',c.dirigido_a||'',st.label,st.days??''];
+    const itemNumber=idx+1;
+    const resp=(typeof getRespRespuestaLabel==='function')?yoDeboResponderLabel(c):'';
+    return[itemNumber,c.n_documento||'',c.fecha||'',getTipoDocumentoDisplay(c),getEspecialidadDisplay(c),quienEnviaLabel(c),quienRecibeLabel(c),c.asunto||'',getCartaReferenciaDisplay(c),resp,st.label,c.estado_norm||c.estado||'',c.observacion||''];
   });
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download='cartas_leoncio_prado.csv';a.click();
+  a.download='cartas_sistema_greace.csv';a.click();
 }
 
 document.querySelectorAll('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
@@ -4908,6 +6146,34 @@ document.getElementById('refAntecedentesInput')?.addEventListener('paste',e=>{
     e.target.value='';
   }
 });
+document.getElementById('excelFileInput')?.addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['xlsx', 'xlsm', 'xls'].includes(ext)){
+    showToast('Formato no válido. Solo se admiten archivos Excel (.xlsx, .xlsm, .xls)', 'error');
+    return;
+  }
+  selectedExcelFile = file;
+  confirmAction = 'reimport_file';
+  document.getElementById('confirmTitle').innerHTML = '<i class="ri-file-excel-2-line" style="color:var(--accent)"></i> Reimportar Base desde Excel';
+  document.getElementById('confirmMsg').innerHTML = `
+    ¿Estás seguro de reimportar la base de datos con el archivo <strong>${escapeHtml(file.name)}</strong> (${(file.size / (1024*1024)).toFixed(2)} MB)?<br><br>
+    <span style="color:var(--rose);font-weight:600">⚠️ Advertencia:</span> Esta acción reemplazará todos los registros de cartas actuales con los datos de este nuevo archivo Excel y reconstruirá automáticamente los hilos de trámite.`;
+  const okBtn = document.getElementById('btnConfirmOk');
+  if(okBtn){
+    okBtn.disabled = false;
+    okBtn.textContent = 'Sí, Reimportar Base';
+    okBtn.className = 'btn-confirm-del';
+    okBtn.style.background = '';
+  }
+  document.getElementById('confirmOverlay').classList.add('active');
+});
+
+document.getElementById('btnReloadApp')?.addEventListener('click', () => {
+  window.location.reload();
+});
+
 document.getElementById('btnConfirmCancel').addEventListener('click',closeConfirm);
 document.getElementById('btnConfirmOk').addEventListener('click',handleConfirmOk);
 document.getElementById('confirmOverlay')?.addEventListener('click',e=>{

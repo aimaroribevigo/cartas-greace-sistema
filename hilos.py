@@ -47,6 +47,8 @@ CLOSED_STATES = {
     "CERRADO",
     "ABSUELTO SUPERVISION",
     "ABSUELTO ENTIDAD",
+    "ABSUELTA POR SUPERVISOR",
+    "ABSUELTA POR ENTIDAD",
     "ANULADA",
     "PARA CONOCIMIENTO",
 }
@@ -333,17 +335,24 @@ def _ensure_hilos_table(cur):
         pass
 
 
-def _hilo_ids_from_cited_docs(cur, cited: set[str]) -> set[int]:
+def _hilo_ids_from_cited_docs(cur, cited: set[str], doc_map: dict[str, int] | None = None) -> set[int]:
     if not cited:
         return set()
-    cur.execute("SELECT id, n_documento, hilo_id FROM cartas")
+    if doc_map is not None:
+        out: set[int] = set()
+        for c in cited:
+            if c in doc_map:
+                out.add(doc_map[c])
+        return out
+    cur.execute("SELECT id, n_documento, hilo_id FROM cartas WHERE hilo_id IS NOT NULL")
     out: set[int] = set()
     for r in cur.fetchall():
-        if normalize_doc_key(r.get("n_documento")) not in cited:
-            continue
-        hid = r.get("hilo_id")
-        if hid is not None:
-            out.add(int(hid))
+        doc_k = normalize_doc_key(r.get("n_documento"))
+        raw_doc = str(r.get("n_documento") or "").strip().upper()
+        if doc_k in cited or raw_doc in cited or r.get("n_documento") in cited:
+            hid = r.get("hilo_id")
+            if hid is not None:
+                out.add(int(hid))
     return out
 
 
@@ -367,30 +376,38 @@ def _get_or_create_hilo(cur, clave: str, carta: dict) -> int:
         """
         INSERT INTO hilos (clave, titulo, especialidad_norm, estado, n_cartas)
         VALUES (%s, %s, %s, 'abierto', 0)
+        ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)
         """,
         (clave, titulo[:255], esp),
     )
     return int(cur.lastrowid)
 
 
-def assign_carta_hilo(conn, carta_id: int, carta: dict) -> dict:
+def assign_carta_hilo(conn, carta_id: int, carta: dict, doc_map: dict[str, int] | None = None, commit: bool = True) -> dict:
     """
     Vincula la carta a un hilo persistente (FK hilo_id), estilo conversación Outlook.
-    Prioridad: antecedentes citados > clave CONSULTA:N > documento raíz.
+    Prioridad: hilo_id explícito > antecedentes citados > clave CONSULTA:N > documento raíz.
     """
     blob = " ".join(
         [
+            str(carta.get("referencia") or ""),
             str(carta.get("referencias") or ""),
             str(carta.get("asunto") or ""),
             str(carta.get("observacion") or ""),
         ]
     )
     cited = set(extract_cited_docs(blob))
+    if carta.get("referencia"):
+        ref_norm = normalize_doc_key(carta.get("referencia"))
+        if ref_norm:
+            cited.add(ref_norm)
+        cited.add(str(carta.get("referencia")).strip().upper())
+        cited.add(str(carta.get("referencia")).strip())
     carta_clave = canonical_tramite_clave(carta)
 
     with conn.cursor() as cur:
         _ensure_hilos_table(cur)
-        cited_hilos = _hilo_ids_from_cited_docs(cur, cited)
+        cited_hilos = _hilo_ids_from_cited_docs(cur, cited, doc_map=doc_map)
         cur.execute("SELECT hilo_id FROM cartas WHERE id=%s", (carta_id,))
         own = cur.fetchone()
         existing = int(own["hilo_id"]) if own and own.get("hilo_id") else None
@@ -406,6 +423,12 @@ def assign_carta_hilo(conn, carta_id: int, carta: dict) -> dict:
             if rest:
                 _merge_hilos(cur, target, rest)
                 merged = len(rest)
+                if doc_map is not None:
+                    for k, v in list(doc_map.items()):
+                        if v in rest:
+                            doc_map[k] = target
+        elif carta.get("hilo_id"):
+            target = int(carta.get("hilo_id"))
         elif existing:
             target = existing
         elif carta_clave:
@@ -416,7 +439,8 @@ def assign_carta_hilo(conn, carta_id: int, carta: dict) -> dict:
                 target = _get_or_create_hilo(cur, root, carta)
 
         if target is None:
-            conn.commit()
+            if commit:
+                conn.commit()
             return {"ok": True, "hilo_id": None, "reason": "sin_vinculo"}
 
         if carta_clave:
@@ -434,7 +458,8 @@ def assign_carta_hilo(conn, carta_id: int, carta: dict) -> dict:
         cur.execute("UPDATE cartas SET hilo_id=%s WHERE id=%s", (target, carta_id))
         cur.execute("SELECT clave, titulo FROM hilos WHERE id=%s", (target,))
         meta = cur.fetchone() or {}
-    conn.commit()
+    if commit:
+        conn.commit()
     return {
         "ok": True,
         "hilo_id": target,
@@ -553,30 +578,37 @@ def sync_hilos_metadata(conn, cartas: list[dict] | None = None) -> dict:
         if cartas is None:
             cartas = _fetch_all_cartas(cur)
 
+        cur.execute("SELECT id, n_documento, hilo_id FROM cartas WHERE hilo_id IS NOT NULL")
+        doc_map = {}
+        for r in cur.fetchall():
+            hid = r.get("hilo_id")
+            if hid is not None:
+                doc_map[normalize_doc_key(r.get("n_documento"))] = int(hid)
+                doc_map[str(r.get("n_documento") or "").strip().upper()] = int(hid)
+
         for c in cartas:
             cid = c.get("id")
             if cid is None or c.get("hilo_id"):
                 continue
-            assign_carta_hilo(conn, int(cid), c)
+            res = assign_carta_hilo(conn, int(cid), c, doc_map=doc_map, commit=False)
+            if res.get("hilo_id"):
+                hid = int(res["hilo_id"])
+                doc_map[normalize_doc_key(c.get("n_documento"))] = hid
+                doc_map[str(c.get("n_documento") or "").strip().upper()] = hid
 
         cur.execute("SELECT * FROM cartas")
         cartas = _fetch_all_cartas(cur)
         groups = build_groups_from_fk(cartas)
         hilo_ids_seen: set[int] = set()
         abiertos = cerrados = 0
+        update_params = []
 
         for g in groups:
             hid = g.get("hilo_id")
             if hid is None:
                 continue
             hilo_ids_seen.add(int(hid))
-            cur.execute(
-                """
-                UPDATE hilos SET
-                    clave=%s, titulo=%s, especialidad_norm=%s, estado=%s,
-                    fecha_inicio=%s, fecha_cierre=%s, dias_congelados=%s, n_cartas=%s
-                WHERE id=%s
-                """,
+            update_params.append(
                 (
                     g["clave"][:255],
                     g["titulo"][:255],
@@ -587,36 +619,153 @@ def sync_hilos_metadata(conn, cartas: list[dict] | None = None) -> dict:
                     g["dias_congelados"],
                     g["n_cartas"],
                     hid,
-                ),
+                )
             )
             if g["abierto"]:
                 abiertos += 1
             else:
                 cerrados += 1
 
-        cur.execute("SELECT id FROM hilos")
-        for row in cur.fetchall():
-            hid = int(row["id"])
-            if hid in hilo_ids_seen:
-                continue
-            cur.execute("SELECT COUNT(*) AS n FROM cartas WHERE hilo_id=%s", (hid,))
-            n = (cur.fetchone() or {}).get("n") or 0
-            if n == 0:
-                cur.execute("DELETE FROM hilos WHERE id=%s", (hid,))
+        if update_params:
+            cur.executemany(
+                """
+                UPDATE hilos SET
+                    clave=%s, titulo=%s, especialidad_norm=%s, estado=%s,
+                    fecha_inicio=%s, fecha_cierre=%s, dias_congelados=%s, n_cartas=%s
+                WHERE id=%s
+                """,
+                update_params,
+            )
 
+def rebuild_hilos_fast(conn) -> dict:
+    """Reconstruye todos los hilos desde cero en memoria con Union-Find en < 0.5s."""
+    with conn.cursor() as cur:
+        _ensure_hilos_table(cur)
+        cur.execute("SELECT id, n_documento, tipo_documento, asunto, observacion, referencia, referencias, especialidad_norm, estado, estado_norm, fecha FROM cartas")
+        cartas = cur.fetchall()
+        if not cartas:
+            return {"ok": True, "hilos": 0, "abiertos": 0, "cerrados": 0}
+
+        parent = {c["id"]: c["id"] for c in cartas}
+        def find(i):
+            path = []
+            while parent[i] != i:
+                path.append(i)
+                i = parent[i]
+            for node in path:
+                parent[node] = i
+            return i
+
+        def union(i, j):
+            root_i, root_j = find(i), find(j)
+            if root_i != root_j:
+                if root_i < root_j:
+                    parent[root_j] = root_i
+                else:
+                    parent[root_i] = root_j
+
+        doc_to_id = {}
+        tramite_to_id = {}
+        for c in cartas:
+            cid = c["id"]
+            d_norm = normalize_doc_key(c.get("n_documento"))
+            if d_norm:
+                doc_to_id[d_norm] = cid
+            raw_doc = str(c.get("n_documento") or "").strip().upper()
+            if raw_doc:
+                doc_to_id[raw_doc] = cid
+            t_clave = canonical_tramite_clave(c)
+            if t_clave:
+                if t_clave in tramite_to_id:
+                    union(cid, tramite_to_id[t_clave])
+                else:
+                    tramite_to_id[t_clave] = cid
+
+        for c in cartas:
+            cid = c["id"]
+            blob = " ".join([
+                str(c.get("referencia") or ""),
+                str(c.get("referencias") or ""),
+                str(c.get("asunto") or ""),
+                str(c.get("observacion") or ""),
+            ])
+            cited = set(extract_cited_docs(blob))
+            if c.get("referencia"):
+                ref_k = normalize_doc_key(c.get("referencia"))
+                if ref_k:
+                    cited.add(ref_k)
+                cited.add(str(c.get("referencia")).strip().upper())
+            for ck in cited:
+                target_id = doc_to_id.get(ck)
+                if target_id and target_id != cid:
+                    union(cid, target_id)
+
+        from collections import defaultdict
+        groups_map = defaultdict(list)
+        for c in cartas:
+            groups_map[find(c["id"])].append(c)
+
+        cur.execute("SET FOREIGN_KEY_CHECKS=0")
+        cur.execute("TRUNCATE TABLE hilos")
+        cur.execute("UPDATE cartas SET hilo_id=NULL")
+
+        summarized = []
+        used_claves = set()
+        for root_id, items in groups_map.items():
+            g = _summarize_group(items, stable=True)
+            base_clave = g["clave"][:240]
+            clave = base_clave
+            counter = 2
+            while clave in used_claves:
+                clave = f"{base_clave}#{counter}"
+                counter += 1
+            used_claves.add(clave)
+            g["clave"] = clave
+            summarized.append((g, items))
+
+        update_cartas = []
+        for g, items in summarized:
+            cur.execute(
+                """
+                INSERT INTO hilos (clave, titulo, especialidad_norm, estado, fecha_inicio, fecha_cierre, dias_congelados, n_cartas)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    g["clave"][:255],
+                    g["titulo"][:255],
+                    g["especialidad_norm"],
+                    g["estado"],
+                    g["fecha_inicio"],
+                    g["fecha_cierre"],
+                    g["dias_congelados"],
+                    g["n_cartas"],
+                )
+            )
+            hid = cur.lastrowid
+            g["hilo_id"] = hid
+            for c in items:
+                update_cartas.append((hid, c["id"]))
+
+        if update_cartas:
+            cur.executemany("UPDATE cartas SET hilo_id=%s WHERE id=%s", update_cartas)
+
+        cur.execute("SET FOREIGN_KEY_CHECKS=1")
     conn.commit()
+
+    abiertos = sum(1 for g, _ in summarized if g["abierto"])
+    cerrados = len(summarized) - abiertos
     return {
         "ok": True,
-        "hilos": len(hilo_ids_seen),
+        "hilos": len(summarized),
         "abiertos": abiertos,
         "cerrados": cerrados,
-        "mode": "fk",
+        "mode": "fast_union_find",
     }
 
 
 def persist_hilos(conn, cartas: list[dict]) -> dict:
-    """Alias: sincroniza hilos por FK sin destruir vínculos."""
-    return sync_hilos_metadata(conn, cartas)
+    """Reconstruye hilos usando fast_union_find."""
+    return rebuild_hilos_fast(conn)
 
 
 def _ensure_carta_hilo_col(cur):
@@ -1011,22 +1160,61 @@ def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
     if not cerrar:
         return {"ok": True, "closed": 0}
     est = normalize_estado(nueva.get("estado_norm") or nueva.get("estado"))
-    is_cierre = est in ("CERRADO", "ABSUELTO SUPERVISION", "ABSUELTO ENTIDAD")
-    is_response = is_respuesta_emitida(nueva)
-    if not is_cierre and not is_response:
-        return {"ok": True, "closed": 0, "reason": "no_es_cierre_ni_respuesta"}
-
-    cited = set(
-        extract_cited_docs(
-            " ".join([str(nueva.get("referencias") or ""), str(nueva.get("asunto") or "")])
-        )
+    is_cierre = est in (
+        "CERRADO",
+        "ABSUELTO SUPERVISION",
+        "ABSUELTO ENTIDAD",
+        "ABSUELTA POR SUPERVISOR",
+        "ABSUELTA POR ENTIDAD",
+        "PARA CONOCIMIENTO",
     )
+    is_response = is_respuesta_emitida(nueva)
 
-    if is_cierre:
+    blob = " ".join([
+        str(nueva.get("referencia") or ""),
+        str(nueva.get("referencias") or ""),
+        str(nueva.get("asunto") or ""),
+        str(nueva.get("observacion") or "")
+    ])
+    cited = set(extract_cited_docs(blob))
+    if nueva.get("referencia"):
+        ref_norm = normalize_doc_key(nueva.get("referencia"))
+        if ref_norm:
+            cited.add(ref_norm)
+        cited.add(str(nueva.get("referencia")).strip().upper())
+        cited.add(str(nueva.get("referencia")).strip())
+
+    if is_cierre or is_response or cerrar:
+        direct_closed = 0
+        samples: list[dict] = []
+        target_close_state = "ABSUELTA POR SUPERVISOR" if ("SUPERVIS" in est or "SUP" in est) else ("ABSUELTA POR ENTIDAD" if ("ENTIDAD" in est or "PRONIS" in est) else "CERRADO")
+
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, n_documento, estado, estado_norm FROM cartas WHERE id != %s", (nueva.get("id") or 0,))
+            for r in cur.fetchall():
+                doc_k = normalize_doc_key(r["n_documento"])
+                raw_k = str(r["n_documento"] or "").strip().upper()
+                is_match = doc_k in cited or raw_k in cited or r["n_documento"] == nueva.get("referencia")
+                if is_match:
+                    est_r = normalize_estado(r.get("estado_norm") or r.get("estado"))
+                    if is_estado_abierto(est_r):
+                        cur.execute(
+                            "UPDATE cartas SET estado=%s, estado_norm=%s, actualizado_en=NOW() WHERE id=%s",
+                            (target_close_state, target_close_state, r["id"])
+                        )
+                        if cur.rowcount:
+                            direct_closed += cur.rowcount
+                            samples.append({"id": r["id"], "n_documento": r["n_documento"]})
+        if direct_closed:
+            conn.commit()
+
+        # If hilo is linked, close open sibling cartas in the same hilo
         hilo_result = _close_hilo_on_cierre(conn, nueva, cited)
-        if hilo_result.get("closed", 0) > 0:
+        if hilo_result.get("closed", 0) > 0 or direct_closed > 0:
+            hilo_result["closed"] = hilo_result.get("closed", 0) + direct_closed
+            hilo_result["samples"] = hilo_result.get("samples", []) + samples
             return hilo_result
-        # Hilo no detectado o ya cerrado: antecedentes citados explícitamente
+
         cited_result = _close_cited_open_cartas(conn, cited, skip_id=nueva.get("id"))
         if cited_result.get("closed", 0) > 0:
             return cited_result

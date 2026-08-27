@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS cartas (
     n_orden INT NULL,
     fecha DATE NULL,
     n_documento VARCHAR(255) NOT NULL,
+    tipo_documento VARCHAR(80) NULL,
     asunto TEXT NULL,
     especialidad VARCHAR(255) NULL,
     especialidad_norm VARCHAR(120) NULL,
