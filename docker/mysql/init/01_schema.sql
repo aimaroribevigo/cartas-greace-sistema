@@ -78,13 +78,34 @@ CREATE TABLE IF NOT EXISTS usuarios (
     rol VARCHAR(40) NOT NULL DEFAULT 'ingeniero',
     especialidades_json TEXT NULL,
     activo TINYINT(1) NOT NULL DEFAULT 1,
-    must_change_password TINYINT(1) NOT NULL DEFAULT 1,
+    must_change_password TINYINT(1) NOT NULL DEFAULT 0,
     password_changed_at DATETIME NULL,
+    intentos_fallidos INT NOT NULL DEFAULT 0,
     creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_usuarios_username (username),
     KEY idx_usuarios_rol (rol)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Usuarios iniciales del sistema (Clave por defecto: admin123)
+INSERT INTO usuarios (id, username, password_hash, nombre, rol, especialidades_json, activo, must_change_password)
+VALUES
+  (1, 'admin', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Administrador', 'admin', '[]', 1, 0),
+  (2, 'residente', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Residente CGGC', 'residente', '[]', 1, 0),
+  (3, 'calidad', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Calidad', 'ingeniero', '["CALIDAD"]', 1, 0),
+  (4, 'estructuras', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Estructuras', 'ingeniero', '["ESTRUCTURAS"]', 1, 0),
+  (5, 'ssoma', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero SSOMA', 'ingeniero', '["SSOMA"]', 1, 0),
+  (6, 'sanitarias', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Inst. Sanitarias', 'ingeniero', '["INST. SANITARIAS"]', 1, 0),
+  (7, 'electricas', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Inst. Eléctricas', 'ingeniero', '["INST. ELECTRICAS"]', 1, 0),
+  (8, 'arquitectura', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Arquitectura', 'ingeniero', '["ARQUITECTURA"]', 1, 0),
+  (9, 'geotecnia', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Geotecnia', 'ingeniero', '["GEOTECNIA"]', 1, 0),
+  (10, 'contratos', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Adm. Contratos', 'ingeniero', '["ADM. DE CONTRATOS"]', 1, 0),
+  (11, 'costos', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Costos', 'ingeniero', '["COSTOS"]', 1, 0),
+  (12, 'ambiente', 'scrypt:32768:8:1$0TilZbHVsTpVxmsB$285516c811f77aef1c8da5c1161e7e2fa19bc537bafed77ce371fcd5637acd5bfeeccf87eebd23a7323b8a7c34acccdd4553d7a3835fe242f0c4af55780e13ca', 'Ingeniero Medio Ambiente', 'ingeniero', '["MEDIO AMBIENTE"]', 1, 0)
+ON DUPLICATE KEY UPDATE
+  password_hash=VALUES(password_hash),
+  activo=1,
+  intentos_fallidos=0;
 
 -- Legado (seed consultas) — se mantiene por compatibilidad temporal
 CREATE TABLE IF NOT EXISTS consultas (
