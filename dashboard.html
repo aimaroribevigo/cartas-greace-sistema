@@ -1325,39 +1325,29 @@ body.app-locked .app-layout{visibility:hidden}
             y corregir etiquetas genéricas (<em>OFICINA TECNICA</em>, <em>ESTR. PARA RESPUESTA</em>, etc.) según la especialidad técnica de cada carta.
           </p>
 
-          <div style="background:#FAF9F6;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-              <i class="ri-history-line" style="color:var(--teal)"></i> Backfill histórico de cartas
-            </div>
-            <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.45">
-              Genera referencias buscables (ej. «Informe 34 de Pinturas»), completa responsables faltantes en recibidas
-              y normaliza asignaciones legacy del Excel hacia el catálogo del equipo (Especialista Estructuras, Arquitectura, etc.).
-            </p>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <button type="button" class="btn-reimport" id="btnBackfillHistorico" style="font-size:12px;padding:8px 14px">
-                <i class="ri-magic-line"></i> Ejecutar backfill histórico
-              </button>
-              <button type="button" class="btn-cancel" id="btnBackfillPreview" style="font-size:12px;padding:8px 12px">
-                <i class="ri-eye-line"></i> Vista previa (sin guardar)
-              </button>
-              <span id="cfg_backfill_status" style="font-size:11.5px;color:var(--text-muted)"></span>
-            </div>
-          </div>
-
-          <div style="background:#FFF8F6;border:1px solid #E8D4CE;border-radius:10px;padding:14px 16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-              <i class="ri-file-excel-2-line" style="color:var(--accent)"></i> Reimportación desde Excel
-            </div>
-            <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.45">
-              Carga inicial o reset completo desde el archivo Excel del servidor. <strong>No necesaria para el uso diario.</strong>
-            </p>
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-              <span style="font-size:11.5px;color:var(--rose)">
-                Reemplaza todos los registros de cartas con la versión base del Excel montado.
-              </span>
-              <button type="button" class="btn-reimport" id="btnReimportConfig" style="font-size:12px;padding:8px 14px">
-                <i class="ri-file-excel-2-line"></i> Reimportar Base desde Excel
-              </button>
+          <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:20px 22px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
+              <div style="flex:1;min-width:300px">
+                <div style="font-size:14.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;color:var(--text-primary)">
+                  <i class="ri-file-excel-2-fill" style="color:#107C41;font-size:20px"></i> Gestión y Respaldo de Base de Datos (Excel)
+                </div>
+                <p style="font-size:12px;color:var(--text-secondary);margin:0 0 12px;line-height:1.55">
+                  Exporta un respaldo completo de todas las bandejas en un libro Excel formateado profesionalmente (con las 6 hojas estándar y columnas oficiales), o reimporta una nueva versión desde tu computadora con validación y sincronización segura.
+                </p>
+                <div style="display:flex;gap:14px;font-size:11.5px;color:var(--text-muted);flex-wrap:wrap">
+                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> 6 hojas estándar HLP</span>
+                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> Backfill e Hilos automáticos</span>
+                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> 100% compatible ida y vuelta</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;min-width:240px">
+                <button type="button" class="btn-cancel" id="btnDownloadBackupExcel" style="font-size:12.5px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#FFFFFF;border:1.5px solid #107C41;color:#107C41;font-weight:600;box-shadow:var(--shadow-sm);cursor:pointer;border-radius:8px">
+                  <i class="ri-download-2-line" style="font-size:15px"></i> Descargar Backup Excel (6 Hojas)
+                </button>
+                <button type="button" class="btn-save" id="btnReimportConfig" style="font-size:12.5px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-sm);cursor:pointer;border-radius:8px">
+                  <i class="ri-upload-2-line" style="font-size:15px"></i> Seleccionar y Reimportar Excel
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -5397,6 +5387,9 @@ function closeConfirm(){
   confirmAction=null;
   switchEditTargetId=null;
   toggleTargetUser=null;
+  selectedExcelFile=null;
+  const fileInput=document.getElementById('excelFileInput');
+  if(fileInput) fileInput.value = '';
   const okBtn=document.getElementById('btnConfirmOk');
   if(okBtn){
     okBtn.disabled=false;
@@ -5448,8 +5441,9 @@ async function executeReimportFile(){
       body: formData
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok || !data.ok){
-      throw new Error(data.error || 'Error al procesar el archivo Excel');
+    if(!res.ok || !data.ok || !data.inserted || data.inserted === 0){
+      const errDetail = data.error || (data.sheets ? `No se encontraron registros de cartas en las hojas [${data.sheets.join(', ')}].` : 'No se encontraron registros de cartas válidos en el archivo Excel.');
+      throw new Error(errDetail);
     }
 
     if(loadingOverlay) loadingOverlay.classList.remove('active');
@@ -5458,8 +5452,9 @@ async function executeReimportFile(){
     const successMsg = document.getElementById('importSuccessMsg');
     if(successMsg){
       const count = data.inserted || 0;
+      const sheetsList = data.sheets_processed ? `<br><small style="color:var(--text-muted)">Hojas procesadas: ${data.sheets_processed.join(' · ')}</small><br>` : '';
       successMsg.innerHTML = `
-        Se han importado exitosamente <strong>${count.toLocaleString()} cartas</strong> desde el archivo <strong>${escapeHtml(file.name)}</strong>.<br><br>
+        Se han importado exitosamente <strong>${count.toLocaleString()} cartas</strong> desde el archivo <strong>${escapeHtml(file.name)}</strong>.${sheetsList}<br>
         Toda la información anterior ha sido reemplazada. Haz clic en el botón a continuación para <strong>refrescar la página</strong> y visualizar los nuevos datos.`;
     }
     if(successOverlay) successOverlay.classList.add('active');
@@ -5467,6 +5462,7 @@ async function executeReimportFile(){
     if(loadingOverlay) loadingOverlay.classList.remove('active');
     console.error('Error reimportando archivo:', err);
     showToast(err.message || 'Error al reimportar el archivo Excel', 'error');
+    alert(err.message || 'Error al procesar el archivo Excel. Asegúrate de seleccionar el archivo Control de Cartas correcto.');
   } finally {
     selectedExcelFile = null;
   }
@@ -5680,6 +5676,51 @@ function exportCSV(){
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
   a.download='cartas_sistema_greace.csv';a.click();
+}
+
+async function downloadBackupExcel(){
+  const btn = document.getElementById('btnDownloadBackupExcel');
+  if(!btn || btn.disabled) return;
+  const originalHtml = btn.innerHTML;
+
+  try {
+    btn.disabled = true;
+    btn.style.opacity = '0.65';
+    btn.style.cursor = 'not-allowed';
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:rot 1s linear infinite;display:inline-block"></i> Generando Backup Excel…';
+    showToast('Generando respaldo Excel con las 6 hojas. Por favor espera...', 'info');
+
+    const res = await apiFetch('/api/backup/excel', { method: 'GET' });
+    if(!res.ok){
+      throw new Error('Error en el servidor al generar el archivo de backup');
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    const now = new Date();
+    const dStr = now.toISOString().slice(0,10).replace(/-/g,'');
+    const tStr = String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+    a.download = `Backup_Control_Cartas_HLP_${dStr}_${tStr}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    }, 1500);
+    showToast('¡Respaldo Excel descargado con éxito!', 'success');
+  } catch(err){
+    console.error('Error descargando backup excel:', err);
+    showToast('Error al descargar el backup: ' + err.message, 'error');
+  } finally {
+    if(btn){
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = 'pointer';
+      btn.innerHTML = originalHtml;
+    }
+  }
 }
 
 document.querySelectorAll('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
@@ -6156,16 +6197,30 @@ document.getElementById('excelFileInput')?.addEventListener('change', (e) => {
   }
   selectedExcelFile = file;
   confirmAction = 'reimport_file';
-  document.getElementById('confirmTitle').innerHTML = '<i class="ri-file-excel-2-line" style="color:var(--accent)"></i> Reimportar Base desde Excel';
+  document.getElementById('confirmTitle').innerHTML = '<i class="ri-file-excel-2-fill" style="color:#107C41;font-size:20px"></i> ¿Confirmar Reimportación de Base de Datos?';
   document.getElementById('confirmMsg').innerHTML = `
-    ¿Estás seguro de reimportar la base de datos con el archivo <strong>${escapeHtml(file.name)}</strong> (${(file.size / (1024*1024)).toFixed(2)} MB)?<br><br>
-    <span style="color:var(--rose);font-weight:600">⚠️ Advertencia:</span> Esta acción reemplazará todos los registros de cartas actuales con los datos de este nuevo archivo Excel y reconstruirá automáticamente los hilos de trámite.`;
+    Has seleccionado el siguiente archivo Excel:<br>
+    <div style="margin:12px 0;padding:12px 14px;background:#F8F9FA;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;text-align:left">
+      <i class="ri-file-excel-2-fill" style="color:#107C41;font-size:24px"></i>
+      <div>
+        <div style="font-weight:700;color:var(--text-primary);font-size:13px;word-break:break-all">${escapeHtml(file.name)}</div>
+        <div style="font-size:11.5px;color:var(--text-muted)">Tamaño: ${(file.size / (1024*1024)).toFixed(2)} MB</div>
+      </div>
+    </div>
+    <div style="padding:10px 12px;background:#FFF5F5;border-left:3px solid var(--rose);border-radius:4px;font-size:12px;color:var(--text-primary);line-height:1.45;margin-bottom:8px">
+      <strong style="color:var(--rose)">⚠️ Advertencia:</strong> Toda la información de cartas anterior será reemplazada por los datos de este nuevo archivo. Los hilos de trámite se reconstruirán automáticamente.
+    </div>
+    <p style="margin:8px 0 0;font-size:12.5px;color:var(--text-secondary)">¿Deseas proceder con la reimportación?</p>`;
   const okBtn = document.getElementById('btnConfirmOk');
   if(okBtn){
     okBtn.disabled = false;
-    okBtn.textContent = 'Sí, Reimportar Base';
-    okBtn.className = 'btn-confirm-del';
-    okBtn.style.background = '';
+    okBtn.textContent = 'Sí, Proceder con la Reimportación';
+    okBtn.className = 'btn-save';
+    okBtn.style.background = 'var(--accent)';
+  }
+  const cancelBtn = document.getElementById('btnConfirmCancel');
+  if(cancelBtn){
+    cancelBtn.textContent = 'Cancelar';
   }
   document.getElementById('confirmOverlay').classList.add('active');
 });
@@ -6180,9 +6235,8 @@ document.getElementById('confirmOverlay')?.addEventListener('click',e=>{
   if(e.target.id==='confirmOverlay')closeConfirm();
 });
 document.getElementById('btnCSV').addEventListener('click',exportCSV);
+document.getElementById('btnDownloadBackupExcel')?.addEventListener('click',downloadBackupExcel);
 document.getElementById('btnReimportConfig')?.addEventListener('click',confirmReimport);
-document.getElementById('btnBackfillHistorico')?.addEventListener('click',()=>runBackfillHistorico(false));
-document.getElementById('btnBackfillPreview')?.addEventListener('click',()=>runBackfillHistorico(true));
 document.getElementById('filterFlujo')?.addEventListener('change',applyFilters);
 document.getElementById('filterEstado').addEventListener('change',applyFilters);
 document.getElementById('filterEsp').addEventListener('change',applyFilters);

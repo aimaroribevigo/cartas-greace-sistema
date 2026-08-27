@@ -213,6 +213,7 @@ def user_from_row(r: dict | None) -> dict | None:
         ),
         "can_see_all": rol in ("admin", "residente"),
         "can_import": rol in ("admin", "residente"),
+        "can_export": rol in ("admin", "residente"),
         "can_notify": rol in ("admin", "residente"),
         "can_manage_users": rol == "admin",
         # Todo el ciclo de cartas (crear → respuesta → hilo → cierre) lo maneja solo el admin.

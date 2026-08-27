@@ -82,6 +82,9 @@ services:
       - ./auth.py:/app/auth.py:ro
       - ./plazos.py:/app/plazos.py:ro
       - ./plazos_respuesta.py:/app/plazos_respuesta.py:ro
+      - ./import_excel.py:/app/import_excel.py:ro
+      - ./export_excel.py:/app/export_excel.py:ro
+      - ./backfill_cartas.py:/app/backfill_cartas.py:ro
     ports:
       - "${WEB_HOST_PORT:-5080}:5000"
     networks:

@@ -11,7 +11,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import pymysql
-from flask import Flask, g, jsonify, request, send_from_directory, session
+from flask import Flask, g, jsonify, request, send_file, send_from_directory, session
 from pymysql.cursors import DictCursor
 
 from backfill_cartas import backfill_cartas
@@ -1282,6 +1282,10 @@ def api_import_excel():
         db = get_db()
         result = import_excel_to_db(db, excel_path=excel_target, force=force)
         if result.get("ok") and not result.get("skipped"):
+            try:
+                result["backfill"] = backfill_cartas(db, dry_run=False, fill_missing=True, fix_areas=True)
+            except Exception as b_exc:
+                result["backfill_error"] = str(b_exc)
             norms = refresh_normalized_fields(db)
             result["normalize"] = norms
             try:
@@ -1297,6 +1301,22 @@ def api_import_excel():
                 os.remove(temp_path)
             except Exception:
                 pass
+
+
+@app.route("/api/backup/excel", methods=["GET"])
+@require_perm("can_export")
+def api_backup_excel():
+    from datetime import datetime
+    from export_excel import export_full_backup_excel
+    db = get_db()
+    excel_stream = export_full_backup_excel(db)
+    filename = f"Backup_Control_Cartas_HLP_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    return send_file(
+        excel_stream,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name=filename,
+    )
 
 
 @app.route("/api/backfill/cartas", methods=["POST"])

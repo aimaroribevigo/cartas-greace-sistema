@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Importación del Excel Control de Cartas → tabla MySQL `cartas`."""
+"""Importación inteligente del Excel Control de Cartas → tabla MySQL `cartas`."""
 from __future__ import annotations
 
 import os
@@ -18,6 +18,7 @@ SHEETS = [
     {
         "bandeja": "residente",
         "sheet": "1.Cartas. Res.",
+        "keywords": ["residente", "res.", "cartas. res", "cartas res", "ro", "1."],
         "header_row": 19,
         "layout": "emitida",
         "sentido": "emitida",
@@ -26,6 +27,7 @@ SHEETS = [
     {
         "bandeja": "rl",
         "sheet": "2.Cart. RL",
+        "keywords": ["cart. rl", "cartas rl", "rl", "legal", "2."],
         "header_row": 19,
         "layout": "emitida",
         "sentido": "emitida",
@@ -34,6 +36,7 @@ SHEETS = [
     {
         "bandeja": "recibida_sup",
         "sheet": "3.Cart.Recb.Sup.",
+        "keywords": ["recb.sup", "supervis", "recibida sup", "recibidas sup", "3."],
         "header_row": 14,
         "layout": "recibida_sup",
         "sentido": "recibida",
@@ -42,6 +45,7 @@ SHEETS = [
     {
         "bandeja": "recibida_otros",
         "sheet": "4.Cart.Recb.Otros",
+        "keywords": ["recb.otros", "otros", "jrd", "recibidas otros", "4."],
         "header_row": 14,
         "layout": "recibida_otros",
         "sentido": "recibida",
@@ -50,6 +54,7 @@ SHEETS = [
     {
         "bandeja": "recibida_pronis",
         "sheet": "5.Cartas Recibidas Pronis ",
+        "keywords": ["pronis", "entidad", "minsa", "recibidas pronis", "5."],
         "header_row": 16,
         "layout": "recibida_simple",
         "sentido": "recibida",
@@ -58,6 +63,7 @@ SHEETS = [
     {
         "bandeja": "recibida_mpsc",
         "sheet": "6.Cartas Recibidas MPSC  ",
+        "keywords": ["mpsc", "muni", "municipalidad", "recibidas mpsc", "6."],
         "header_row": 13,
         "layout": "recibida_mpsc",
         "sentido": "recibida",
@@ -153,11 +159,133 @@ def _val(cells, idx):
     return cells[i]
 
 
-def parse_cells(layout: str, cells: tuple) -> dict | None:
-    # A=1 N°, B=2 fecha, C=3 doc, D=4 vacío(asunto col E), E=5 asunto…
+def find_matching_sheet(wb_sheetnames: list[str], cfg: dict) -> str | None:
+    target = cfg["sheet"].strip().lower()
+    for s in wb_sheetnames:
+        if s.strip().lower() == target:
+            return s
+    for s in wb_sheetnames:
+        s_low = s.strip().lower()
+        if any(k in s_low for k in cfg.get("keywords", [])):
+            return s
+    return None
+
+
+def detect_header_row_and_map(ws, default_row: int, max_scan: int = 35) -> tuple[int, dict[str, int] | None]:
+    """Detecta automáticamente la fila de encabezados y el mapeo de columnas."""
+    header_keywords = {
+        "n_orden": ["n°", "nro", "item", "orden", "nº", "n° orden", "n° de orden", "no."],
+        "fecha": ["fecha", "fec", "f. emision", "f.emision", "fecha doc", "date", "fecha de emisión", "fecha emision", "fec. doc"],
+        "n_documento": ["documento", "n° de documento", "nº de documento", "n° doc", "carta", "n_documento", "nro doc", "documento n°", "n° carta", "nº carta", "código", "codigo", "doc", "n° doc.", "documento de referencia"],
+        "asunto": ["asunto", "descripcion", "referencia", "detalle", "resumen", "tema", "subject", "descripción", "contenido", "asunto / descripción"],
+        "especialidad": ["especialidad", "esp", "disciplina", "specialty", "área técnica", "area tecnica"],
+        "estado": ["estado", "situacion", "status", "situación", "estado del trámite", "estado tramite"],
+        "referencias": ["referencias", "antecedente", "antecedentes", "ref.", "referencia", "doc. antecedente", "carta antecedente"],
+        "folios": ["folio", "folios", "n° folios"],
+        "cd": ["cd", "adjunto", "disco", "anexos"],
+        "dirigido_a": ["dirigido", "dirigido a", "destinatario", "para", "dirigido_a", "to", "dirigido a:"],
+        "receptor": ["receptor", "emisor", "de", "remitente", "from", "de:"],
+        "cargo": ["cargo", "puesto", "cargo del destinatario"],
+        "observacion": ["observacion", "observaciones", "obs", "comentario", "notas", "observación"],
+        "area": ["area", "responsable", "asignado", "especialista", "area interna", "área", "área responsable"],
+        "empresa": ["empresa", "consorcio", "entidad"],
+        "fecha_respuesta": ["fecha respuesta", "fec. rpta", "fecha rpta", "f. rpta", "fecha de respuesta"],
+        "carta_respuesta": ["carta respuesta", "carta rpta", "doc respuesta", "doc rpta", "documento de respuesta"],
+        "bandeja": ["bandeja", "origen", "tipo bandeja", "tipo de carta"],
+    }
+
+    best_row = default_row
+    best_map: dict[str, int] | None = None
+    best_score = 0
+
+    for r_idx, row in enumerate(ws.iter_rows(min_row=1, max_row=max_scan, values_only=True), start=1):
+        if not row:
+            continue
+        cur_map = {}
+        score = 0
+        for col_idx, cell in enumerate(row):
+            if not cell:
+                continue
+            txt = str(cell).strip().lower()
+            for field, kw_list in header_keywords.items():
+                if field not in cur_map and any(k == txt or k in txt for k in kw_list):
+                    cur_map[field] = col_idx
+                    score += 1
+                    break
+        if score >= 2 and ("n_documento" in cur_map or "asunto" in cur_map or "fecha" in cur_map):
+            if score > best_score:
+                best_score = score
+                best_row = r_idx
+                best_map = cur_map
+
+    if best_score >= 2 and best_map:
+        return best_row, best_map
+    return default_row, None
+
+
+def parse_cells_with_map(cells: tuple, col_map: dict[str, int]) -> dict | None:
+    def g(field, max_len=None):
+        idx = col_map.get(field)
+        if idx is None or idx >= len(cells):
+            return None
+        return _as_str(cells[idx], max_len)
+
+    def g_date(field):
+        idx = col_map.get(field)
+        if idx is None or idx >= len(cells):
+            return None
+        return _as_date(cells[idx])
+
+    def g_int(field):
+        idx = col_map.get(field)
+        if idx is None or idx >= len(cells):
+            return None
+        return _as_int(cells[idx])
+
+    n_doc = g("n_documento", 255)
+    asunto = g("asunto")
+    if not n_doc and not asunto:
+        return None
+
+    if n_doc and n_doc.upper() in ("TOTAL", "N°", "NRO", "N° DE DOCUMENTO", "DOCUMENTO", "ITEM"):
+        return None
+
+    estado_raw = g("estado", 120)
+    esp_raw = g("especialidad", 255)
+
+    base = {
+        "n_orden": g_int("n_orden"),
+        "fecha": g_date("fecha"),
+        "n_documento": n_doc or "S/N",
+        "asunto": asunto,
+        "especialidad": esp_raw,
+        "especialidad_norm": normalize_especialidad(esp_raw),
+        "estado": estado_raw,
+        "estado_norm": normalize_estado(estado_raw),
+        "referencias": g("referencias"),
+        "folios": g("folios", 50),
+        "cd": g("cd", 20),
+        "dirigido_a": g("dirigido_a", 255),
+        "receptor": g("receptor", 255),
+        "cargo": g("cargo", 255),
+        "observacion": g("observacion"),
+        "area": g("area", 255),
+        "empresa": g("empresa", 255),
+        "caducidad": None,
+        "fecha_respuesta": g_date("fecha_respuesta"),
+        "carta_respuesta": g("carta_respuesta", 255),
+        "bandeja": g("bandeja", 80),
+    }
+    return base
+
+
+def parse_cells_by_layout(layout: str, cells: tuple) -> dict | None:
     n_doc = _as_str(_val(cells, 3), 255)
     asunto = _as_str(_val(cells, 5))
     if not n_doc and not asunto:
+        return None
+
+    if n_doc and n_doc.upper() in ("TOTAL", "N°", "NRO", "N° DE DOCUMENTO", "DOCUMENTO"):
         return None
 
     base = {
@@ -182,7 +310,6 @@ def parse_cells(layout: str, cells: tuple) -> dict | None:
     }
 
     if layout == "emitida":
-        # Hojas 1 y 2
         base.update(
             {
                 "especialidad": _as_str(_val(cells, 6), 255),
@@ -197,7 +324,6 @@ def parse_cells(layout: str, cells: tuple) -> dict | None:
             }
         )
     elif layout == "recibida_sup":
-        # Hoja 3: F=6 ref_ant, G=7 fecha_sup, H=8 doc_sup, I=9 vac, J=10 esp_resp, K=11 esp, L=12 estado…
         base.update(
             {
                 "area": _as_str(_val(cells, 9), 255),
@@ -226,7 +352,6 @@ def parse_cells(layout: str, cells: tuple) -> dict | None:
             }
         )
     elif layout == "recibida_otros":
-        # Hoja 4: A N°, B fecha, C doc, D vacío, E asunto, F esp, G estado…
         base.update(
             {
                 "especialidad": _as_str(_val(cells, 6), 255),
@@ -241,7 +366,6 @@ def parse_cells(layout: str, cells: tuple) -> dict | None:
             }
         )
     elif layout == "recibida_mpsc":
-        # Misma grilla que simple; estado suele venir vacío → no inventar estado
         base.update(
             {
                 "especialidad": _as_str(_val(cells, 6), 255),
@@ -253,7 +377,6 @@ def parse_cells(layout: str, cells: tuple) -> dict | None:
                 "receptor": _as_str(_val(cells, 12), 255),
             }
         )
-        # Asuntos de solo conocimiento
         asunto_u = (base.get("asunto") or "").upper()
         if not base.get("estado") and any(
             k in asunto_u for k in ("HACE DE CONOCIMIENTO", "HACE LLEGAR COPIA", "AUTORIZACIÓN", "AUTORIZACION")
@@ -267,63 +390,39 @@ def parse_cells(layout: str, cells: tuple) -> dict | None:
     return base
 
 
-def _row_tuple(cfg, row):
-    doc = row["n_documento"]
+def _row_tuple(ban: str, sentido: str, row: dict) -> tuple:
+    doc = row.get("n_documento") or "S/N"
     return (
-        cfg["bandeja"],
-        cfg["sentido"],
-        row["n_orden"],
-        row["fecha"],
+        ban,
+        sentido,
+        row.get("n_orden"),
+        row.get("fecha"),
         doc,
         infer_tipo_documento(doc),
-        row["asunto"],
-        row["especialidad"],
-        row["especialidad_norm"],
-        row["estado"],
-        row["estado_norm"],
-        row["referencias"],
-        row["folios"],
-        row["cd"],
-        row["dirigido_a"],
-        row["receptor"],
-        row["cargo"],
-        row["observacion"],
-        row["area"],
-        row["empresa"],
-        row["caducidad"],
-        row["fecha_respuesta"],
-        row["carta_respuesta"],
+        row.get("asunto"),
+        row.get("especialidad"),
+        row.get("especialidad_norm"),
+        row.get("estado"),
+        row.get("estado_norm"),
+        row.get("referencias"),
+        row.get("folios"),
+        row.get("cd"),
+        row.get("dirigido_a"),
+        row.get("receptor"),
+        row.get("cargo"),
+        row.get("observacion"),
+        row.get("area"),
+        row.get("empresa"),
+        row.get("caducidad"),
+        row.get("fecha_respuesta"),
+        row.get("carta_respuesta"),
     )
-
-
-def iter_parsed_rows(ws, header_row: int, layout: str, max_col: int):
-    empty = 0
-    for row_idx, cells in enumerate(
-        ws.iter_rows(
-            min_row=header_row + 1,
-            max_col=max_col,
-            values_only=True,
-        ),
-        start=header_row + 1,
-    ):
-        row = parse_cells(layout, cells or ())
-        if not row:
-            empty += 1
-            if empty >= EMPTY_STREAK_STOP:
-                break
-            continue
-        empty = 0
-        yield row_idx, row
 
 
 def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False) -> dict:
-    excel_path = Path(
-        excel_path
-        or os.environ.get("EXCEL_PATH")
-        or DEFAULT_EXCEL
-    )
+    excel_path = Path(excel_path or os.environ.get("EXCEL_PATH") or DEFAULT_EXCEL)
     if not excel_path.exists():
-        return {"ok": False, "error": f"Excel no encontrado: {excel_path}"}
+        return {"ok": False, "error": f"Archivo Excel no encontrado: {excel_path}"}
 
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS c FROM cartas")
@@ -331,45 +430,138 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
         if count > 0 and not force:
             return {"ok": True, "skipped": True, "existing": count}
 
+        wb = openpyxl.load_workbook(excel_path, data_only=True, read_only=True)
+        sheetnames = list(wb.sheetnames)
+        parsed_rows_by_bandeja: dict[str, list[tuple]] = {}
+        total_parsed = 0
+        sheets_processed = []
+
+        try:
+            matched_sheets = set()
+            for cfg in SHEETS:
+                actual_sheet_name = find_matching_sheet(sheetnames, cfg)
+                if not actual_sheet_name or actual_sheet_name in matched_sheets:
+                    continue
+                matched_sheets.add(actual_sheet_name)
+                ws = wb[actual_sheet_name]
+                header_row, col_map = detect_header_row_and_map(ws, cfg["header_row"])
+                
+                rows_for_sheet = []
+                empty_streak = 0
+                max_col = max(cfg["max_col"], max(col_map.values()) + 1 if col_map else 20)
+
+                for cells in ws.iter_rows(min_row=header_row + 1, max_col=max_col, values_only=True):
+                    if col_map:
+                        parsed = parse_cells_with_map(cells or (), col_map)
+                    else:
+                        parsed = parse_cells_by_layout(cfg["layout"], cells or ())
+
+                    if not parsed:
+                        empty_streak += 1
+                        if empty_streak >= EMPTY_STREAK_STOP:
+                            break
+                        continue
+                    empty_streak = 0
+                    rows_for_sheet.append(_row_tuple(cfg["bandeja"], cfg["sentido"], parsed))
+
+                if rows_for_sheet:
+                    parsed_rows_by_bandeja[cfg["bandeja"]] = rows_for_sheet
+                    total_parsed += len(rows_for_sheet)
+                    sheets_processed.append(f"{actual_sheet_name} ({len(rows_for_sheet)} cartas)")
+
+            # Si no se encontró ninguna de las 6 hojas estándar, o si hay hojas adicionales con cartas:
+            if total_parsed == 0:
+                for s_name in sheetnames:
+                    ws = wb[s_name]
+                    header_row, col_map = detect_header_row_and_map(ws, 1, max_scan=35)
+                    if not col_map and not any(k in s_name.lower() for k in ["carta", "doc", "res", "sup", "rl", "oficio", "informe"]):
+                        continue
+                    
+                    rows_for_sheet = []
+                    empty_streak = 0
+                    max_col = max(col_map.values()) + 1 if col_map else 25
+
+                    s_low = s_name.lower()
+                    if "sup" in s_low or "recibida_sup" in s_low:
+                        default_ban, default_sent = "recibida_sup", "recibida"
+                    elif "rl" in s_low or "legal" in s_low:
+                        default_ban, default_sent = "rl", "emitida"
+                    elif "pronis" in s_low or "entidad" in s_low:
+                        default_ban, default_sent = "recibida_pronis", "recibida"
+                    elif "mpsc" in s_low or "muni" in s_low:
+                        default_ban, default_sent = "recibida_mpsc", "recibida"
+                    elif "otro" in s_low or "jrd" in s_low:
+                        default_ban, default_sent = "recibida_otros", "recibida"
+                    else:
+                        default_ban, default_sent = "residente", "emitida"
+
+                    for cells in ws.iter_rows(min_row=header_row + 1, max_col=max_col, values_only=True):
+                        if col_map:
+                            parsed = parse_cells_with_map(cells or (), col_map)
+                        else:
+                            parsed = parse_cells_by_layout("emitida", cells or ())
+
+                        if not parsed:
+                            empty_streak += 1
+                            if empty_streak >= EMPTY_STREAK_STOP:
+                                break
+                            continue
+                        empty_streak = 0
+
+                        raw_ban = str(parsed.get("bandeja") or "").lower()
+                        rec = str(parsed.get("receptor") or "").upper()
+                        if "sup" in raw_ban or "SUPERVIS" in rec:
+                            b, s = "recibida_sup", "recibida"
+                        elif "rl" in raw_ban or "LEGAL" in rec:
+                            b, s = "rl", "emitida"
+                        elif "pronis" in raw_ban or "PRONIS" in rec:
+                            b, s = "recibida_pronis", "recibida"
+                        elif "mpsc" in raw_ban or "MUNI" in rec:
+                            b, s = "recibida_mpsc", "recibida"
+                        elif "otro" in raw_ban or "JRD" in rec:
+                            b, s = "recibida_otros", "recibida"
+                        else:
+                            b, s = default_ban, default_sent
+
+                        rows_for_sheet.append(_row_tuple(b, s, parsed))
+
+                    if rows_for_sheet:
+                        parsed_rows_by_bandeja[f"{s_name}_{default_ban}"] = rows_for_sheet
+                        total_parsed += len(rows_for_sheet)
+                        sheets_processed.append(f"{s_name} ({len(rows_for_sheet)} cartas)")
+
+        finally:
+            wb.close()
+
+        # REGLA DE SEGURIDAD CRÍTICA
+        if total_parsed == 0:
+            return {
+                "ok": False,
+                "error": f"No se encontraron registros de cartas en el archivo Excel. Hojas disponibles: {sheetnames}. Asegúrate de que el archivo contenga las hojas de cartas o columnas como N° Documento, Fecha, Asunto.",
+                "sheets": sheetnames,
+            }
+
+        # Borrar y reimportar
         if force and count > 0:
             cur.execute("DELETE FROM cartas")
 
-        # read_only + values_only: evita el freeze por ws.cell / max_row
-        wb = openpyxl.load_workbook(excel_path, data_only=True, read_only=True)
         inserted = 0
-        by_bandeja = {}
-        try:
-            for cfg in SHEETS:
-                name = cfg["sheet"]
-                if name not in wb.sheetnames:
-                    match = next((s for s in wb.sheetnames if s.strip() == name.strip()), None)
-                    if not match:
-                        by_bandeja[cfg["bandeja"]] = {"error": "hoja no encontrada"}
-                        continue
-                    name = match
-                ws = wb[name]
-                batch = []
-                n = 0
-                for _, row in iter_parsed_rows(ws, cfg["header_row"], cfg["layout"], cfg["max_col"]):
-                    batch.append(_row_tuple(cfg, row))
-                    if len(batch) >= BATCH_SIZE:
-                        cur.executemany(INSERT_SQL, batch)
-                        n += len(batch)
-                        inserted += len(batch)
-                        batch.clear()
-                if batch:
-                    cur.executemany(INSERT_SQL, batch)
-                    n += len(batch)
-                    inserted += len(batch)
-                by_bandeja[cfg["bandeja"]] = {"inserted": n}
-                print(f"[import] {cfg['bandeja']}: {n} filas", flush=True)
-        finally:
-            wb.close()
+        by_bandeja_summary = {}
+        for ban_key, batch in parsed_rows_by_bandeja.items():
+            if not batch:
+                continue
+            for i in range(0, len(batch), BATCH_SIZE):
+                chunk = batch[i:i + BATCH_SIZE]
+                cur.executemany(INSERT_SQL, chunk)
+                inserted += len(chunk)
+            by_bandeja_summary[ban_key] = {"inserted": len(batch)}
+            print(f"[import] {ban_key}: {len(batch)} filas", flush=True)
 
         conn.commit()
         return {
             "ok": True,
             "inserted": inserted,
-            "by_bandeja": by_bandeja,
+            "by_bandeja": by_bandeja_summary,
+            "sheets_processed": sheets_processed,
             "excel": str(excel_path),
         }
