@@ -1432,10 +1432,14 @@ def api_import_excel():
             try:
                 result["hilos"] = _rebuild_hilos(db)
             except Exception as exc:
+                logging.exception("Error construyendo hilos tras import: %s", exc)
                 result["hilos_error"] = str(exc)
             invalidate_cartas_cache()
-        code = 200 if result.get("ok") else 500
+        code = 200 if result.get("ok") else 400
         return jsonify(result), code
+    except Exception as exc:
+        logging.exception("Error inesperado en importación Excel: %s", exc)
+        return jsonify({"ok": False, "error": f"Error en el procesamiento del archivo: {exc}"}), 500
     finally:
         if temp_path and os.path.exists(temp_path):
             try:

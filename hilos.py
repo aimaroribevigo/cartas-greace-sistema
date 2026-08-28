@@ -723,31 +723,46 @@ def rebuild_hilos_fast(conn) -> dict:
             g["clave"] = clave
             summarized.append((g, items))
 
-        update_cartas = []
+        # Bulk insert all hilos in batches
+        hilo_insert_tuples = []
         for g, items in summarized:
-            cur.execute(
+            hilo_insert_tuples.append((
+                g["clave"][:255],
+                g["titulo"][:255] if g["titulo"] else None,
+                g["especialidad_norm"],
+                g["estado"],
+                g["fecha_inicio"],
+                g["fecha_cierre"],
+                g["dias_congelados"],
+                g["n_cartas"],
+            ))
+
+        for i in range(0, len(hilo_insert_tuples), 500):
+            batch = hilo_insert_tuples[i:i+500]
+            cur.executemany(
                 """
                 INSERT INTO hilos (clave, titulo, especialidad_norm, estado, fecha_inicio, fecha_cierre, dias_congelados, n_cartas)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                (
-                    g["clave"][:255],
-                    g["titulo"][:255],
-                    g["especialidad_norm"],
-                    g["estado"],
-                    g["fecha_inicio"],
-                    g["fecha_cierre"],
-                    g["dias_congelados"],
-                    g["n_cartas"],
-                )
+                batch,
             )
-            hid = cur.lastrowid
-            g["hilo_id"] = hid
-            for c in items:
-                update_cartas.append((hid, c["id"]))
 
-        if update_cartas:
-            cur.executemany("UPDATE cartas SET hilo_id=%s WHERE id=%s", update_cartas)
+        cur.execute("SELECT id, clave FROM hilos")
+        clave_to_hid = {r["clave"]: r["id"] for r in cur.fetchall()}
+
+        update_cartas = []
+        for g, items in summarized:
+            hid = clave_to_hid.get(g["clave"])
+            if hid:
+                g["hilo_id"] = hid
+                for c in items:
+                    update_cartas.append((hid, c["id"]))
+
+        for i in range(0, len(update_cartas), 300):
+            chunk = update_cartas[i:i+300]
+            cids = [str(cid) for hid, cid in chunk]
+            cases = " ".join(f"WHEN {cid} THEN {hid}" for hid, cid in chunk)
+            cur.execute(f"UPDATE cartas SET hilo_id = CASE id {cases} END WHERE id IN ({','.join(cids)})")
 
         cur.execute("SET FOREIGN_KEY_CHECKS=1")
     conn.commit()
