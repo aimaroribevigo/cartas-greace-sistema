@@ -309,15 +309,19 @@ def main():
     )
     args = parser.parse_args()
 
-    conn = pymysql.connect(
-        host=os.environ.get("MYSQL_HOST", "127.0.0.1"),
-        port=int(os.environ.get("MYSQL_PORT", "3307")),
-        user=os.environ.get("MYSQL_USER", "greace"),
-        password=os.environ.get("MYSQL_PASSWORD", "greace_pass_change_me"),
-        database=os.environ.get("MYSQL_DATABASE", "sistemagreace"),
-        charset="utf8mb4",
-        cursorclass=DictCursor,
-    )
+    mysql_ssl = os.environ.get("MYSQL_SSL", "0") in ("1", "true", "True", "yes", "REQUIRED")
+    kwargs = {
+        "host": os.environ.get("MYSQL_HOST", "127.0.0.1"),
+        "port": int(os.environ.get("MYSQL_PORT", "3307")),
+        "user": os.environ.get("MYSQL_USER", "greace"),
+        "password": os.environ.get("MYSQL_PASSWORD", "greace_pass_change_me"),
+        "database": os.environ.get("MYSQL_DATABASE", "sistemagreace"),
+        "charset": "utf8mb4",
+        "cursorclass": DictCursor,
+    }
+    if mysql_ssl:
+        kwargs["ssl"] = {"check_hostname": False}
+    conn = pymysql.connect(**kwargs)
     try:
         result = backfill_cartas(
             conn,

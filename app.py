@@ -70,9 +70,10 @@ MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE", "sistemagreace")
 MYSQL_USER = os.environ.get("MYSQL_USER", "greace")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "greace_pass_change_me")
 MYSQL_WAIT_SECONDS = int(os.environ.get("MYSQL_WAIT_SECONDS", "60"))
+MYSQL_SSL = os.environ.get("MYSQL_SSL", "0") in ("1", "true", "True", "yes", "REQUIRED")
 
 APP_HOST = os.environ.get("APP_HOST", "0.0.0.0")
-APP_PORT = int(os.environ.get("APP_PORT", "5000"))
+APP_PORT = int(os.environ.get("PORT") or os.environ.get("APP_PORT", "5000"))
 FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "0") in ("1", "true", "True", "yes")
 NOTIFY_SECRET = (os.environ.get("NOTIFY_SECRET") or "").strip()
 AUTO_IMPORT_EXCEL = os.environ.get("AUTO_IMPORT_EXCEL", "1") in ("1", "true", "True", "yes")
@@ -203,16 +204,19 @@ def scoped_cartas(db=None):
 
 
 def connect_mysql():
-    return pymysql.connect(
-        host=MYSQL_HOST,
-        port=MYSQL_PORT,
-        user=MYSQL_USER,
-        password=MYSQL_PASSWORD,
-        database=MYSQL_DATABASE,
-        charset="utf8mb4",
-        cursorclass=DictCursor,
-        autocommit=False,
-    )
+    kwargs = {
+        "host": MYSQL_HOST,
+        "port": MYSQL_PORT,
+        "user": MYSQL_USER,
+        "password": MYSQL_PASSWORD,
+        "database": MYSQL_DATABASE,
+        "charset": "utf8mb4",
+        "cursorclass": DictCursor,
+        "autocommit": False,
+    }
+    if MYSQL_SSL:
+        kwargs["ssl"] = {"check_hostname": False}
+    return pymysql.connect(**kwargs)
 
 
 def wait_for_mysql():
@@ -1769,14 +1773,35 @@ def _auto_import_background():
         print(f"[import] error: {exc}", flush=True)
 
 
+_APP_STARTED = False
+_APP_START_LOCK = threading.Lock()
+
+
+def ensure_startup_tasks():
+    global _APP_STARTED
+    if _APP_STARTED:
+        return
+    with _APP_START_LOCK:
+        if _APP_STARTED:
+            return
+        _APP_STARTED = True
+        try:
+            wait_for_mysql()
+            init_db()
+            if AUTO_IMPORT_EXCEL:
+                threading.Thread(
+                    target=_auto_import_background,
+                    name="excel-import",
+                    daemon=True,
+                ).start()
+            start_whatsapp_scheduler()
+        except Exception as exc:
+            print(f"[startup] Error inicializando base de datos / tareas: {exc}", flush=True)
+
+
+ensure_startup_tasks()
+
+
 if __name__ == "__main__":
-    wait_for_mysql()
-    init_db()
-    if AUTO_IMPORT_EXCEL:
-        threading.Thread(
-            target=_auto_import_background,
-            name="excel-import",
-            daemon=True,
-        ).start()
-    start_whatsapp_scheduler()
     app.run(host=APP_HOST, port=APP_PORT, debug=FLASK_DEBUG)
+
