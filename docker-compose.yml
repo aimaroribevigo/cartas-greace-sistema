@@ -86,6 +86,7 @@ services:
       - ./export_excel.py:/app/export_excel.py:ro
       - ./backfill_cartas.py:/app/backfill_cartas.py:ro
       - ./generador_word.py:/app/generador_word.py:ro
+      - ./whatsapp_notify.py:/app/whatsapp_notify.py:ro
       - ./cggc_banner.png:/app/cggc_banner.png:ro
     ports:
       - "${WEB_HOST_PORT:-5080}:5000"

@@ -356,6 +356,20 @@ body.view-configuracion .filter-bar{display:none}
 .cartas-search-wrap input{flex:1;border:none;background:transparent;font-family:var(--font-body);font-size:13px;color:var(--text-primary);min-width:0;padding:0}
 .cartas-search-wrap input:focus{outline:none}
 .cartas-search-wrap input::placeholder{color:var(--text-muted);font-size:13px}
+/* Ocultar la X nativa por defecto del navegador para evitar doble X con nuestro botón personalizado */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+input[type="search"]::-ms-clear,
+input[type="search"]::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
 .cartas-search-clear{display:none;align-items:center;justify-content:center;border:none;background:transparent;color:var(--text-muted);cursor:pointer;padding:0;width:20px;height:20px;border-radius:4px;font-size:14px;line-height:1;flex-shrink:0}
 .cartas-search-clear.visible{display:inline-flex}
 .cartas-search-clear:hover{color:var(--rose);background:var(--rose-light)}
@@ -2977,55 +2991,79 @@ function flujoBadge(c){
   </span>`;
 }
 
-function prepareCartasSearchCache(cartas){
-  cartas.forEach(c=>{
-    const cl=classif(c);
-    const blob=[
-      c.n_documento||'',
-      getCartaReferencia(c)||'',
-      c.referencia||'',
-      c.asunto||'',
-      c.referencias||'',
-      c.especialidad||'',
-      c.especialidad_norm||'',
-      ...(getCartaEspecialidades(c)),
-      c.area||'',
-      c.dirigido_a||'',
-      c.receptor||'',
-      c.cargo||'',
-      c.estado_norm||'',
-      c.estado||'',
-      cl.emisor_code||'',
-      cl.dest_code||'',
-      cl.flujo_code||'',
-      cl.flujo_label||'',
-      bandejaLabel(c.bandeja)
-    ].join(' ').toLowerCase();
+function normalizeSearchText(str){
+  return String(str||'')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/n[°º.]/g, '')
+    .replace(/[\/\-_.,;:()]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-    c._searchBlob=blob;
-    c._searchNorm=blob.replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ');
-  });
+function buildCartaSearchIndex(c){
+  const cl=classif(c);
+  const rawFields = [
+    c.n_documento||'',
+    getCartaReferencia(c)||'',
+    c.referencia||'',
+    c.asunto||'',
+    c.referencias||'',
+    c.especialidad||'',
+    c.especialidad_norm||'',
+    ...(getCartaEspecialidades(c)),
+    c.area||'',
+    c.dirigido_a||'',
+    c.receptor||'',
+    c.cargo||'',
+    c.remitente||'',
+    c.estado_norm||'',
+    c.estado||'',
+    c.observacion||'',
+    c.observaciones||'',
+    c.fecha||'',
+    fmtDate(c.fecha)||'',
+    c.fecha_recepcion||'',
+    fmtDate(c.fecha_recepcion)||'',
+    cl.emisor_code||'',
+    cl.dest_code||'',
+    cl.flujo_code||'',
+    cl.flujo_label||'',
+    bandejaLabel(c.bandeja)
+  ];
+  const blob = rawFields.join(' ').toLowerCase();
+  c._searchBlob = blob;
+  c._searchNorm = normalizeSearchText(blob);
+}
+
+function prepareCartasSearchCache(cartas){
+  if(!Array.isArray(cartas))return;
+  for(let i=0;i<cartas.length;i++){
+    buildCartaSearchIndex(cartas[i]);
+  }
 }
 
 function cartaMatchesSearch(c,q){
   if(!q)return true;
-  if(!c._searchBlob){
-    const cl=classif(c);
-    c._searchBlob=[c.n_documento||'',getCartaReferencia(c)||'',c.referencia||'',c.asunto||'',c.referencias||'',c.especialidad||'',c.especialidad_norm||'',...getCartaEspecialidades(c),c.area||'',c.dirigido_a||'',c.receptor||'',c.cargo||'',c.estado_norm||'',c.estado||'',cl.emisor_code||'',cl.dest_code||'',cl.flujo_code||'',cl.flujo_label||'',bandejaLabel(c.bandeja)].join(' ').toLowerCase();
-    c._searchNorm=c._searchBlob.replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ');
+  if(!c._searchNorm){
+    buildCartaSearchIndex(c);
   }
 
-  // Comprobación rápida directa en O(1)
-  if(c._searchBlob.includes(q))return true;
+  // 1. Fast match exacto
+  if(c._searchBlob && c._searchBlob.includes(q))return true;
 
-  const normQuery=q.replace(/n[°º.]/g,'').replace(/[\/\-_]/g,' ').replace(/\s+/g,' ');
-  if(c._searchNorm.includes(normQuery))return true;
+  // 2. Normalización de tildes y caracteres
+  const normQ = normalizeSearchText(q);
+  if(!normQ)return true;
+  if(c._searchNorm.includes(normQ))return true;
 
-  const qWords=normQuery.split(' ').filter(Boolean);
-  if(qWords.length<=1)return false;
+  // 3. Multi-palabra (AND): todas las palabras deben coincidir
+  const words = normQ.split(' ').filter(Boolean);
+  if(words.length<=1)return false;
 
-  for(let i=0;i<qWords.length;i++){
-    const w=qWords[i];
+  for(let i=0;i<words.length;i++){
+    const w=words[i];
     if(/^\d+$/.test(w)){
       const num=parseInt(w,10);
       const reg=new RegExp(`\\b0*${num}\\b`);
@@ -3431,6 +3469,8 @@ function renderTableSkeleton(count=8){
 
 function updateTable(){
   showCartasLoading(false);
+  const countEl=document.getElementById('tableCountInline');
+  if(countEl)countEl.textContent=filtered.length;
   const tbody=document.getElementById('tableBody');
   tbody.innerHTML='';
   const start=(currentPage-1)*PAGE_SIZE;

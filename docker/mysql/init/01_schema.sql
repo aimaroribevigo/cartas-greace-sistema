@@ -74,6 +74,7 @@ CREATE TABLE `configuracion_sistema` (
   `plazo_muni_dias` int NOT NULL DEFAULT '15',
   `plazo_jrd_dias` int NOT NULL DEFAULT '15',
   `plazo_ro_dias` int NOT NULL DEFAULT '5',
+  `logo_membrete_word` mediumtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

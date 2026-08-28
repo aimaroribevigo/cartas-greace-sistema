@@ -777,30 +777,53 @@ def api_get_config():
 @require_perm("can_manage_users")
 def api_update_config():
     body = request.get_json(silent=True) or {}
-    nombre_raw = body.get("nombre_sistema")
-    if not nombre_raw or not str(nombre_raw).strip():
-        return jsonify({"error": "El nombre del sistema es obligatorio"}), 400
-    nombre = str(nombre_raw).strip()
-    if len(nombre) > 100:
-        return jsonify({"error": "El nombre del sistema no puede superar los 100 caracteres"}), 400
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        existing_cfg = cur.fetchone() or {}
 
-    subtitulo_raw = body.get("subtitulo_proyecto")
-    if not subtitulo_raw or not str(subtitulo_raw).strip():
-        return jsonify({"error": "El subtítulo del proyecto es obligatorio"}), 400
-    subtitulo = str(subtitulo_raw).strip()
-    if len(subtitulo) > 180:
-        return jsonify({"error": "El subtítulo del proyecto no puede superar los 180 caracteres"}), 400
+    if "nombre_sistema" in body:
+        nombre_raw = body.get("nombre_sistema")
+        if not nombre_raw or not str(nombre_raw).strip():
+            return jsonify({"error": "El nombre del sistema es obligatorio"}), 400
+        nombre = str(nombre_raw).strip()
+        if len(nombre) > 100:
+            return jsonify({"error": "El nombre del sistema no puede superar los 100 caracteres"}), 400
+    else:
+        nombre = existing_cfg.get("nombre_sistema") or "SistemaGreace"
 
-    logo_url = body.get("logo_url")
-    favicon_url = body.get("favicon_url")
-    
-    # Validaciones estrictas de tamaño de payload de imágenes
+    if "subtitulo_proyecto" in body:
+        subtitulo_raw = body.get("subtitulo_proyecto")
+        if not subtitulo_raw or not str(subtitulo_raw).strip():
+            return jsonify({"error": "El subtítulo del proyecto es obligatorio"}), 400
+        subtitulo = str(subtitulo_raw).strip()
+        if len(subtitulo) > 180:
+            return jsonify({"error": "El subtítulo del proyecto no puede superar los 180 caracteres"}), 400
+    else:
+        subtitulo = existing_cfg.get("subtitulo_proyecto") or "Hospital Leoncio Prado (PRONIS/MINSA)"
+
+    # Preservar imágenes existentes si no fueron enviadas en el payload (actualizaciones parciales / scripts)
+    if "logo_url" in body:
+        logo_url = body.get("logo_url") or None
+    else:
+        logo_url = existing_cfg.get("logo_url")
+
+    if "favicon_url" in body:
+        favicon_url = body.get("favicon_url") or None
+    else:
+        favicon_url = existing_cfg.get("favicon_url")
+
+    if "logo_membrete_word" in body:
+        logo_membrete_word = body.get("logo_membrete_word") or None
+    else:
+        logo_membrete_word = existing_cfg.get("logo_membrete_word")
+
+    # Validaciones estrictas de tamaño de payload de imágenes si vienen nuevas
     if logo_url and len(str(logo_url)) > 2500000:
         return jsonify({"error": "El logo excede el tamaño máximo permitido (1.5 MB)"}), 400
     if favicon_url and len(str(favicon_url)) > 600000:
         return jsonify({"error": "El favicon excede el tamaño máximo permitido (256 KB)"}), 400
 
-    logo_membrete_word = body.get("logo_membrete_word")
     if logo_membrete_word:
         str_banner = str(logo_membrete_word).strip()
         if len(str_banner) > 4000000:
@@ -810,11 +833,11 @@ def api_update_config():
                 return jsonify({"error": "Formato de imagen de membrete no permitido. Solo se admiten archivos PNG, JPG o WEBP."}), 400
 
     try:
-        plazo_sup_dias = int(body.get("plazo_sup_dias", 5))
-        plazo_entidad_dias = int(body.get("plazo_entidad_dias", 15))
-        plazo_muni_dias = int(body.get("plazo_muni_dias", 15))
-        plazo_jrd_dias = int(body.get("plazo_jrd_dias", 15))
-        plazo_ro_dias = int(body.get("plazo_ro_dias", 5))
+        plazo_sup_dias = int(body.get("plazo_sup_dias", existing_cfg.get("plazo_sup_dias", 5)))
+        plazo_entidad_dias = int(body.get("plazo_entidad_dias", existing_cfg.get("plazo_entidad_dias", 15)))
+        plazo_muni_dias = int(body.get("plazo_muni_dias", existing_cfg.get("plazo_muni_dias", 15)))
+        plazo_jrd_dias = int(body.get("plazo_jrd_dias", existing_cfg.get("plazo_jrd_dias", 15)))
+        plazo_ro_dias = int(body.get("plazo_ro_dias", existing_cfg.get("plazo_ro_dias", 5)))
         for name, val in (
             ("Supervisión", plazo_sup_dias),
             ("Entidad (PRONIS)", plazo_entidad_dias),
@@ -824,6 +847,11 @@ def api_update_config():
         ):
             if val < 1 or val > 99999:
                 return jsonify({"error": f"Plazo de {name}: ingrese un entero entre 1 y 99.999 días"}), 400
+        body["plazo_sup_dias"] = plazo_sup_dias
+        body["plazo_entidad_dias"] = plazo_entidad_dias
+        body["plazo_muni_dias"] = plazo_muni_dias
+        body["plazo_jrd_dias"] = plazo_jrd_dias
+        body["plazo_ro_dias"] = plazo_ro_dias
         body = _sync_config_plazos(body)
         dias_vencida = int(body["dias_vencida"])
         dias_por_vencer = int(body["dias_por_vencer"])
@@ -840,10 +868,6 @@ def api_update_config():
             return jsonify({"error": "Los días de alerta preventiva (por vencer) deben ser menores a los días de carta vencida"}), 400
     except (ValueError, TypeError):
         return jsonify({"error": "Parámetros de días inválidos. Ingresa números válidos."}), 400
-
-    logo_membrete_word = body.get("logo_membrete_word") or None
-
-    db = get_db()
     try:
         with db.cursor() as cur:
             cur.execute(
@@ -1710,6 +1734,11 @@ def start_whatsapp_scheduler():
 @app.route("/")
 def index():
     return send_from_directory(BASE, "dashboard.html")
+
+
+@app.route("/cggc_banner.png")
+def banner():
+    return send_from_directory(BASE, "cggc_banner.png")
 
 
 @app.route("/health")

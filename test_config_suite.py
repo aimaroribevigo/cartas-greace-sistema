@@ -4,6 +4,11 @@ import json
 import os
 import sys
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 from app import app, get_db, _apply_plazos_from_config
 from plazos_respuesta import build_plazo_reglas, regla_plazo_contraparte, fecha_limite_respuesta
 from plazos import deadline_status, plazos_config
@@ -53,6 +58,9 @@ with app.app_context():
     put_res = client.put("/api/config", json=new_cfg)
     assert put_res.status_code == 200, f"PUT /api/config falló: {put_res.data}"
     saved = put_res.get_json().get("config", {})
+    assert saved.get("logo_url") == cfg_data.get("logo_url"), "No debió borrar logo_url existente"
+    assert saved.get("favicon_url") == cfg_data.get("favicon_url"), "No debió borrar favicon_url existente"
+    assert saved.get("logo_membrete_word") == cfg_data.get("logo_membrete_word"), "No debió borrar membrete Word"
     assert saved.get("plazo_sup_dias") == 7, "Plazo sup no actualizado"
     assert saved.get("plazo_entidad_dias") == 20, "Plazo entidad no actualizado"
     assert saved.get("plazo_ro_dias") == 6, "Plazo ro no actualizado"

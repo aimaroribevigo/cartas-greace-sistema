@@ -6,6 +6,11 @@ import sys
 import tempfile
 import openpyxl
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 from app import app, get_db, import_excel_to_db, refresh_normalized_fields, _rebuild_hilos
 from backfill_cartas import backfill_cartas
 from export_excel import export_full_backup_excel
