@@ -5071,8 +5071,11 @@ async function handleSaveResponder(){
   }
 
   const btn = document.getElementById('rf_btnSave');
-  btn.disabled = true;
-  btn.textContent = 'Grabando…';
+  const cancelBtn = document.getElementById('rf_btnCancel');
+  const docxBtn = document.getElementById('rf_btnGenerarDocx');
+  if (btn) { btn.disabled = true; btn.textContent = 'Grabando…'; }
+  if (cancelBtn) { cancelBtn.disabled = true; cancelBtn.style.opacity = '0.5'; cancelBtn.style.pointerEvents = 'none'; }
+  if (docxBtn) { docxBtn.disabled = true; }
   try {
     await saveCarta(payload);
     closeResponderModal();
@@ -5081,8 +5084,12 @@ async function handleSaveResponder(){
   } catch (e) {
     showToast(e.message, 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ri-save-line"></i> Grabar Carta';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ri-save-line"></i> Grabar Carta';
+    }
+    if (cancelBtn) { cancelBtn.disabled = false; cancelBtn.style.opacity = ''; cancelBtn.style.pointerEvents = ''; }
+    if (docxBtn) { docxBtn.disabled = false; }
   }
 }
 
@@ -5626,8 +5633,11 @@ async function handleSave(){
   if (wasEdit) data.id = editingId;
 
   const btn = document.getElementById('btnSaveForm');
-  btn.disabled = true;
-  btn.textContent = 'Guardando…';
+  const cancelBtn = document.getElementById('btnCancelForm');
+  const docxBtn = document.getElementById('btnGenerarDocxFromEdit');
+  if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+  if (cancelBtn) { cancelBtn.disabled = true; cancelBtn.style.opacity = '0.5'; cancelBtn.style.pointerEvents = 'none'; }
+  if (docxBtn) { docxBtn.disabled = true; }
   try {
     const saved = await saveCarta(data);
     if (!wasEdit) clearDraft();
@@ -5639,8 +5649,12 @@ async function handleSave(){
     showToast(e.message, 'error');
   }
   finally {
-    btn.disabled = false;
-    btn.innerHTML = wasEdit ? '<i class="ri-save-line"></i> Actualizar Carta' : '<i class="ri-save-line"></i> Guardar Carta';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = wasEdit ? '<i class="ri-save-line"></i> Actualizar Carta' : '<i class="ri-save-line"></i> Guardar Carta';
+    }
+    if (cancelBtn) { cancelBtn.disabled = false; cancelBtn.style.opacity = ''; cancelBtn.style.pointerEvents = ''; }
+    if (docxBtn) { docxBtn.disabled = false; }
   }
 }
 
