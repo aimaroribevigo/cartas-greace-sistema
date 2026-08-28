@@ -29,6 +29,10 @@ from clasificacion import (
     public_pendientes,
 )
 from whatsapp_notify import send_whatsapp, whatsapp_config
+try:
+    from generador_word import generar_carta_docx
+except ImportError:
+    generar_carta_docx = None
 from hilos import (
     HILO_OPERATIVO_MAX_DIAS,
     assign_carta_hilo,
@@ -1080,6 +1084,80 @@ def api_cartas_get(cid):
     if not filter_cartas_for_user([c], current_user()):
         return jsonify({"error": "Sin acceso a esta carta"}), 403
     return jsonify(c)
+
+
+@app.route("/api/cartas/generar-borrador-docx", methods=["POST"])
+@require_auth
+def api_cartas_generar_docx():
+    if generar_carta_docx is None:
+        return jsonify({"error": "El generador de Word no está disponible en este entorno"}), 500
+
+    import re
+    d = request.get_json(silent=True) or {}
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        cfg_row = cur.fetchone() or {}
+
+    config_dict = {
+        "empresa_nombre": "CHINA GEZHOUBA GROUP COMPANY LIMITED - SUCURSAL PERÚ",
+        "project_title": cfg_row.get("project_title") or "Hospital Leoncio Prado de Huamachuco",
+        "brand_name": cfg_row.get("brand_name") or "SistemaGreace",
+        "anio_oficial": "Año del Bicentenario, de la consolidación de nuestra Independencia"
+    }
+
+    cid = d.get("carta_id") or d.get("padre_id")
+    if cid:
+        with db.cursor() as cur:
+            cur.execute("SELECT * FROM cartas WHERE id=%s", (int(cid),))
+            p_row = cur.fetchone()
+            if p_row:
+                p_carta = row_to_dict(p_row)
+                if not d.get("referencia"):
+                    d["referencia"] = p_carta.get("n_documento")
+                if not d.get("especialidad"):
+                    d["especialidad"] = p_carta.get("especialidad") or p_carta.get("especialidad_norm")
+                if not d.get("asunto"):
+                    d["asunto"] = f"Respuesta técnica a {p_carta.get('n_documento', '')} - {p_carta.get('asunto', '')}"
+
+    emisor = str(d.get("emisor") or d.get("receptor") or "RO").upper()
+    sigla = "RL" if ("RL" in emisor or "LEGAL" in emisor) else "RO"
+    anio_actual = date.today().year
+
+    if not d.get("n_documento") or "[" in str(d.get("n_documento")):
+        with db.cursor() as cur:
+            bandeja = "rl" if sigla == "RL" else "residente"
+            cur.execute(
+                "SELECT n_documento FROM cartas WHERE bandeja=%s AND (fecha >= %s OR fecha IS NULL) ORDER BY id DESC LIMIT 50",
+                (bandeja, f"{anio_actual}-01-01")
+            )
+            rows_corr = cur.fetchall()
+            max_num = 0
+            for rc in rows_corr:
+                doc_str = str(rc.get("n_documento") or "")
+                m = re.search(r"N[°º.]?\s*(\d+)", doc_str, re.I)
+                if m:
+                    try:
+                        max_num = max(max_num, int(m.group(1)))
+                    except ValueError:
+                        pass
+            next_num = max_num + 1 if max_num > 0 else 1
+            if sigla == "RL":
+                d["n_documento"] = f"CARTA N° {next_num:03d}-{anio_actual}-RL-CGGCNEGOCIOS"
+            else:
+                d["n_documento"] = f"CARTA N° {next_num:03d}-{anio_actual}-CGGC-HLP-RO"
+
+    buffer = generar_carta_docx(d, config_dict)
+    clean_doc = re.sub(r"[^\w\-.]", "_", str(d.get("n_documento", "Carta")).strip())
+    filename = f"Borrador_{clean_doc}.docx"
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
 
 @app.route("/api/cartas", methods=["POST"])

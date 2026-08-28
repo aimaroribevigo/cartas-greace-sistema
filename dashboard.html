@@ -336,6 +336,12 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 .cartas-toolbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .btn-new-carta{font-size:12.5px;font-weight:600;padding:8px 16px;border:none;border-radius:7px;background:linear-gradient(135deg,var(--accent),#D86B50);color:#fff;box-shadow:0 2px 8px rgba(196,91,62,.28);transition:all .15s}
 .btn-new-carta:hover{background:linear-gradient(135deg,#B34C31,#C45B3E);transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,91,62,.35)}
+.btn-docx{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#185A9D;color:#ffffff;border:none;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(24,90,157,0.25)}
+.btn-docx:hover{background:#134577;transform:translateY(-1px);box-shadow:0 4px 12px rgba(24,90,157,0.35);color:#ffffff}
+.btn-docx:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.btn-docx i{font-size:15px}
+.btn-docx-outline{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#F0F5FA;color:#185A9D;border:1px solid #B8D3EE;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-docx-outline:hover{background:#185A9D;color:#fff;border-color:#185A9D}
 body.view-pendientes .filter-bar,
 body.view-saldos .filter-bar,
 body.view-usuarios .filter-bar,
@@ -1560,9 +1566,12 @@ body.app-locked .app-layout{visibility:hidden}
         </div>
       </form>
     </div>
-    <div class="modal-footer" style="padding:14px 24px">
-      <button type="button" class="btn-cancel" id="btnCancelForm">Cancelar</button>
-      <button type="button" class="btn-save" id="btnSaveForm"><i class="ri-save-line"></i> Guardar Carta</button>
+    <div class="modal-footer" style="padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <button type="button" class="btn-docx-outline" id="btnGenerarDocxFromEdit" title="Genera y descarga un borrador de carta en formato Word (.docx)"><i class="ri-file-word-2-line"></i> Borrador Word (.docx)</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="btn-cancel" id="btnCancelForm">Cancelar</button>
+        <button type="button" class="btn-save" id="btnSaveForm"><i class="ri-save-line"></i> Guardar Carta</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1693,9 +1702,12 @@ body.app-locked .app-layout{visibility:hidden}
         </div>
       </form>
     </div>
-    <div class="modal-footer" style="padding:14px 24px">
-      <button type="button" class="btn-cancel" id="rf_btnCancel">Cancelar</button>
-      <button type="button" class="btn-save" id="rf_btnSave"><i class="ri-save-line"></i> Grabar Carta</button>
+    <div class="modal-footer" style="padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <button type="button" class="btn-docx" id="rf_btnGenerarDocx" title="Genera y descarga un borrador oficial de carta en formato Word (.docx)"><i class="ri-file-word-2-line"></i> Descargar Borrador Word (.docx)</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="btn-cancel" id="rf_btnCancel">Cancelar</button>
+        <button type="button" class="btn-save" id="rf_btnSave"><i class="ri-save-line"></i> Grabar Carta</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4837,10 +4849,12 @@ function setupResponderCartaPadreSearch(){
   const removeBtn = document.getElementById('rf_btnRemoveCartaPadre');
   const cancelBtn = document.getElementById('rf_btnCancel');
   const saveBtn = document.getElementById('rf_btnSave');
+  const docxBtn = document.getElementById('rf_btnGenerarDocx');
 
   cancelBtn?.addEventListener('click', closeResponderModal);
   saveBtn?.addEventListener('click', handleSaveResponder);
   removeBtn?.addEventListener('click', clearResponderCartaPadre);
+  docxBtn?.addEventListener('click', handleDownloadDocxFromResponder);
 
   document.querySelectorAll('input[name="rf_tramite_mode"]').forEach(r => {
     r.addEventListener('change', updateResponderTramitePills);
@@ -4995,6 +5009,113 @@ async function handleSaveResponder(){
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="ri-save-line"></i> Grabar Carta';
+  }
+}
+
+async function handleDownloadDocxFromResponder(){
+  const doc = document.getElementById('rf_n_documento')?.value?.trim() || '';
+  const fecha = document.getElementById('rf_fecha')?.value || '';
+  const flujo = document.getElementById('rf_flujo')?.value || 'SUP_TO_RO';
+  const esp = document.getElementById('rf_especialidad')?.value?.trim() || '';
+  const asunto = document.getElementById('rf_asunto')?.value?.trim() || '';
+  const observacion = document.getElementById('rf_observacion')?.value?.trim() || '';
+  const padreDoc = document.getElementById('rf_padre_doc')?.value?.trim() || '';
+  const padreId = document.getElementById('rf_padre_id')?.value?.trim() || '';
+
+  let emisor = 'RO', dirigido_a = 'Supervisión';
+  if(flujo === 'SUP_TO_RO'){ emisor = 'RO'; dirigido_a = 'Supervisión'; }
+  else if(flujo === 'PRONIS_TO_RL'){ emisor = 'RL'; dirigido_a = 'Pronis'; }
+  else if(flujo === 'SUP_TO_RL'){ emisor = 'RL'; dirigido_a = 'Supervisión'; }
+  else if(flujo === 'PRONIS_TO_RO'){ emisor = 'RO'; dirigido_a = 'Pronis'; }
+  else if(flujo === 'MUNI_TO_RO'){ emisor = 'RO'; dirigido_a = 'Municipalidad'; }
+  else if(flujo === 'JRD_TO_RL'){ emisor = 'RL'; dirigido_a = 'JRD'; }
+  else if(flujo === 'RO_TO_SUP'){ emisor = 'RO'; dirigido_a = 'Supervisión'; }
+  else if(flujo === 'RL_TO_PRONIS'){ emisor = 'RL'; dirigido_a = 'Pronis'; }
+
+  const payload = {
+    n_documento: doc || null,
+    fecha: fecha || null,
+    emisor: emisor,
+    dirigido_a: dirigido_a,
+    especialidad: esp,
+    asunto: asunto,
+    observacion: observacion,
+    referencia: padreDoc || null,
+    padre_id: padreId ? parseInt(padreId, 10) : null
+  };
+
+  const btnEl = document.getElementById('rf_btnGenerarDocx');
+  await descargarBorradorDocx(payload, btnEl);
+}
+
+async function handleDownloadDocxFromEdit(){
+  const id = editingId;
+  const doc = document.getElementById('f_n_documento')?.value?.trim() || '';
+  const fecha = document.getElementById('f_fecha')?.value || '';
+  const emisor = document.getElementById('f_emisor')?.value || 'RO';
+  const dest = document.getElementById('f_destinatario')?.value || '';
+  const esp = document.getElementById('f_especialidad')?.value?.trim() || '';
+  const asunto = document.getElementById('f_asunto')?.value?.trim() || '';
+  const observacion = document.getElementById('f_observacion')?.value?.trim() || '';
+  const ref = document.getElementById('f_referencia')?.value?.trim() || '';
+
+  const payload = {
+    carta_id: id || null,
+    n_documento: doc || null,
+    fecha: fecha || null,
+    emisor: emisor,
+    dirigido_a: dest,
+    especialidad: esp,
+    asunto: asunto,
+    observacion: observacion,
+    referencia: ref || null
+  };
+
+  const btnEl = document.getElementById('btnGenerarDocxFromEdit');
+  await descargarBorradorDocx(payload, btnEl);
+}
+
+async function descargarBorradorDocx(payload, btnEl){
+  const originalText = btnEl ? btnEl.innerHTML : '';
+  if(btnEl){
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block"></i> Generando Word…';
+  }
+  try{
+    const res = await fetch('/api/cartas/generar-borrador-docx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok){
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al generar el documento Word');
+    }
+    const blob = await res.blob();
+    const disposition = res.headers.get('Content-Disposition') || '';
+    let filename = 'Borrador_Carta_Respuesta.docx';
+    const match = disposition.match(/filename="?([^";]+)"?/i);
+    if(match && match[1]) filename = match[1];
+
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
+
+    showToast('Borrador oficial en Word (.docx) descargado con éxito', 'success');
+  }catch(e){
+    console.error('Error generando borrador Word:', e);
+    showToast(e.message || 'No se pudo generar el archivo Word', 'error');
+  }finally{
+    if(btnEl){
+      btnEl.disabled = false;
+      btnEl.innerHTML = originalText;
+    }
   }
 }
 
@@ -6328,6 +6449,7 @@ document.getElementById('confirmOverlay')?.addEventListener('click',e=>{
 document.getElementById('btnCSV').addEventListener('click',exportCSV);
 document.getElementById('btnDownloadBackupExcel')?.addEventListener('click',downloadBackupExcel);
 document.getElementById('btnReimportConfig')?.addEventListener('click',confirmReimport);
+document.getElementById('btnGenerarDocxFromEdit')?.addEventListener('click',handleDownloadDocxFromEdit);
 document.getElementById('filterFlujo')?.addEventListener('change',applyFilters);
 document.getElementById('filterEstado').addEventListener('change',applyFilters);
 document.getElementById('filterEsp').addEventListener('change',applyFilters);
