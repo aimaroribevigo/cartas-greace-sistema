@@ -11,6 +11,7 @@ from flask import g, jsonify, session
 from normalizers import split_especialidades, CATALOGO_ESPECIALIDADES, normalize_especialidad
 from werkzeug.security import check_password_hash, generate_password_hash
 
+AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") in ("1", "true", "True", "yes")
 DEFAULT_PASSWORD = (os.environ.get("DEFAULT_USER_PASSWORD") or "greace2026").strip()
 FORCE_ROTATION = os.environ.get("FORCE_PASSWORD_ROTATION", "0") in ("1", "true", "True", "yes")
 INCLUDE_MIXTA_FOR_ING = os.environ.get("AUTH_INCLUDE_MIXTA", "1") in (
