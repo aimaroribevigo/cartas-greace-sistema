@@ -1742,6 +1742,8 @@ def start_whatsapp_scheduler():
 
 
 @app.route("/")
+@app.route("/login")
+@app.route("/dashboard.html")
 def index():
     return send_from_directory(BASE, "dashboard.html")
 
