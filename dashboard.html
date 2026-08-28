@@ -342,6 +342,8 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 .btn-docx i{font-size:15px}
 .btn-docx-outline{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#F0F5FA;color:#185A9D;border:1px solid #B8D3EE;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
 .btn-docx-outline:hover{background:#185A9D;color:#fff;border-color:#185A9D}
+.btn-docx-outline:disabled{opacity:0.5;cursor:not-allowed;pointer-events:none;transform:none}
+.btn-cancel:disabled{opacity:0.5;cursor:not-allowed;pointer-events:none;transform:none}
 body.view-pendientes .filter-bar,
 body.view-saldos .filter-bar,
 body.view-usuarios .filter-bar,
@@ -5637,7 +5639,7 @@ async function handleSave(){
   const docxBtn = document.getElementById('btnGenerarDocxFromEdit');
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
   if (cancelBtn) { cancelBtn.disabled = true; cancelBtn.style.opacity = '0.5'; cancelBtn.style.pointerEvents = 'none'; }
-  if (docxBtn) { docxBtn.disabled = true; }
+  if (docxBtn) { docxBtn.disabled = true; docxBtn.style.opacity = '0.5'; docxBtn.style.pointerEvents = 'none'; }
   try {
     const saved = await saveCarta(data);
     if (!wasEdit) clearDraft();
@@ -5654,7 +5656,7 @@ async function handleSave(){
       btn.innerHTML = wasEdit ? '<i class="ri-save-line"></i> Actualizar Carta' : '<i class="ri-save-line"></i> Guardar Carta';
     }
     if (cancelBtn) { cancelBtn.disabled = false; cancelBtn.style.opacity = ''; cancelBtn.style.pointerEvents = ''; }
-    if (docxBtn) { docxBtn.disabled = false; }
+    if (docxBtn) { docxBtn.disabled = false; docxBtn.style.opacity = ''; docxBtn.style.pointerEvents = ''; }
   }
 }
 
