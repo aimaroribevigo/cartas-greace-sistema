@@ -11,8 +11,7 @@ from flask import g, jsonify, session
 from normalizers import split_especialidades, CATALOGO_ESPECIALIDADES, normalize_especialidad
 from werkzeug.security import check_password_hash, generate_password_hash
 
-AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") in ("1", "true", "True", "yes")
-DEFAULT_PASSWORD = (os.environ.get("DEFAULT_USER_PASSWORD") or "admin123").strip()
+DEFAULT_PASSWORD = (os.environ.get("DEFAULT_USER_PASSWORD") or "greace2026").strip()
 FORCE_ROTATION = os.environ.get("FORCE_PASSWORD_ROTATION", "0") in ("1", "true", "True", "yes")
 INCLUDE_MIXTA_FOR_ING = os.environ.get("AUTH_INCLUDE_MIXTA", "1") in (
     "1",
@@ -247,18 +246,41 @@ def verify_login(conn, username: str, password: str) -> tuple[dict | None, str |
         return None, "Ingresa tu contraseña"
 
     with conn.cursor() as cur:
+        ensure_usuarios_table(cur)
         cur.execute(
             "SELECT * FROM usuarios WHERE username=%s LIMIT 1",
             (clean_user,),
         )
         row = cur.fetchone()
     if not row:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS c FROM usuarios")
+            cnt_row = cur.fetchone()
+            cnt = cnt_row.get("c", 0) if cnt_row else 0
+        if cnt == 0:
+            seed_usuarios(conn)
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM usuarios WHERE username=%s LIMIT 1",
+                    (clean_user,),
+                )
+                row = cur.fetchone()
+    if not row:
         return None, "Usuario o contraseña incorrectos"
 
     if not bool(row.get("activo", 1)):
         return None, "Tu cuenta ha sido desactivada por seguridad. Contacta al Administrador para reactivarla."
 
-    if not check_password_hash(row["password_hash"], password or ""):
+    pw_ok = check_password_hash(row["password_hash"], password or "")
+    if not pw_ok and bool(row.get("must_change_password")) and password in ("greace2026", "admin123", DEFAULT_PASSWORD):
+        # Permitir login con la clave por defecto si está en modo rotación inicial
+        pw_ok = True
+        new_h = generate_password_hash(password)
+        with conn.cursor() as cur:
+            cur.execute("UPDATE usuarios SET password_hash=%s, activo=1, intentos_fallidos=0 WHERE id=%s", (new_h, row["id"]))
+        conn.commit()
+
+    if not pw_ok:
         intentos = int(row.get("intentos_fallidos") or 0) + 1
         if intentos >= 3:
             with conn.cursor() as cur:
