@@ -378,14 +378,31 @@ def init_db(conn=None):
                     subtitulo_proyecto VARCHAR(200) NOT NULL DEFAULT 'Hospital Leoncio Prado (PRONIS/MINSA)',
                     logo_url MEDIUMTEXT NULL,
                     favicon_url MEDIUMTEXT NULL,
+                    logo_membrete_word MEDIUMTEXT NULL,
                     dias_vencida INT NOT NULL DEFAULT 15,
                     dias_por_vencer INT NOT NULL DEFAULT 10,
                     dias_hilo INT NOT NULL DEFAULT 5,
+                    plazo_sup_dias INT NOT NULL DEFAULT 5,
+                    plazo_entidad_dias INT NOT NULL DEFAULT 15,
+                    plazo_muni_dias INT NOT NULL DEFAULT 15,
+                    plazo_jrd_dias INT NOT NULL DEFAULT 15,
+                    plazo_ro_dias INT NOT NULL DEFAULT 5,
                     actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
                         ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """
             )
+            for col, ddl in (
+                ("plazo_sup_dias", "ADD COLUMN plazo_sup_dias INT NOT NULL DEFAULT 5"),
+                ("plazo_entidad_dias", "ADD COLUMN plazo_entidad_dias INT NOT NULL DEFAULT 15"),
+                ("plazo_muni_dias", "ADD COLUMN plazo_muni_dias INT NOT NULL DEFAULT 15"),
+                ("plazo_jrd_dias", "ADD COLUMN plazo_jrd_dias INT NOT NULL DEFAULT 15"),
+                ("plazo_ro_dias", "ADD COLUMN plazo_ro_dias INT NOT NULL DEFAULT 5"),
+                ("logo_membrete_word", "ADD COLUMN logo_membrete_word MEDIUMTEXT NULL"),
+            ):
+                cur.execute(f"SHOW COLUMNS FROM configuracion_sistema LIKE '{col}'")
+                if not cur.fetchone():
+                    cur.execute(f"ALTER TABLE configuracion_sistema {ddl}")
             cur.execute("SELECT id FROM configuracion_sistema WHERE id=1")
             if not cur.fetchone():
                 cur.execute(
@@ -398,17 +415,6 @@ def init_db(conn=None):
                     VALUES (1, 'SistemaGreace', 'Hospital Leoncio Prado (PRONIS/MINSA)', 15, 10, 5, 5, 15, 15, 15, 5)
                     """
                 )
-            for col, ddl in (
-                ("plazo_sup_dias", "ADD COLUMN plazo_sup_dias INT NOT NULL DEFAULT 5"),
-                ("plazo_entidad_dias", "ADD COLUMN plazo_entidad_dias INT NOT NULL DEFAULT 15"),
-                ("plazo_muni_dias", "ADD COLUMN plazo_muni_dias INT NOT NULL DEFAULT 15"),
-                ("plazo_jrd_dias", "ADD COLUMN plazo_jrd_dias INT NOT NULL DEFAULT 15"),
-                ("plazo_ro_dias", "ADD COLUMN plazo_ro_dias INT NOT NULL DEFAULT 5"),
-                ("logo_membrete_word", "ADD COLUMN logo_membrete_word MEDIUMTEXT NULL"),
-            ):
-                cur.execute(f"SHOW COLUMNS FROM configuracion_sistema LIKE '{col}'")
-                if not cur.fetchone():
-                    cur.execute(f"ALTER TABLE configuracion_sistema {ddl}")
             ensure_usuarios_table(cur)
         conn.commit()
         seed_usuarios(conn)
