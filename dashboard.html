@@ -1256,13 +1256,13 @@ body.app-locked .app-layout{visibility:hidden}
 
         <!-- SECCIÓN 3: Plazos contractuales y SLA unificado -->
         <div class="user-sec" style="background:#FFFFFF;margin-bottom:0">
-          <div class="user-sec-title"><i class="ri-timer-line"></i> Plazos contractuales y semáforos (SLA unificado)</div>
-          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 14px;line-height:1.45">
-            Una sola fuente de verdad: los plazos por contraparte alimentan <strong>Pendientes</strong>, <strong>Hilos (FK)</strong> y los umbrales de semáforo.
-            Supervisión responde en días <strong>hábiles</strong>; Entidad/Municipalidad/JRD en días <strong>calendario</strong> (tras traslado, registre la fecha en la carta emitida).
+          <div class="user-sec-title"><i class="ri-timer-line"></i> Plazos de Respuesta y Semáforos</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;line-height:1.4">
+            Configura los días límite contractuales. Los semáforos y alertas rojas/amarillas se calculan automáticamente a partir de estos valores.
           </p>
-          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">Me deben — plazo por contraparte</div>
-          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));margin-bottom:16px">
+
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">1. Plazos para que nos respondan (Cartas Emitidas)</div>
+          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));margin-bottom:18px">
             <div class="form-group">
               <label>Supervisión (hábiles)</label>
               <input type="number" id="cfg_plazo_sup_dias" min="1" max="99999" value="5" required style="font-weight:700">
@@ -1280,72 +1280,83 @@ body.app-locked .app-layout{visibility:hidden}
               <input type="number" id="cfg_plazo_jrd_dias" min="1" max="99999" value="15" required style="font-weight:700">
             </div>
           </div>
-          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));margin-bottom:16px">
+
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">2. Plazo para responder nosotros (Cartas Recibidas)</div>
+          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));margin-bottom:18px">
             <div class="form-group">
-              <label>Yo debo responder (hábiles)</label>
+              <label>Residencia / Nosotros (hábiles)</label>
               <input type="number" id="cfg_plazo_ro_dias" min="1" max="99999" value="5" required style="font-weight:700">
-              <span style="font-size:10px;color:var(--text-muted)">Plazo interno al recibir carta · define también el reloj de Hilos FK</span>
-            </div>
-            <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
-              <div id="cfgPlazoHiloPreview" style="font-size:11px;background:#EEF6FF;border:1px solid #B8D4F0;color:#1A4A7A;padding:8px 10px;border-radius:6px;line-height:1.45">
-                Hilos FK: <strong>5 días hábiles</strong> (sincronizado con «Yo debo»)
-              </div>
+              <span style="font-size:10.5px;color:var(--text-muted)">Tiempo máximo interno para responder</span>
             </div>
           </div>
+
           <input type="hidden" id="cfg_dias_hilo" value="5">
+          <input type="hidden" id="cfg_dias_vencida" value="15">
+          <input type="hidden" id="cfg_dias_por_vencer" value="3">
+
           <div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:4px">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-              <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em">Semáforos — vista Cartas y alertas</div>
-              <label style="display:flex;align-items:center;gap:8px;font-size:11.5px;cursor:pointer;margin:0">
-                <input type="checkbox" id="cfg_sync_semaforos" checked style="width:16px;height:16px">
-                Sincronizar automáticamente con plazos contractuales
-              </label>
+            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">
+              3. Alertas y Semáforos Calculados Automáticamente
             </div>
-            <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr))">
-              <div class="form-group">
-                <label>Días para Carta Vencida</label>
-                <input type="number" id="cfg_dias_vencida" min="1" max="99999" value="15" required style="font-weight:700">
-                <span style="font-size:11px;color:var(--rose);margin-top:3px">Alerta roja (≥ días abiertos)</span>
+            
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:12px">
+              <!-- Tarjeta Alerta Roja -->
+              <div style="background:#FFF5F5;border:1px solid #FED7D7;border-radius:8px;padding:12px 14px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--rose);margin-bottom:4px">
+                  <i class="ri-error-warning-fill" style="font-size:15px"></i> Carta Vencida (Rojo)
+                </div>
+                <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="cfg_preview_vencida">≥ 15 días</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Se activa al superar el plazo contractual máximo</div>
               </div>
-              <div class="form-group">
-                <label>Días para Por Vencer</label>
-                <input type="number" id="cfg_dias_por_vencer" min="1" max="99999" value="10" required style="font-weight:700">
-                <span style="font-size:11px;color:#8A6A20;margin-top:3px">Alerta preventiva (≥ días abiertos)</span>
+
+              <!-- Tarjeta Alerta Amarilla -->
+              <div style="background:#FFFDF5;border:1px solid #FEEBC8;border-radius:8px;padding:12px 14px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#C05621;margin-bottom:4px">
+                  <i class="ri-alert-fill" style="font-size:15px"></i> Por Vencer (Amarillo)
+                </div>
+                <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="cfg_preview_por_vencer">≥ 3 días</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Alerta preventiva antes del vencimiento</div>
+              </div>
+
+              <!-- Tarjeta Hilos -->
+              <div style="background:#F0F7FF;border:1px solid #BEE3F8;border-radius:8px;padding:12px 14px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#2B6CB0;margin-bottom:4px">
+                  <i class="ri-discuss-line" style="font-size:15px"></i> Hilos de Conversación
+                </div>
+                <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="cfg_preview_hilos">5 días hábiles</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Ciclo interno de atención de trámites</div>
               </div>
             </div>
-            <div id="cfgSemSyncHint" style="font-size:10.5px;color:var(--text-muted);margin-top:6px;line-height:1.45"></div>
           </div>
         </div>
 
-        <!-- SECCIÓN 4: Migración y Datos Históricos -->
+        <!-- SECCIÓN 4: Respaldo y Carga de Datos Excel -->
         <div class="user-sec" id="cfgMaintenanceSec" style="background:#FFFFFF;margin-top:20px;border:1px dashed #D0CBC0">
-          <div class="user-sec-title" style="color:var(--text-secondary)"><i class="ri-database-2-line"></i> Mantenimiento de Datos Históricos</div>
-          <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;line-height:1.5">
-            Herramientas administrativas para completar <strong>referencias</strong>, asignar <strong>especialistas responsables</strong> en recibidas
-            y corregir etiquetas genéricas (<em>OFICINA TECNICA</em>, <em>ESTR. PARA RESPUESTA</em>, etc.) según la especialidad técnica de cada carta.
+          <div class="user-sec-title" style="color:var(--text-secondary)"><i class="ri-file-excel-2-line"></i> Respaldo y Carga de Datos (Excel)</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;line-height:1.4">
+            Descarga una copia de seguridad completa o sube un archivo Excel para actualizar la base de datos del sistema.
           </p>
 
-          <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:20px 22px">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
-              <div style="flex:1;min-width:300px">
-                <div style="font-size:14.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;color:var(--text-primary)">
-                  <i class="ri-file-excel-2-fill" style="color:#107C41;font-size:20px"></i> Gestión y Respaldo de Base de Datos (Excel)
+          <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:18px 20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+              <div style="flex:1;min-width:280px">
+                <div style="font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:var(--text-primary)">
+                  <i class="ri-file-excel-2-fill" style="color:#107C41;font-size:18px"></i> Libro de Control de Cartas
                 </div>
-                <p style="font-size:12px;color:var(--text-secondary);margin:0 0 12px;line-height:1.55">
-                  Exporta un respaldo completo de todas las bandejas en un libro Excel formateado profesionalmente (con las 6 hojas estándar y columnas oficiales), o reimporta una nueva versión desde tu computadora con validación y sincronización segura.
+                <p style="font-size:12px;color:var(--text-secondary);margin:0 0 10px;line-height:1.4">
+                  Exporta todas las cartas en las 6 hojas oficiales o carga un nuevo archivo desde tu computadora.
                 </p>
                 <div style="display:flex;gap:14px;font-size:11.5px;color:var(--text-muted);flex-wrap:wrap">
-                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> 6 hojas estándar HLP</span>
-                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> Backfill e Hilos automáticos</span>
-                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> 100% compatible ida y vuelta</span>
+                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> 6 hojas oficiales</span>
+                  <span><i class="ri-checkbox-circle-line" style="color:var(--teal)"></i> Conexión automática de hilos</span>
                 </div>
               </div>
-              <div style="display:flex;flex-direction:column;gap:10px;min-width:240px">
-                <button type="button" class="btn-cancel" id="btnDownloadBackupExcel" style="font-size:12.5px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#FFFFFF;border:1.5px solid #107C41;color:#107C41;font-weight:600;box-shadow:var(--shadow-sm);cursor:pointer;border-radius:8px">
-                  <i class="ri-download-2-line" style="font-size:15px"></i> Descargar Backup Excel (6 Hojas)
+              <div style="display:flex;flex-direction:column;gap:10px;min-width:220px">
+                <button type="button" class="btn-cancel" id="btnDownloadBackupExcel" style="font-size:12.5px;padding:9px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#FFFFFF;border:1.5px solid #107C41;color:#107C41;font-weight:600;box-shadow:var(--shadow-sm);cursor:pointer;border-radius:8px">
+                  <i class="ri-download-2-line" style="font-size:15px"></i> Descargar Respaldo (Excel)
                 </button>
-                <button type="button" class="btn-save" id="btnReimportConfig" style="font-size:12.5px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-sm);cursor:pointer;border-radius:8px">
-                  <i class="ri-upload-2-line" style="font-size:15px"></i> Seleccionar y Reimportar Excel
+                <button type="button" class="btn-save" id="btnReimportConfig" style="font-size:12.5px;padding:9px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-sm);cursor:pointer;border-radius:8px">
+                  <i class="ri-upload-2-line" style="font-size:15px"></i> Subir y Actualizar Excel
                 </button>
               </div>
             </div>
@@ -2113,21 +2124,18 @@ function syncUnifiedPlazoUI(){
   const derived=computeDerivedPlazosFromContractual();
   const hiloEl=document.getElementById('cfg_dias_hilo');
   if(hiloEl)hiloEl.value=derived.dias_hilo;
-  const prev=document.getElementById('cfgPlazoHiloPreview');
-  if(prev)prev.innerHTML=`Hilos FK: <strong>${derived.dias_hilo} días hábiles</strong> (sincronizado con «Yo debo»)`;
-  const syncOn=document.getElementById('cfg_sync_semaforos')?.checked!==false;
   const vencEl=document.getElementById('cfg_dias_vencida');
+  if(vencEl)vencEl.value=derived.dias_vencida;
   const riesgoEl=document.getElementById('cfg_dias_por_vencer');
-  const hint=document.getElementById('cfgSemSyncHint');
-  if(syncOn){
-    if(vencEl){vencEl.value=derived.dias_vencida;vencEl.readOnly=true;vencEl.style.opacity='0.85';}
-    if(riesgoEl){riesgoEl.value=derived.dias_por_vencer;riesgoEl.readOnly=true;riesgoEl.style.opacity='0.85';}
-    if(hint)hint.textContent=`Calculado: vencida = max(plazos contractuales) = ${derived.dias_vencida}d · por vencer = min(hábiles)−2 = ${derived.dias_por_vencer}d`;
-  }else{
-    if(vencEl){vencEl.readOnly=false;vencEl.style.opacity='1';}
-    if(riesgoEl){riesgoEl.readOnly=false;riesgoEl.style.opacity='1';}
-    if(hint)hint.textContent='Modo manual: los semáforos no se recalculan al cambiar plazos contractuales.';
-  }
+  if(riesgoEl)riesgoEl.value=derived.dias_por_vencer;
+
+  const prevVenc=document.getElementById('cfg_preview_vencida');
+  if(prevVenc)prevVenc.textContent=`≥ ${derived.dias_vencida} días`;
+  const prevRiesgo=document.getElementById('cfg_preview_por_vencer');
+  if(prevRiesgo)prevRiesgo.textContent=`≥ ${derived.dias_por_vencer} días`;
+  const prevHilos=document.getElementById('cfg_preview_hilos');
+  if(prevHilos)prevHilos.textContent=`${derived.dias_hilo} días hábiles`;
+
   applyPlazoContractualConfig({
     plazo_ro_dias:derived.dias_hilo,
     plazo_sup_dias:parseInt(document.getElementById('cfg_plazo_sup_dias')?.value,10)||5,
@@ -2301,7 +2309,7 @@ function fmtDate(d){
   return String(d);
 }
 function fmtDateIso(d){if(!d)return'';return d.toISOString().slice(0,10);}
-function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function bandejaLabel(id){return BANDEJAS_META[id]||id||'—';}
 function monthLabel(m){if(!m)return'';const mo=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];const[y,mn]=m.split('-');return mo[parseInt(mn,10)-1]+' '+y;}
 
@@ -6982,25 +6990,17 @@ let initialConfigSnapshot = null;
 function checkConfigChanges() {
   const curNombre = (document.getElementById('cfg_nombre_sistema')?.value || '').trim();
   const curSub = (document.getElementById('cfg_subtitulo_proyecto')?.value || '').trim();
-  const curVencida = parseInt(document.getElementById('cfg_dias_vencida')?.value || 15, 10);
-  const curRiesgo = parseInt(document.getElementById('cfg_dias_por_vencer')?.value || 10, 10);
-  const curHilo = parseInt(document.getElementById('cfg_dias_hilo')?.value || 5, 10);
   const curPlazoSup = parseInt(document.getElementById('cfg_plazo_sup_dias')?.value || 5, 10);
   const curPlazoEnt = parseInt(document.getElementById('cfg_plazo_entidad_dias')?.value || 15, 10);
   const curPlazoMuni = parseInt(document.getElementById('cfg_plazo_muni_dias')?.value || 15, 10);
   const curPlazoJrd = parseInt(document.getElementById('cfg_plazo_jrd_dias')?.value || 15, 10);
   const curPlazoRo = parseInt(document.getElementById('cfg_plazo_ro_dias')?.value || 5, 10);
-  const curSyncSem = document.getElementById('cfg_sync_semaforos')?.checked !== false;
   
   const isDirty = !initialConfigSnapshot ||
     curNombre !== initialConfigSnapshot.nombre_sistema ||
     curSub !== initialConfigSnapshot.subtitulo_proyecto ||
     pendingLogoBase64 !== initialConfigSnapshot.logo_url ||
     pendingFaviconBase64 !== initialConfigSnapshot.favicon_url ||
-    curVencida !== initialConfigSnapshot.dias_vencida ||
-    curRiesgo !== initialConfigSnapshot.dias_por_vencer ||
-    curHilo !== initialConfigSnapshot.dias_hilo ||
-    curSyncSem !== initialConfigSnapshot.sync_semaforos ||
     curPlazoSup !== initialConfigSnapshot.plazo_sup_dias ||
     curPlazoEnt !== initialConfigSnapshot.plazo_entidad_dias ||
     curPlazoMuni !== initialConfigSnapshot.plazo_muni_dias ||
@@ -7051,15 +7051,6 @@ function loadConfigAdmin() {
   document.getElementById('cfg_plazo_muni_dias').value = cfg.plazo_muni_dias ?? 15;
   document.getElementById('cfg_plazo_jrd_dias').value = cfg.plazo_jrd_dias ?? 15;
   document.getElementById('cfg_plazo_ro_dias').value = cfg.plazo_ro_dias ?? 5;
-  const syncSemEl=document.getElementById('cfg_sync_semaforos');
-  if(syncSemEl){
-    const outOfSync=cfg.dias_vencida!=null&&cfg.plazo_ro_dias!=null&&
-      parseInt(cfg.dias_hilo,10)!==parseInt(cfg.plazo_ro_dias,10);
-    syncSemEl.checked=outOfSync?false:(cfg.sync_semaforos!==false);
-  }
-  document.getElementById('cfg_dias_vencida').value = cfg.dias_vencida || 15;
-  document.getElementById('cfg_dias_por_vencer').value = cfg.dias_por_vencer || 10;
-  document.getElementById('cfg_dias_hilo').value = cfg.plazo_ro_dias ?? cfg.dias_hilo ?? 5;
   syncUnifiedPlazoUI();
   
   pendingLogoBase64 = cfg.logo_url || null;
@@ -7070,15 +7061,11 @@ function loadConfigAdmin() {
     subtitulo_proyecto: (cfg.subtitulo_proyecto || '').trim(),
     logo_url: cfg.logo_url || null,
     favicon_url: cfg.favicon_url || null,
-    dias_vencida: parseInt(document.getElementById('cfg_dias_vencida')?.value || 15, 10),
-    dias_por_vencer: parseInt(document.getElementById('cfg_dias_por_vencer')?.value || 10, 10),
-    dias_hilo: parseInt(document.getElementById('cfg_dias_hilo')?.value || 5, 10),
     plazo_sup_dias: parseInt(cfg.plazo_sup_dias ?? 5, 10),
     plazo_entidad_dias: parseInt(cfg.plazo_entidad_dias ?? 15, 10),
     plazo_muni_dias: parseInt(cfg.plazo_muni_dias ?? 15, 10),
     plazo_jrd_dias: parseInt(cfg.plazo_jrd_dias ?? 15, 10),
-    plazo_ro_dias: parseInt(cfg.plazo_ro_dias ?? 5, 10),
-    sync_semaforos: document.getElementById('cfg_sync_semaforos')?.checked !== false
+    plazo_ro_dias: parseInt(cfg.plazo_ro_dias ?? 5, 10)
   };
   
   updateLogoPreviewUI(pendingLogoBase64);
@@ -7181,7 +7168,7 @@ document.getElementById('btnRemoveFavicon')?.addEventListener('click', () => {
   showToast('Favicon removido. Volverá al ícono por defecto al guardar.', 'info');
 });
 
-['cfg_nombre_sistema','cfg_subtitulo_proyecto','cfg_dias_vencida','cfg_dias_por_vencer','cfg_plazo_sup_dias','cfg_plazo_entidad_dias','cfg_plazo_muni_dias','cfg_plazo_jrd_dias','cfg_plazo_ro_dias'].forEach(id => {
+['cfg_nombre_sistema','cfg_subtitulo_proyecto','cfg_plazo_sup_dias','cfg_plazo_entidad_dias','cfg_plazo_muni_dias','cfg_plazo_jrd_dias','cfg_plazo_ro_dias'].forEach(id => {
   const el = document.getElementById(id);
   if (el) {
     el.addEventListener('input', () => {
@@ -7201,7 +7188,6 @@ document.getElementById('btnRemoveFavicon')?.addEventListener('click', () => {
     });
   }
 });
-document.getElementById('cfg_sync_semaforos')?.addEventListener('change', syncUnifiedPlazoUI);
 
 document.getElementById('btnConfigSave')?.addEventListener('click', handleConfigSave);
 document.getElementById('btnConfigReset')?.addEventListener('click', handleConfigReset);
@@ -7210,10 +7196,9 @@ async function handleConfigSave() {
   syncUnifiedPlazoUI();
   const nombre = document.getElementById('cfg_nombre_sistema').value.trim();
   const subtitulo = document.getElementById('cfg_subtitulo_proyecto').value.trim();
-  const sync_semaforos = document.getElementById('cfg_sync_semaforos')?.checked !== false;
   const derived = computeDerivedPlazosFromContractual();
-  const dias_vencida = sync_semaforos ? derived.dias_vencida : parseInt(document.getElementById('cfg_dias_vencida').value, 10);
-  const dias_por_vencer = sync_semaforos ? derived.dias_por_vencer : parseInt(document.getElementById('cfg_dias_por_vencer').value, 10);
+  const dias_vencida = derived.dias_vencida;
+  const dias_por_vencer = derived.dias_por_vencer;
   const dias_hilo = derived.dias_hilo;
   const plazo_sup_dias = parseInt(document.getElementById('cfg_plazo_sup_dias').value, 10);
   const plazo_entidad_dias = parseInt(document.getElementById('cfg_plazo_entidad_dias').value, 10);
@@ -7225,26 +7210,7 @@ async function handleConfigSave() {
   if (nombre.length > 100) { showToast('El nombre del sistema no puede superar los 100 caracteres', 'error'); return; }
   if (!subtitulo) { showToast('El subtítulo del proyecto es obligatorio', 'error'); return; }
   if (subtitulo.length > 180) { showToast('El subtítulo del proyecto no puede superar los 180 caracteres', 'error'); return; }
-  if (isNaN(dias_vencida) || dias_vencida < 1) {
-    showToast('Los días para carta vencida deben ser un número entero mayor o igual a 1', 'error');
-    return;
-  }
-  if (isNaN(dias_por_vencer) || dias_por_vencer < 1) {
-    showToast('Los días de alerta preventiva (por vencer) deben ser un número entero mayor o igual a 1', 'error');
-    return;
-  }
-  if (isNaN(dias_hilo) || dias_hilo < 1) {
-    showToast('El plazo para hilos de respuesta debe ser un número entero mayor o igual a 1', 'error');
-    return;
-  }
-  if (dias_vencida > 99999 || dias_por_vencer > 99999 || dias_hilo > 99999) {
-    showToast('El valor de días no puede superar el límite máximo de 99,999 días', 'error');
-    return;
-  }
-  if (dias_por_vencer >= dias_vencida) {
-    showToast('Los días de alerta preventiva (por vencer) deben ser menores que los días para carta vencida', 'error');
-    return;
-  }
+
   for (const [label, val] of [
     ['Supervisión', plazo_sup_dias],
     ['Entidad', plazo_entidad_dias],
@@ -7276,7 +7242,7 @@ async function handleConfigSave() {
       plazo_muni_dias,
       plazo_jrd_dias,
       plazo_ro_dias,
-      sync_semaforos
+      sync_semaforos: true
     };
     const r = await apiFetch('/api/config', {
       method: 'PUT',
@@ -7293,18 +7259,15 @@ async function handleConfigSave() {
         subtitulo_proyecto: (d.config.subtitulo_proyecto || '').trim(),
         logo_url: d.config.logo_url || null,
         favicon_url: d.config.favicon_url || null,
-        dias_vencida: parseInt(d.config.dias_vencida || 15, 10),
-        dias_por_vencer: parseInt(d.config.dias_por_vencer || 10, 10),
-        dias_hilo: parseInt(d.config.dias_hilo || 5, 10),
         plazo_sup_dias: parseInt(d.config.plazo_sup_dias ?? 5, 10),
         plazo_entidad_dias: parseInt(d.config.plazo_entidad_dias ?? 15, 10),
         plazo_muni_dias: parseInt(d.config.plazo_muni_dias ?? 15, 10),
         plazo_jrd_dias: parseInt(d.config.plazo_jrd_dias ?? 15, 10),
-        plazo_ro_dias: parseInt(d.config.plazo_ro_dias ?? 5, 10),
-        sync_semaforos: document.getElementById('cfg_sync_semaforos')?.checked !== false
+        plazo_ro_dias: parseInt(d.config.plazo_ro_dias ?? 5, 10)
       };
       syncUnifiedPlazoUI();
       checkConfigChanges();
+      try { await loadData(); } catch(e) { console.warn('reload after config save', e); }
     }
     showToast('Configuración del sistema actualizada correctamente', 'success');
   } catch (ex) {
@@ -7323,8 +7286,6 @@ function handleConfigReset() {
   document.getElementById('cfg_plazo_muni_dias').value = 15;
   document.getElementById('cfg_plazo_jrd_dias').value = 15;
   document.getElementById('cfg_plazo_ro_dias').value = 5;
-  const syncEl=document.getElementById('cfg_sync_semaforos');
-  if(syncEl)syncEl.checked=true;
   syncUnifiedPlazoUI();
   pendingLogoBase64 = null;
   pendingFaviconBase64 = null;
