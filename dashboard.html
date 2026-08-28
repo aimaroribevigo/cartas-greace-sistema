@@ -109,8 +109,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .meta-pill-lbl{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em}
 
 /* Filter Bar in Panel layout */
-.filter-bar{position:sticky;top:var(--header-height);z-index:100;background:var(--bg);padding:14px 32px 14px;transition:box-shadow .2s,top .15s ease,padding .2s ease}
-.filter-bar.scrolled{padding-top:8px;padding-bottom:10px}
+.filter-bar{position:sticky;top:var(--header-height);z-index:100;background:var(--bg);padding:10px 32px 10px;transition:box-shadow .2s,top .15s ease}
 .filter-bar.scrolled .filter-panel{box-shadow:var(--shadow-md)}
 .filter-panel{max-width:100%;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);transition:box-shadow .2s}
 .filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -341,14 +340,9 @@ body.view-pendientes .filter-bar,
 body.view-saldos .filter-bar,
 body.view-usuarios .filter-bar,
 body.view-configuracion .filter-bar{display:none}
-body.view-cartas:not(.cartas-search-floating) .filter-row .filter-search{display:none}
-body.view-cartas.cartas-search-floating .filter-row .filter-search{display:block;flex:1 1 240px;min-width:180px;max-width:420px}
-body.view-cartas.cartas-search-floating .filter-search-hint{display:inline-flex;font-size:11px;color:var(--text-muted);white-space:nowrap}
-.filter-search-hint{display:none}
-.cartas-search-sentinel{height:1px;width:100%;pointer-events:none;visibility:hidden}
-body.view-cartas.cartas-search-floating .cartas-table-bar{padding:0;margin:0;border:none;min-height:0}
-body.view-cartas.cartas-search-floating .cartas-search-wrap,
-body.view-cartas.cartas-search-floating .cartas-search-hint{display:none!important}
+.filter-row .filter-search{display:block;flex:1 1 220px;min-width:180px;max-width:360px}
+.filter-search-hint{display:inline-flex;font-size:11px;color:var(--text-muted);white-space:nowrap}
+.cartas-search-sentinel{display:none}
 .cartas-table-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%;padding:14px 0 12px;margin-bottom:4px}
 .cartas-search-wrap{flex:1 1 280px;max-width:420px;display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:6px 12px;min-height:36px;background:#FAFAF8;transition:all .15s;box-shadow:inset 0 1px 2px rgba(0,0,0,0.02)}
 .cartas-search-wrap:focus-within{border-color:var(--accent);background:#FFFFFF;box-shadow:0 0 0 3px rgba(196,91,62,0.12)}
@@ -986,6 +980,10 @@ body.app-locked .app-layout{visibility:hidden}
             <tbody id="pendOperBody"></tbody>
           </table>
         </div>
+        <div class="pagination-bar" id="pendOperPaginationBar" style="border-top:1px solid var(--border);padding:12px 16px 8px;">
+          <div class="pagination-info" id="pendOperPaginationInfo">Mostrando 0 de 0</div>
+          <div class="pagination-controls" id="pendOperPaginationControls"></div>
+        </div>
       </div>
       <div class="table-card" id="pendMatrixBlock">
         <div class="table-card-body">
@@ -1130,6 +1128,10 @@ body.app-locked .app-layout{visibility:hidden}
           <th style="width:130px">Contraseña</th>
           <th style="width:180px;text-align:right">Acciones</th>
         </tr></thead><tbody id="usersTableBody"></tbody></table>
+      </div>
+      <div class="pagination-bar" id="usersPaginationBar" style="border-top:1px solid var(--border);padding:12px 16px 8px;">
+        <div class="pagination-info" id="usersPaginationInfo">Mostrando 0 de 0</div>
+        <div class="pagination-controls" id="usersPaginationControls"></div>
       </div>
     </div>
   </div>
@@ -1667,12 +1669,25 @@ body.app-locked .app-layout{visibility:hidden}
             </div>
           </div>
 
-          <!-- Checkbox de Cierre o Continuación del hilo -->
-          <div class="form-group full-width" style="grid-column:1/-1;margin-top:2px">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-primary);background:#FAF9F6;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
-              <input type="checkbox" id="rf_cierra_tramite" checked style="width:16px;height:16px;cursor:pointer">
-              <span>Cerrar la carta anterior y dar por absuelto/respondido el trámite <span style="font-size:11px;font-weight:normal;color:var(--text-muted);display:block">(si esta carta física responde y resuelve la consulta anterior)</span></span>
-            </label>
+          <!-- Efecto en el trámite (Cerrar vs Requerir más respuesta) -->
+          <div class="form-group full-width" style="grid-column:1/-1;margin-top:4px">
+            <label style="margin-bottom:6px">8. ¿Qué efecto tiene esta respuesta en el trámite? <span class="req">*</span></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <label class="doc-tramite-pill" id="rf_pill_cierre" style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--accent);border-radius:8px;cursor:pointer;background:#FFF9F7;transition:all .15s">
+                <input type="radio" name="rf_tramite_mode" id="rf_mode_cierre" value="cierre" checked style="width:16px;height:16px;margin-top:2px;cursor:pointer">
+                <div>
+                  <strong style="font-size:12.5px;color:var(--text-primary);display:block">🟢 Cierra / Resuelve el tema</strong>
+                  <span style="font-size:11px;color:var(--text-muted);line-height:1.3;display:block;margin-top:2px">La respuesta atiende y absuelve la consulta. Concluye el trámite sin generar más pendientes.</span>
+                </div>
+              </label>
+              <label class="doc-tramite-pill" id="rf_pill_continua" style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:#FAFAF8;transition:all .15s">
+                <input type="radio" name="rf_tramite_mode" id="rf_mode_continua" value="continua" style="width:16px;height:16px;margin-top:2px;cursor:pointer">
+                <div>
+                  <strong style="font-size:12.5px;color:var(--text-primary);display:block">🟡 Pide nueva respuesta</strong>
+                  <span style="font-size:11px;color:var(--text-muted);line-height:1.3;display:block;margin-top:2px">Contiene observaciones o consultas adicionales. Deja el trámite abierto para réplica de CGGC.</span>
+                </div>
+              </label>
+            </div>
           </div>
 
         </div>
@@ -1871,7 +1886,7 @@ const FORM_FIELDS=['n_documento','tipo_documento','fecha','emisor','destinatario
 const ESTADO_OPTS=['ABSUELTA POR SUPERVISOR','ABSUELTA POR ENTIDAD','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PARA RESPUESTA','EN PROCESO','C. OBSERVADA','SIN RESPUESTA','REINGRESO','CERRADO','PARA CONOCIMIENTO','ANULADA'];
 const BANDEJA_IDS=['residente','rl','recibida_sup','recibida_pronis','recibida_mpsc','recibida_otros'];
 const PALETTE=['#C45B3E','#4A7C7E','#7A8B6F','#7B6E8A','#C49A3E','#A0525C','#5C6370','#6E9EAF','#8B9E6F','#B87045'];
-let ALL_CARTAS=[],STATS={},PENDIENTES={},SALDOS={},STATUS_SUP={},HILOS={hilos:[],counts:{}},filtered=[],charts={},editingId=null,deleteId=null,confirmAction=null,switchEditTargetId=null,cartaFormSnapshot=null,currentView='reportes',currentPage=1,activeBandeja='all',BANDEJAS_META={},ACTORES_META={},modalClosing=false,qTimer=null,pendMode='debo',pendActor='all',hiloExpanded=null,hiloFoco='operativo',hilosLoadToken=0,cartasSearchObserver=null,CURRENT_USER=null,AUTH_REQUIRED=true,USERS_ADMIN=[],editingUserId=null,userModalClosing=false;
+let ALL_CARTAS=[],STATS={},PENDIENTES={},SALDOS={},STATUS_SUP={},HILOS={hilos:[],counts:{}},filtered=[],charts={},editingId=null,deleteId=null,confirmAction=null,switchEditTargetId=null,cartaFormSnapshot=null,currentView='reportes',currentPage=1,pendOperPage=1,PEND_OPER_PAGE_SIZE=20,usersPage=1,USERS_PAGE_SIZE=20,activeBandeja='all',BANDEJAS_META={},ACTORES_META={},modalClosing=false,qTimer=null,pendMode='debo',pendActor='all',hiloExpanded=null,hiloFoco='operativo',hilosLoadToken=0,cartasSearchObserver=null,CURRENT_USER=null,AUTH_REQUIRED=true,USERS_ADMIN=[],editingUserId=null,userModalClosing=false;
 
 async function apiFetch(url, opts={}){
   const o={credentials:'same-origin',...opts};
@@ -2551,8 +2566,7 @@ function showView(view){
   if(view==='saldos')renderSaldos();
   if(view==='usuarios')loadUsersAdmin();
   if(view==='configuracion')loadConfigAdmin();
-  if(view==='cartas'){syncCartasSearchUI();requestAnimationFrame(setupCartasSearchFloat);}
-  else{document.body.classList.remove('cartas-search-floating');if(cartasSearchObserver){cartasSearchObserver.disconnect();cartasSearchObserver=null;}}
+  if(view==='cartas')syncCartasSearchUI();
   closeMobileSidebar();
 }
 
@@ -2978,7 +2992,7 @@ function cartaMatchesSearch(c,q){
 }
 
 function syncCartasSearchUI(){
-  const q=document.getElementById('filterQ').value;
+  const q=document.getElementById('filterQ')?.value||'';
   const tableQ=document.getElementById('cartasTableQ');
   if(tableQ&&tableQ.value!==q)tableQ.value=q;
   const clr=document.getElementById('cartasTableQClear');
@@ -2990,24 +3004,11 @@ function syncCartasSearchUI(){
   const hint=document.getElementById('cartasSearchHint');
   if(hint)hint.textContent=term?`${hintText} para “${term}”`:'';
   const filterHint=document.getElementById('filterSearchHint');
-  if(filterHint)filterHint.textContent=document.body.classList.contains('cartas-search-floating')&&term?hintText:'';
+  if(filterHint)filterHint.textContent=term?hintText:'';
 }
 
 function setupCartasSearchFloat(){
-  const sentinel=document.getElementById('cartasSearchSentinel');
-  if(cartasSearchObserver){cartasSearchObserver.disconnect();cartasSearchObserver=null;}
-  if(!sentinel||currentView!=='cartas'){
-    document.body.classList.remove('cartas-search-floating');
-    return;
-  }
-  cartasSearchObserver=new IntersectionObserver((entries)=>{
-    const visible=entries[0]&&entries[0].isIntersecting;
-    document.body.classList.toggle('cartas-search-floating',currentView==='cartas'&&!visible);
-    syncCartasSearchUI();
-  },{root:null,rootMargin:'-72px 0px 0px 0px',threshold:0});
-  cartasSearchObserver.observe(sentinel);
-  const r=sentinel.getBoundingClientRect();
-  document.body.classList.toggle('cartas-search-floating',currentView==='cartas'&&r.top<72);
+  syncCartasSearchUI();
 }
 
 function setCartasSearchQuery(value){
@@ -3538,24 +3539,72 @@ function renderPendMatrix(){
   requestAnimationFrame(()=>matrixCard?.classList.remove('is-updating'));
 }
 
+function setPendOperPage(page){
+  pendOperPage=page;
+  renderPendOperTable();
+}
+
+function updatePendOperPagination(start,shown,total){
+  const bar=document.getElementById('pendOperPaginationBar');
+  const info=document.getElementById('pendOperPaginationInfo');
+  const ctrl=document.getElementById('pendOperPaginationControls');
+  if(!bar||!info||!ctrl)return;
+  if(pendMode==='comunicacion'){
+    bar.style.display='none';
+    return;
+  }
+  bar.style.display='flex';
+  if(!total){
+    info.textContent='Sin resultados';
+    ctrl.innerHTML='';
+    return;
+  }
+  info.textContent=`Mostrando ${start+1}–${start+shown} de ${total} (páginas de ${PEND_OPER_PAGE_SIZE})`;
+  const pages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
+  ctrl.innerHTML='';
+  const mk=(label,page,dis=false,act=false)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='btn-page'+(act?' active':'');
+    b.innerHTML=label;
+    b.disabled=dis;
+    b.onclick=()=>setPendOperPage(page);
+    ctrl.appendChild(b);
+  };
+  mk('<i class="ri-arrow-left-s-line"></i>',pendOperPage-1,pendOperPage<=1);
+  let from=Math.max(1,pendOperPage-2),to=Math.min(pages,from+4);
+  from=Math.max(1,to-4);
+  for(let p=from;p<=to;p++)mk(String(p),p,false,p===pendOperPage);
+  mk('<i class="ri-arrow-right-s-line"></i>',pendOperPage+1,pendOperPage>=pages);
+}
+
 function renderPendOperTable(){
   const tbody=document.getElementById('pendOperBody');
   const thead=document.getElementById('pendOperHead');
   const title=document.getElementById('pendOperTitle');
   const sub=document.getElementById('pendOperSub');
+  const pBar=document.getElementById('pendOperPaginationBar');
   if(!tbody||!thead)return;
   if(pendMode==='comunicacion'){
     tbody.innerHTML='';
+    if(pBar)pBar.style.display='none';
     return;
   }
   if(pendMode==='respondidos'){
-    const items=pendItemsForMode();
+    const allItems=pendItemsForMode();
     if(title)title.textContent='Respondidos — ya no están en pendientes';
     if(sub)sub.textContent='Cartas cerradas (CERRADO / ABSUELTO) que fueron Yo debo o Me deben. Ordenadas por fecha de documento.';
     thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Modo</th><th>Contraparte</th><th>Fecha doc.</th><th>Estado cierre</th><th>Especialista / área</th><th>Asunto</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
     tbody.innerHTML='';
-    if(!items.length){
+    const total=allItems.length;
+    const totalPages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
+    if(pendOperPage>totalPages)pendOperPage=totalPages;
+    if(pendOperPage<1)pendOperPage=1;
+    const start=(pendOperPage-1)*PEND_OPER_PAGE_SIZE;
+    const items=allItems.slice(start,start+PEND_OPER_PAGE_SIZE);
+    if(!total){
       tbody.innerHTML='<tr><td colspan="10" style="color:var(--text-muted);padding:16px">Sin cartas respondidas/cerradas en este filtro</td></tr>';
+      updatePendOperPagination(0,0,0);
       return;
     }
     items.forEach((c,idx)=>{
@@ -3583,13 +3632,14 @@ function renderPendOperTable(){
         </td>`;
       tbody.appendChild(tr);
     });
+    updatePendOperPagination(start,items.length,total);
     return;
   }
-  const items=pendItemsForMode().map(c=>{
+  const allItems=pendItemsForMode().map(c=>{
     const plazo=plazoRespuestaOperativo(c,pendMode);
     return{c,plazo,cl:classif(c)};
   });
-  items.sort((a,b)=>{
+  allItems.sort((a,b)=>{
     const av=(a.plazo.dias_atraso||0);
     const bv=(b.plazo.dias_atraso||0);
     if(bv!==av)return bv-av;
@@ -3611,8 +3661,15 @@ function renderPendOperTable(){
     thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Recibida de</th><th>Fecha</th><th>Flujo</th><th>Especialista / área</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }
   tbody.innerHTML='';
-  if(!items.length){
+  const total=allItems.length;
+  const totalPages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
+  if(pendOperPage>totalPages)pendOperPage=totalPages;
+  if(pendOperPage<1)pendOperPage=1;
+  const start=(pendOperPage-1)*PEND_OPER_PAGE_SIZE;
+  const items=allItems.slice(start,start+PEND_OPER_PAGE_SIZE);
+  if(!total){
     tbody.innerHTML='<tr><td colspan="12" style="color:var(--text-muted);padding:16px">Sin cartas en este modo'+(pendActor!=='all'?' y contraparte':'')+'</td></tr>';
+    updatePendOperPagination(0,0,0);
     return;
   }
   items.forEach((row,idx)=>{
@@ -3664,6 +3721,7 @@ function renderPendOperTable(){
     }
     tbody.appendChild(tr);
   });
+  updatePendOperPagination(start,items.length,total);
 }
 
 async function refreshHilosAsync(){
@@ -3690,6 +3748,7 @@ async function refreshHilosAsync(){
 function applyPendSelection(mode,actor,options={}){
   pendMode=mode;
   pendActor=actor;
+  if(!options.preservePage)pendOperPage=1;
   if(options.resetHiloExpand!==false)hiloExpanded=null;
   syncPendChipStates();
   updatePendDetailMeta();
@@ -3731,7 +3790,7 @@ function pendItemsForMode(){
         if(cp!==pendActor)return false;
       }
       return true;
-    }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).slice(0,120);
+    }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
   }
   return ALL_CARTAS.filter(c=>{
     const cl=classif(c);
@@ -4080,8 +4139,8 @@ function renderSaldos(){
     const pctTot=(sumLe+sumDeb)?Math.round(sumDeb/(sumLe+sumDeb)*100):0;
     trTot.innerHTML=`
       <td>TOTALES</td>
-      <td class="num">${sumLe}</td>
-      <td class="num">${sumDeb}</td>
+      <td class="num" data-esp="all" data-deuda="me_deben" style="cursor:pointer" title="Ver todas las cartas: Me deben (${sumLe})">${sumLe}</td>
+      <td class="num" data-esp="all" data-deuda="debo" style="cursor:pointer" title="Ver todas las cartas: Yo debo (${sumDeb})">${sumDeb}</td>
       <td class="num"><strong>${sumNet}</strong></td>
       <td class="num">${pctTot}%</td>
       <td>—</td>`;
@@ -4651,7 +4710,8 @@ function openResponderModal(parentCartaId){
   
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('rf_fecha').value = today;
-  document.getElementById('rf_cierra_tramite').checked = true;
+  const modeCierre = document.getElementById('rf_mode_cierre');
+  if(modeCierre){ modeCierre.checked = true; updateResponderTramitePills(); }
   if(document.getElementById('rf_tipo_documento')){
     document.getElementById('rf_tipo_documento').value = baseCarta?.tipo_documento || 'CARTA';
   }
@@ -4756,6 +4816,18 @@ function clearResponderCartaPadre(){
   populateResponderEspChips([]);
 }
 
+function updateResponderTramitePills(){
+  const isCierre = document.getElementById('rf_mode_cierre')?.checked;
+  const pillCierre = document.getElementById('rf_pill_cierre');
+  const pillContinua = document.getElementById('rf_pill_continua');
+  if(pillCierre && pillContinua){
+    pillCierre.style.borderColor = isCierre ? 'var(--accent)' : 'var(--border)';
+    pillCierre.style.background = isCierre ? '#FFF9F7' : '#FAFAF8';
+    pillContinua.style.borderColor = !isCierre ? 'var(--accent)' : 'var(--border)';
+    pillContinua.style.background = !isCierre ? '#FFF9F7' : '#FAFAF8';
+  }
+}
+
 function setupResponderCartaPadreSearch(){
   if(responderSearchInitialized) return;
   responderSearchInitialized = true;
@@ -4769,6 +4841,10 @@ function setupResponderCartaPadreSearch(){
   cancelBtn?.addEventListener('click', closeResponderModal);
   saveBtn?.addEventListener('click', handleSaveResponder);
   removeBtn?.addEventListener('click', clearResponderCartaPadre);
+
+  document.querySelectorAll('input[name="rf_tramite_mode"]').forEach(r => {
+    r.addEventListener('change', updateResponderTramitePills);
+  });
 
   if(searchInput && suggestBox){
     searchInput.addEventListener('input', () => {
@@ -4833,7 +4909,8 @@ async function handleSaveResponder(){
   const observacion = document.getElementById('rf_observacion')?.value?.trim() || '';
   const padreDoc = document.getElementById('rf_padre_doc')?.value?.trim() || '';
   const hiloId = document.getElementById('rf_hilo_id')?.value?.trim() || '';
-  const cierraTramite = document.getElementById('rf_cierra_tramite')?.checked ?? true;
+  const modeVal = document.querySelector('input[name="rf_tramite_mode"]:checked')?.value || 'cierre';
+  const cierraTramite = modeVal === 'cierre';
 
   if (!doc) {
     showToast('El N° de Documento que llegó es obligatorio', 'error');
@@ -4898,7 +4975,7 @@ async function handleSaveResponder(){
     referencia: padreDoc,
     area: area,
     estado: estado,
-    cerrar_referenciadas: Boolean(cierraTramite)
+    cerrar_referenciadas: true
   };
 
   if (hiloId) {
@@ -5310,7 +5387,13 @@ async function handleSave(){
   // Estado mapping
   let estado = 'ABIERTO';
   if (!requiereResp) {
-    estado = 'PARA CONOCIMIENTO';
+    if (cartaPadreRef) {
+      estado = (sentido === 'recibida')
+        ? (emisor === 'PRONIS' ? 'ABSUELTA POR ENTIDAD' : 'ABSUELTA POR SUPERVISOR')
+        : 'CERRADO';
+    } else {
+      estado = 'PARA CONOCIMIENTO';
+    }
   } else if (sentido === 'recibida') {
     estado = 'PENDIENTE CGGC';
   } else {
@@ -6305,7 +6388,6 @@ window.addEventListener('scroll',()=>{
 window.addEventListener('resize',()=>{
   updateHeaderHeight();
   Object.values(charts).forEach(ch=>ch&&ch.resize());
-  if(currentView==='cartas')setupCartasSearchFloat();
 });
 window.openEditModal=openEditModal;window.confirmDelete=confirmDelete;
 
@@ -6697,6 +6779,41 @@ function renderUsersSkeleton(count=6){
   tb.innerHTML=html;
 }
 
+function setUsersPage(page){
+  usersPage=page;
+  renderUsersTable();
+}
+
+function updateUsersPagination(start,shown,total){
+  const bar=document.getElementById('usersPaginationBar');
+  const info=document.getElementById('usersPaginationInfo');
+  const ctrl=document.getElementById('usersPaginationControls');
+  if(!bar||!info||!ctrl)return;
+  bar.style.display='flex';
+  if(!total){
+    info.textContent='Sin resultados';
+    ctrl.innerHTML='';
+    return;
+  }
+  info.textContent=`Mostrando ${start+1}–${start+shown} de ${total} (páginas de ${USERS_PAGE_SIZE})`;
+  const pages=Math.max(1,Math.ceil(total/USERS_PAGE_SIZE));
+  ctrl.innerHTML='';
+  const mk=(label,page,dis=false,act=false)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='btn-page'+(act?' active':'');
+    b.innerHTML=label;
+    b.disabled=dis;
+    b.onclick=()=>setUsersPage(page);
+    ctrl.appendChild(b);
+  };
+  mk('<i class="ri-arrow-left-s-line"></i>',usersPage-1,usersPage<=1);
+  let from=Math.max(1,usersPage-2),to=Math.min(pages,from+4);
+  from=Math.max(1,to-4);
+  for(let p=from;p<=to;p++)mk(String(p),p,false,p===usersPage);
+  mk('<i class="ri-arrow-right-s-line"></i>',usersPage+1,usersPage>=pages);
+}
+
 function renderUsersTable(){
   showUsersLoading(false);
   const tb=document.getElementById('usersTableBody');
@@ -6714,20 +6831,28 @@ function renderUsersTable(){
     });
   }
   
+  const total=list.length;
   const countEl=document.getElementById('usersCountInline');
-  if(countEl)countEl.textContent=list.length;
+  if(countEl)countEl.textContent=total;
   const hintEl=document.getElementById('usersSearchHint');
   if(hintEl){
-    hintEl.textContent=q?`${list.length} de ${USERS_ADMIN.length} usuarios`:'';
+    hintEl.textContent=q?`${total} de ${USERS_ADMIN.length} usuarios`:'';
   }
   
+  const totalPages=Math.max(1,Math.ceil(total/USERS_PAGE_SIZE));
+  if(usersPage>totalPages)usersPage=totalPages;
+  if(usersPage<1)usersPage=1;
+  const start=(usersPage-1)*USERS_PAGE_SIZE;
+  const pageList=list.slice(start,start+USERS_PAGE_SIZE);
+  
   tb.innerHTML='';
-  if(!list.length){
+  if(!total){
     tb.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);text-align:center;padding:32px 16px"><i class="ri-user-search-line" style="font-size:24px;display:block;margin-bottom:6px;opacity:0.6"></i>No se encontraron usuarios${q?` con el filtro "${escapeHtml(usersTableQuery)}"`:''}</td></tr>`;
+    updateUsersPagination(0,0,0);
     return;
   }
   
-  list.forEach((u,idx)=>{
+  pageList.forEach((u,idx)=>{
     const tr=document.createElement('tr');
     tr.className='row-rendered';
     tr.style.animationDelay=`${Math.min(idx*15,200)}ms`;
@@ -6785,6 +6910,8 @@ function renderUsersTable(){
       }
     });
   });
+
+  updateUsersPagination(start,pageList.length,total);
 }
 
 const usersTableQ=document.getElementById('usersTableQ');
@@ -6792,6 +6919,7 @@ const usersTableQClear=document.getElementById('usersTableQClear');
 if(usersTableQ){
   usersTableQ.addEventListener('input',()=>{
     usersTableQuery=usersTableQ.value;
+    usersPage=1;
     if(usersTableQClear)usersTableQClear.classList.toggle('visible',!!usersTableQuery);
     renderUsersTable();
   });
@@ -6799,6 +6927,7 @@ if(usersTableQ){
 if(usersTableQClear){
   usersTableQClear.addEventListener('click',()=>{
     usersTableQuery='';
+    usersPage=1;
     if(usersTableQ)usersTableQ.value='';
     usersTableQClear.classList.remove('visible');
     renderUsersTable();

@@ -1157,7 +1157,8 @@ def _close_hilo_on_cierre(conn, nueva: dict, cited: set[str]) -> dict:
 
 def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
     """Cierra antecedentes citados; si es cierre de trámite, cierra todo el hilo vinculado."""
-    if not cerrar:
+    has_ref = bool(nueva.get("referencia") or nueva.get("referencias"))
+    if not cerrar and not has_ref:
         return {"ok": True, "closed": 0}
     est = normalize_estado(nueva.get("estado_norm") or nueva.get("estado"))
     is_cierre = est in (

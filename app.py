@@ -1204,6 +1204,7 @@ def api_cartas_del(cid):
         cur.execute("DELETE FROM cartas WHERE id=%s", (cid,))
     db.commit()
     invalidate_cartas_cache()
+    _rebuild_hilos(db)
     return jsonify({"ok": True, "id": cid})
 
 
