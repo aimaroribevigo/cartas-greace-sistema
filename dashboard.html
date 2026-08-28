@@ -5728,7 +5728,16 @@ async function executeReimportFile(){
     });
     const data = await res.json().catch(() => ({}));
     if(!res.ok || !data.ok || !data.inserted || data.inserted === 0){
-      const errDetail = data.error || (data.sheets ? `No se encontraron registros de cartas en las hojas [${data.sheets.join(', ')}].` : 'No se encontraron registros de cartas válidos en el archivo Excel.');
+      let errDetail = data.error;
+      if (!errDetail) {
+        if (data.sheets) {
+          errDetail = `No se encontraron registros de cartas en las hojas [${data.sheets.join(', ')}].`;
+        } else if (!res.ok) {
+          errDetail = `Error del servidor (${res.status}): El procesamiento del archivo tardó más de lo esperado. Por favor reintenta.`;
+        } else {
+          errDetail = 'No se encontraron registros de cartas válidos en el archivo Excel.';
+        }
+      }
       throw new Error(errDetail);
     }
 

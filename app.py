@@ -1430,12 +1430,6 @@ def api_import_excel():
         result = import_excel_to_db(db, excel_path=excel_target, force=force)
         if result.get("ok") and not result.get("skipped"):
             try:
-                result["backfill"] = backfill_cartas(db, dry_run=False, fill_missing=True, fix_areas=True)
-            except Exception as b_exc:
-                result["backfill_error"] = str(b_exc)
-            norms = refresh_normalized_fields(db)
-            result["normalize"] = norms
-            try:
                 result["hilos"] = _rebuild_hilos(db)
             except Exception as exc:
                 result["hilos_error"] = str(exc)
