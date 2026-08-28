@@ -400,6 +400,7 @@ def init_db(conn=None):
                 ("plazo_muni_dias", "ADD COLUMN plazo_muni_dias INT NOT NULL DEFAULT 15"),
                 ("plazo_jrd_dias", "ADD COLUMN plazo_jrd_dias INT NOT NULL DEFAULT 15"),
                 ("plazo_ro_dias", "ADD COLUMN plazo_ro_dias INT NOT NULL DEFAULT 5"),
+                ("logo_membrete_word", "ADD COLUMN logo_membrete_word MEDIUMTEXT NULL"),
             ):
                 cur.execute(f"SHOW COLUMNS FROM configuracion_sistema LIKE '{col}'")
                 if not cur.fetchone():
@@ -799,6 +800,15 @@ def api_update_config():
     if favicon_url and len(str(favicon_url)) > 600000:
         return jsonify({"error": "El favicon excede el tamaño máximo permitido (256 KB)"}), 400
 
+    logo_membrete_word = body.get("logo_membrete_word")
+    if logo_membrete_word:
+        str_banner = str(logo_membrete_word).strip()
+        if len(str_banner) > 4000000:
+            return jsonify({"error": "El membrete Word excede el tamaño máximo permitido (2.5 MB)"}), 400
+        if str_banner.startswith("data:"):
+            if not any(str_banner.startswith(f"data:image/{fmt}") for fmt in ("png", "jpeg", "jpg", "webp")):
+                return jsonify({"error": "Formato de imagen de membrete no permitido. Solo se admiten archivos PNG, JPG o WEBP."}), 400
+
     try:
         plazo_sup_dias = int(body.get("plazo_sup_dias", 5))
         plazo_entidad_dias = int(body.get("plazo_entidad_dias", 15))
@@ -831,21 +841,24 @@ def api_update_config():
     except (ValueError, TypeError):
         return jsonify({"error": "Parámetros de días inválidos. Ingresa números válidos."}), 400
 
+    logo_membrete_word = body.get("logo_membrete_word") or None
+
     db = get_db()
     try:
         with db.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO configuracion_sistema
-                    (id, nombre_sistema, subtitulo_proyecto, logo_url, favicon_url,
+                    (id, nombre_sistema, subtitulo_proyecto, logo_url, favicon_url, logo_membrete_word,
                      dias_vencida, dias_por_vencer, dias_hilo,
                      plazo_sup_dias, plazo_entidad_dias, plazo_muni_dias, plazo_jrd_dias, plazo_ro_dias)
-                VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
                     nombre_sistema=VALUES(nombre_sistema),
                     subtitulo_proyecto=VALUES(subtitulo_proyecto),
                     logo_url=VALUES(logo_url),
                     favicon_url=VALUES(favicon_url),
+                    logo_membrete_word=VALUES(logo_membrete_word),
                     dias_vencida=VALUES(dias_vencida),
                     dias_por_vencer=VALUES(dias_por_vencer),
                     dias_hilo=VALUES(dias_hilo),
@@ -860,6 +873,7 @@ def api_update_config():
                     subtitulo,
                     logo_url,
                     favicon_url,
+                    logo_membrete_word,
                     dias_vencida,
                     dias_por_vencer,
                     dias_hilo,
@@ -1101,9 +1115,10 @@ def api_cartas_generar_docx():
         cfg_row = cur.fetchone() or {}
 
     config_dict = {
-        "empresa_nombre": "CHINA GEZHOUBA GROUP COMPANY LIMITED - SUCURSAL PERÚ",
-        "project_title": cfg_row.get("project_title") or "Hospital Leoncio Prado de Huamachuco",
-        "brand_name": cfg_row.get("brand_name") or "SistemaGreace",
+        "empresa_nombre": "CHINA GEZHOUBA GROUP COMPANY LIMITED SUCURSAL PERÚ",
+        "project_title": cfg_row.get("subtitulo_proyecto") or cfg_row.get("project_title") or "Hospital Leoncio Prado de Huamachuco",
+        "brand_name": cfg_row.get("nombre_sistema") or cfg_row.get("brand_name") or "SistemaGreace",
+        "logo_membrete_word": cfg_row.get("logo_membrete_word") or None,
         "anio_oficial": "Año del Bicentenario, de la consolidación de nuestra Independencia"
     }
 

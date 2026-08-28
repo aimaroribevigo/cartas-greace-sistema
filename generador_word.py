@@ -83,6 +83,14 @@ def _eliminar_bordes_tabla(table):
     tblPr.append(tblBorders)
 
 
+def _sanitize_xml_str(val) -> str:
+    """Elimina caracteres de control ASCII (excepto \\t, \\n, \\r) que corrompen el XML de Word."""
+    if val is None:
+        return ""
+    s = str(val)
+    return re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', s)
+
+
 def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     """Genera un archivo Word (.docx) con el formato oficial idéntico a la plantilla de obra CGGC.
 
@@ -92,8 +100,10 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
         config: Configuración institucional (nombre de contratista, obra, etc.).
     """
     config = config or {}
-    contratista = config.get("empresa_nombre") or "CHINA GEZHOUBA GROUP COMPANY LIMITED SUCURSAL PERÚ"
-    nombre_obra = (
+    payload = payload or {}
+
+    contratista = _sanitize_xml_str(config.get("empresa_nombre") or "CHINA GEZHOUBA GROUP COMPANY LIMITED SUCURSAL PERÚ")
+    nombre_obra = _sanitize_xml_str(
         config.get("project_title_full") or
         "“MEJORAMIENTO Y AMPLIACIÓN DE LOS SERVICIOS DE SALUD DEL HOSPITAL DE APOYO LEONCIO PRADO, "
         "DISTRITO DE HUAMACHUCO, PROVINCIA SÁNCHEZ CARRIÓN – LA LIBERTAD” con CUI 2335905"
@@ -120,25 +130,64 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     # ----------------------------------------------------
     # 1. MEMBRETE OFICIAL (BANNER CON LOGOS CEEC Y CGGC)
     # ----------------------------------------------------
-    banner_paths = [
-        os.path.join(os.path.dirname(__file__), "cggc_banner.png"),
-        "cggc_banner.png",
-        "/app/cggc_banner.png"
-    ]
-    banner_found = None
-    for bp in banner_paths:
-        if os.path.exists(bp):
-            banner_found = bp
-            break
+    import base64
+    from PIL import Image
+
+    custom_logo_word = config.get("logo_membrete_word") or payload.get("logo_membrete_word")
+    banner_stream = None
+
+    if custom_logo_word and str(custom_logo_word).strip():
+        raw_val = str(custom_logo_word).strip()
+        if raw_val.startswith("data:image"):
+            try:
+                b64_data = raw_val.split(",", 1)[1]
+                decoded = base64.b64decode(b64_data)
+                # Validar con PIL que sea una imagen real no corrupta
+                img_test = Image.open(io.BytesIO(decoded))
+                img_test.verify()
+                banner_stream = io.BytesIO(decoded)
+            except Exception:
+                banner_stream = None
+        elif os.path.exists(raw_val):
+            try:
+                img_test = Image.open(raw_val)
+                img_test.verify()
+                banner_stream = raw_val
+            except Exception:
+                banner_stream = None
+
+    if not banner_stream:
+        banner_paths = [
+            os.path.join(os.path.dirname(__file__), "cggc_banner.png"),
+            "cggc_banner.png",
+            "/app/cggc_banner.png"
+        ]
+        for bp in banner_paths:
+            if os.path.exists(bp):
+                try:
+                    img_test = Image.open(bp)
+                    img_test.verify()
+                    banner_stream = bp
+                    break
+                except Exception:
+                    continue
 
     p_banner = doc.add_paragraph()
     p_banner.paragraph_format.space_before = Pt(0)
     p_banner.paragraph_format.space_after = Pt(4)
 
-    if banner_found:
-        r_img = p_banner.add_run()
-        r_img.add_picture(banner_found, width=Inches(6.4))
-    else:
+    image_placed = False
+    if banner_stream:
+        try:
+            if isinstance(banner_stream, io.BytesIO):
+                banner_stream.seek(0)
+            r_img = p_banner.add_run()
+            r_img.add_picture(banner_stream, width=Inches(6.4))
+            image_placed = True
+        except Exception:
+            image_placed = False
+
+    if not image_placed:
         # Fallback tipográfico idéntico si la imagen no estuviera disponible
         tbl_hdr = doc.add_table(rows=1, cols=2)
         _eliminar_bordes_tabla(tbl_hdr)
@@ -169,8 +218,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     # ----------------------------------------------------
     # 3. IDENTIFICADOR Y DESTINATARIO
     # ----------------------------------------------------
-    num_doc = payload.get("n_documento") or "Carta N°378-2026-CGGC-HLP-RO"
-    # Normalizar formato tipo 'Carta N°378-2026-CGGC-HLP-RO'
+    num_doc = _sanitize_xml_str(payload.get("n_documento") or "Carta N°378-2026-CGGC-HLP-RO").strip()
     if not num_doc.lower().startswith("carta"):
         num_doc = f"Carta {num_doc}"
 
@@ -188,7 +236,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
 
     r_sres = p_dest.add_run("Señores\n")
     
-    dest_input = str(payload.get("dirigido_a") or "SUPERVISIÓN").upper()
+    dest_input = _sanitize_xml_str(payload.get("dirigido_a") or payload.get("destinatario") or "SUPERVISIÓN").upper()
     if "SUPERVIS" in dest_input or "CONSULTOR" in dest_input or "CARRI" in dest_input:
         nombre_dest = "CONSORCIO CONSULTOR CARRIÓN"
         atencion_persona = "Ing. Javier Julio Quispe Gonzales"
@@ -206,7 +254,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
         atencion_persona = "Ing. [Responsable / Supervisor]"
         atencion_cargo = "Atención Oficial"
 
-    r_ent = p_dest.add_run(f"{nombre_dest}\n")
+    r_ent = p_dest.add_run(f"{_sanitize_xml_str(nombre_dest)}\n")
     r_ent.font.bold = True
     r_dist = p_dest.add_run("Distrito de Huamachuco\n")
     r_pres = p_dest.add_run("Presente. -")
@@ -216,9 +264,9 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     # ----------------------------------------------------
     # 4. CUADRO DE METADATOS (TABLA CON BORDES GRISES DELGADOS)
     # ----------------------------------------------------
-    asunto_txt = (payload.get("asunto") or "LEVANTAMIENTO DE OBSERVACIONES TÉCNICAS.").strip().upper()
-    esp_txt = payload.get("especialidad") or payload.get("especialidad_norm") or "GENERAL"
-    ref_input = payload.get("referencia") or payload.get("referencias") or ""
+    asunto_txt = _sanitize_xml_str(payload.get("asunto") or "LEVANTAMIENTO DE OBSERVACIONES TÉCNICAS.").strip().upper()
+    esp_txt = _sanitize_xml_str(payload.get("especialidad") or payload.get("especialidad_norm") or "GENERAL")
+    ref_input = _sanitize_xml_str(payload.get("referencia") or payload.get("referencias") or "")
 
     table_box = doc.add_table(rows=4, cols=2)
     table_box.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -245,7 +293,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     p_at_r.paragraph_format.line_spacing = 1.15
     p_at_r.paragraph_format.space_before = Pt(0)
     p_at_r.paragraph_format.space_after = Pt(0)
-    p_at_r.add_run(f":  {atencion_persona}\n   {atencion_cargo}")
+    p_at_r.add_run(f":  {_sanitize_xml_str(atencion_persona)}\n   {_sanitize_xml_str(atencion_cargo)}")
 
     # Fila 2: Asunto
     p_as_l = table_box.cell(1, 0).paragraphs[0]
@@ -291,7 +339,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     if ref_input and ref_input.strip() and ref_input != "—":
         # Si vienen múltiples separadas por comas o punto y coma
         for r_part in re.split(r"[,;\n]+", ref_input):
-            rp = r_part.strip()
+            rp = _sanitize_xml_str(r_part).strip()
             if rp and rp not in refs_list:
                 refs_list.append(rp)
     else:
@@ -305,7 +353,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     for idx, ref_item in enumerate(refs_list):
         letra = chr(ord('a') + idx)
         prefix = ":  " if idx == 0 else "   "
-        ref_runs_text += f"{prefix}{letra}) {ref_item}\n"
+        ref_runs_text += f"{prefix}{letra}) {_sanitize_xml_str(ref_item)}\n"
     
     p_rf_r.add_run(ref_runs_text.rstrip("\n"))
 
@@ -325,7 +373,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     p_body1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p_body1.add_run(
         "Nos dirigimos a usted en atención a los documentos de las referencias b) y c), mediante "
-        f"los cuales la Supervisión formuló observaciones a la propuesta técnica de {esp_txt.lower()} "
+        f"los cuales la Supervisión formuló observaciones a la propuesta técnica de {_sanitize_xml_str(esp_txt.lower())} "
         "presentada por el Contratista a través de los documentos de la referencia d)."
     )
 
@@ -337,17 +385,17 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     p_body2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p_body2.add_run(
         f"Al respecto, mediante la presente remitimos el Informe N.° 017-2026-CGGC-{esp_sigla}-PEJGS, "
-        f"elaborado por el especialista en {esp_txt.title()}, el cual contiene el análisis técnico, "
+        f"elaborado por el especialista en {_sanitize_xml_str(esp_txt.title())}, el cual contiene el análisis técnico, "
         "el sustento y la documentación actualizada para el levantamiento de las observaciones "
         "correspondientes a los siguientes elementos:"
     )
 
     # Lista con viñetas de ítems técnicos
-    obs_txt = payload.get("observacion") or ""
+    obs_txt = _sanitize_xml_str(payload.get("observacion") or "")
     items = []
     if obs_txt.strip():
         for line in obs_txt.splitlines():
-            clean_l = line.strip().lstrip("•-*0123456789.) ")
+            clean_l = _sanitize_xml_str(line).strip().lstrip("•-*0123456789.) ")
             if clean_l:
                 items.append(clean_l)
     
@@ -364,7 +412,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
         p_bullet.paragraph_format.space_after = Pt(3)
         p_bullet.paragraph_format.line_spacing = 1.15
         p_bullet.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        r_b = p_bullet.add_run(item)
+        r_b = p_bullet.add_run(_sanitize_xml_str(item))
         r_b.font.size = Pt(10)
 
     # Párrafo 3 (Conclusión formal)
@@ -386,7 +434,7 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     # ----------------------------------------------------
     # 6. PIE DE FIRMA OFICIAL
     # ----------------------------------------------------
-    emisor = (payload.get("receptor") or payload.get("emisor") or "RO").upper()
+    emisor = _sanitize_xml_str(payload.get("receptor") or payload.get("emisor") or "RO").upper()
     es_rl = "RL" in emisor or "LEGAL" in emisor
     cargo_firmante = "Representante Legal" if es_rl else "Residente de Obra"
 
@@ -413,10 +461,10 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
     r_emp2 = p_sign.add_run("SUCURSAL PERÚ\n\n\n")
     r_emp2.font.bold = True
     r_emp2.font.size = Pt(9)
-    r_ing = p_sign.add_run(f"Ing. [Nombre del {cargo_firmante}]\n")
+    r_ing = p_sign.add_run(f"Ing. [Nombre del {_sanitize_xml_str(cargo_firmante)}]\n")
     r_ing.font.bold = True
     r_ing.font.size = Pt(10)
-    r_cip = p_sign.add_run(f"{cargo_firmante.upper()} · CIP N° [XXXXXX]\n")
+    r_cip = p_sign.add_run(f"{_sanitize_xml_str(cargo_firmante.upper())} · CIP N° [XXXXXX]\n")
     r_cip.font.size = Pt(9)
 
     # Retornar buffer en memoria
