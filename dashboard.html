@@ -4335,15 +4335,6 @@ function applyPendienteToFilters(mode,actor,esp,opts){
   currentPage=1;
   document.getElementById('btnReset').classList.add('visible');
   document.getElementById('filterActiveTag').classList.add('visible');
-  const moreEl=document.getElementById('filterMore');
-  const moreBtn=document.getElementById('btnFilterMore');
-  if(actor&&actor!=='all'){
-    moreEl?.classList.add('open');
-    moreBtn?.classList.add('active');
-    moreBtn?.setAttribute('aria-expanded','true');
-    const label=moreBtn?.querySelector('span');
-    if(label)label.textContent='Menos';
-  }
   syncCartasSearchUI();
   updateTable();
   const cpLabel=actor&&actor!=='all'?(ACTOR_LABELS[actor]||actor):'todas las contrapartes';
