@@ -3697,8 +3697,6 @@ function updatePendDetailMeta(){
   if(hilosBlock)hilosBlock.style.display=(pendMode==='comunicacion'||pendMode==='respondidos')?'none':'';
   if(operBlock)operBlock.style.display='';
   if(matrixCard)matrixCard.style.display=pendMode==='respondidos'?'none':'';
-  const waBtn=document.getElementById('btnWhatsappPendientes');
-  if(waBtn)waBtn.style.display=pendMode==='debo'?'inline-flex':'none';
   return items;
 }
 
