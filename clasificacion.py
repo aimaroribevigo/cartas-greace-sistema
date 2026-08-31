@@ -43,6 +43,108 @@ _PEND_ENTIDAD_STATES = {
     "PENDIENTE CGGC",
 }
 
+SEMANTIC_RULES = [
+    (
+        "reiterativo",
+        "⚠️ Reiterativo / Urgente",
+        "Reiterativo",
+        re.compile(r"\b(?:REITERATIVO|REITERACI[OÓ]N|REITER(?:O|A)\s+(?:SOLICITUD|ATENCI[OÓ]N|PRONUNCIAMIENTO|RESPUESTA)|BAJO\s+APERCIBIMIENTO|URGENTE)\b", re.I),
+        "Trámite con reiteración formal de atención urgente",
+        True,
+    ),
+    (
+        "consulta_rfi",
+        "❓ Consulta Técnica / RFI",
+        "Consulta Técnica",
+        re.compile(r"\b(?:CONSULTA(?:\s*N[°º]?\s*\d+|\s+T[EÉ]CNICA|\s+DE\s+OBRA)?|INTERFERENCIA(?:S)?|INCOMPATIBILIDAD(?:ES)?|ACLARACI[OÓ]N\s+DE\s+PLANO(?:S)?|DUDAS?\s+T[EÉ]CNICA)\b", re.I),
+        "Consulta técnica o incompatibilidad que exige absolución contractual",
+        True,
+    ),
+    (
+        "ensayo_calidad",
+        "🧪 Control de Calidad / Ensayos",
+        "Ensayos / Calidad",
+        re.compile(r"\b(?:ENSAYOS?|DENSIDAD(?:ES)?|COMPRESI[OÓ]N|RESISTENCIA|PROCTOR|CALIDAD|DOSIFICACI[OÓ]N|DISE[ÑN]O\s+DE\s+MEZCLA|ROTURA\s+DE\s+PROBETA|SLUMP|ASENTAMIENTO|MTC|ESPECIFICACION(?:ES)?\s+T[EÉ]CNICA(?:S)?)\b", re.I),
+        "Presentación de ensayos o control de calidad para conformidad técnica",
+        True,
+    ),
+    (
+        "plazo_economico",
+        "💰 Plazo / Económico",
+        "Plazo / Económico",
+        re.compile(r"\b(?:AMPLIACI[OÓ]N\s+DE\s+PLAZO|VALORIZACI[OÓ]N(?:\s*N[°º]?\s*\d+)?|ADICIONAL\s+DE\s+OBRA|MAYORES\s+METRADOS|DEDUCTIVO|LIQUIDACI[OÓ]N|PENALIDAD(?:ES)?|RECONOCIMIENTO\s+DE\s+GASTOS)\b", re.I),
+        "Trámite contractual con plazos legales de Ley de Contrataciones",
+        True,
+    ),
+    (
+        "subsanacion",
+        "🔧 Subsanación de Observaciones",
+        "Subsanación",
+        re.compile(r"\b(?:SUBSANACI[OÓ]N(?:\s+DE\s+OBSERVACI[OÓ]N(?:ES)?)?|LEVANTAMIENTO\s+DE\s+OBSERVACI[OÓ]N(?:ES)?|REINGRESO|ABSOLUCI[OÓ]N\s+DE\s+OBSERVACI[OÓ]N(?:ES)?|OBSERVACI[OÓ]N(?:ES)?\s+AL\s+INFORME)\b", re.I),
+        "Subsanación o levantamiento de observaciones presentado para verificación",
+        True,
+    ),
+    (
+        "aprobacion",
+        "📝 Solicitud de Aprobación",
+        "Solicitud Aprobación",
+        re.compile(r"\b(?:APROBACI[OÓ]N|SOLICIT(?:UD|O|A)\s+(?:DE\s+)?(?:APROBACI[OÓ]N|PRONUNCIAMIENTO|AUTORIZACI[OÓ]N|CONFORMIDAD|PERMISO|REVISI[OÓ]N)|SOLICIT(?:UD|O|A)\s+SE\s+(?:AUTORICE|APRUEBE|PRONUNCIE)|PRONUNCIAMIENTO|CONFORMIDAD)\b", re.I),
+        "Solicitud formal que requiere pronunciamiento o autorización expresa",
+        True,
+    ),
+    (
+        "comunicacion",
+        "📄 Solo Comunicación / Informativo",
+        "Solo Informativo",
+        re.compile(r"\b(?:PARA\s+(?:SU\s+)?CONOCIMIENTO|TRASLAD(?:O|AR)|REMIT(?:E|O)\s+COPIA|PARA\s+(?:FINES\s+DE\s+)?ARCHIVO|COMUNIC(?:O|A)\s+INICIO|PONE\s+EN\s+CONOCIMIENTO|INFORMATIVO)\b", re.I),
+        "Documento informativo o traslado sin requerimiento de respuesta",
+        False,
+    ),
+]
+
+
+def analyze_semantic_intent(c: dict) -> dict[str, Any]:
+    """Escanea el contenido de la carta por palabras clave para inferir su intención técnica."""
+    asunto = str(c.get("asunto") or "")
+    obs = str(c.get("observacion") or "")
+    doc = str(c.get("n_documento") or "")
+    refs = str(c.get("referencias") or "")
+    blob = f"{doc} {asunto} {obs} {refs}"
+    
+    estado = normalize_estado(c.get("estado_norm") or c.get("estado"))
+    if estado == "PARA CONOCIMIENTO":
+        return {
+            "categoria": "comunicacion",
+            "label": "📄 Solo Comunicación / Informativo",
+            "short_label": "Solo Informativo",
+            "exige_respuesta": False,
+            "action_hint": "Trámite registrado para conocimiento, sin deuda de respuesta",
+            "keywords": ["PARA CONOCIMIENTO"],
+        }
+
+    for cat, label, short_label, pattern, hint, req_resp in SEMANTIC_RULES:
+        matches = pattern.findall(blob)
+        if matches:
+            kw_clean = list(dict.fromkeys(m.strip().upper() for m in matches if isinstance(m, str) and len(m.strip()) > 2))
+            return {
+                "categoria": cat,
+                "label": label,
+                "short_label": short_label,
+                "exige_respuesta": req_resp,
+                "action_hint": hint,
+                "keywords": kw_clean[:4],
+            }
+
+    # Por defecto
+    return {
+        "categoria": "gestion_general",
+        "label": "📋 Gestión General",
+        "short_label": "Gestión General",
+        "exige_respuesta": is_estado_abierto(estado),
+        "action_hint": "Trámite regular de obra en gestión",
+        "keywords": [],
+    }
+
 
 def _fold(s: str) -> str:
     s = unicodedata.normalize("NFKD", s or "")
@@ -261,6 +363,7 @@ def classify_carta(c: dict) -> dict[str, Any]:
         "solo_comunicacion": comunicacion,
         "estado_norm": estado,
         "especialidad_norm": c.get("especialidad_norm") or "SIN ESPECIALIDAD",
+        "semantica": analyze_semantic_intent(c),
     }
 
 

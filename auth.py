@@ -72,7 +72,7 @@ def ensure_usuarios_table(cur) -> None:
 
 
 def seed_usuarios(conn) -> dict:
-    """Crea/corrige admin, residente e ingenieros; marca rotación si aplica."""
+    """Crea/corrige únicamente el usuario admin si no existe; no inyecta usuarios de prueba."""
     created = []
     updated = []
     rotation_marked = []
@@ -80,10 +80,7 @@ def seed_usuarios(conn) -> dict:
         ensure_usuarios_table(cur)
         seeds = [
             ("admin", "Administrador", "admin", []),
-            ("residente", "Residente CGGC", "residente", []),
         ]
-        for username, esp_code, nombre in INGENIERO_SEEDS:
-            seeds.append((username, nombre, "ingeniero", [esp_code]))
 
         for username, nombre, rol, esps in seeds:
             esp_json = json.dumps(esps, ensure_ascii=False)
@@ -107,17 +104,16 @@ def seed_usuarios(conn) -> dict:
                 created.append(username)
                 continue
             if (
-                (row.get("especialidades_json") or "") != esp_json
-                or (row.get("nombre") or "") != nombre
+                (row.get("nombre") or "") != nombre
                 or (row.get("rol") or "") != rol
             ):
                 cur.execute(
                     """
                     UPDATE usuarios
-                    SET nombre=%s, rol=%s, especialidades_json=%s
+                    SET nombre=%s, rol=%s
                     WHERE id=%s
                     """,
-                    (nombre, rol, esp_json, row["id"]),
+                    (nombre, rol, row["id"]),
                 )
                 updated.append(username)
 

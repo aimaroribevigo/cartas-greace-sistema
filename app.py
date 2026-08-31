@@ -39,6 +39,7 @@ from hilos import (
     build_whatsapp_hilos_urgentes,
     list_hilos_api,
     persist_hilos,
+    rebuild_hilos_fast,
     set_hilo_plazo_config,
     try_close_referenced_cartas,
 )
@@ -424,10 +425,7 @@ def init_db(conn=None):
 
 
 def _rebuild_hilos(conn) -> dict:
-    with conn.cursor() as cur:
-        cur.execute("SELECT * FROM cartas")
-        rows = [row_to_dict(r, with_class=False) for r in cur.fetchall()]
-    return persist_hilos(conn, rows)
+    return rebuild_hilos_fast(conn)
 
 
 def row_to_dict(r, exclude=("creado_en", "actualizado_en"), with_class=True):
@@ -1716,10 +1714,12 @@ def api_notify_send():
 
 def start_whatsapp_scheduler():
     cfg = whatsapp_config()
-    interval = max(15, cfg["interval_minutes"]) * 60
+    if not cfg.get("enabled"):
+        return
+    interval = max(15, cfg.get("interval_minutes", 180)) * 60
 
     def loop():
-        if cfg["notify_on_start"]:
+        if cfg.get("notify_on_start"):
             time.sleep(25)
             try:
                 run_plazos_notification(force=False)
@@ -1734,8 +1734,8 @@ def start_whatsapp_scheduler():
 
     threading.Thread(target=loop, name="whatsapp-plazos", daemon=True).start()
     print(
-        f"[whatsapp] scheduler cada {cfg['interval_minutes']} min "
-        f"(enabled={cfg['enabled']}, to={cfg['to'] or '—'})"
+        f"[whatsapp] scheduler cada {cfg.get('interval_minutes', 180)} min "
+        f"(enabled={cfg.get('enabled')}, to={cfg.get('to') or '—'})"
     )
 
 
@@ -1770,9 +1770,13 @@ def _auto_import_background():
                 hilos = _rebuild_hilos(conn)
                 print("[hilos]", hilos, flush=True)
             elif result.get("ok") and result.get("skipped"):
-                # Base ya cargada: asegurar amarre de hilos al arrancar
-                hilos = _rebuild_hilos(conn)
-                print("[hilos]", hilos, flush=True)
+                # Base ya cargada: solo enlazar hilos si existen cartas sin hilo
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) c FROM cartas WHERE hilo_id IS NULL")
+                    missing = cur.fetchone().get("c", 0)
+                if missing > 0:
+                    hilos = _rebuild_hilos(conn)
+                    print("[hilos] hilos enlazados:", hilos, flush=True)
         finally:
             conn.close()
     except Exception as exc:

@@ -116,14 +116,29 @@ def _as_date(v):
         return v.date()
     if isinstance(v, date):
         return v
+    if isinstance(v, (int, float)):
+        try:
+            if 10000 <= float(v) <= 80000:
+                from datetime import timedelta
+                return date(1899, 12, 30) + timedelta(days=int(float(v)))
+        except Exception:
+            pass
     s = str(v).strip()
-    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d", "%d-%m-%Y", "%d.%m.%Y"):
+    if s.isdigit():
+        try:
+            num = int(s)
+            if 10000 <= num <= 80000:
+                from datetime import timedelta
+                return date(1899, 12, 30) + timedelta(days=num)
+        except Exception:
+            pass
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d", "%d-%m-%Y", "%d.%m.%Y", "%d/%m/%y", "%Y-%m-%d %H:%M:%S"):
         try:
             return datetime.strptime(s, fmt).date()
         except ValueError:
             continue
     try:
-        return datetime.fromisoformat(s).date()
+        return datetime.fromisoformat(s.split("T")[0]).date()
     except ValueError:
         return None
 
@@ -424,37 +439,76 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
     if not excel_path.exists():
         return {"ok": False, "error": f"Archivo Excel no encontrado: {excel_path}"}
 
-    with conn.cursor() as cur:
-        cur.execute("SELECT COUNT(*) AS c FROM cartas")
-        count = cur.fetchone()["c"]
-        if count > 0 and not force:
-            return {"ok": True, "skipped": True, "existing": count}
+    wb = openpyxl.load_workbook(excel_path, data_only=True, read_only=True)
+    sheetnames = list(wb.sheetnames)
+    parsed_rows_by_bandeja: dict[str, list[tuple]] = {}
+    total_parsed = 0
+    sheets_processed = []
 
-        wb = openpyxl.load_workbook(excel_path, data_only=True, read_only=True)
-        sheetnames = list(wb.sheetnames)
-        parsed_rows_by_bandeja: dict[str, list[tuple]] = {}
-        total_parsed = 0
-        sheets_processed = []
+    try:
+        matched_sheets = set()
+        for cfg in SHEETS:
+            actual_sheet_name = find_matching_sheet(sheetnames, cfg)
+            if not actual_sheet_name or actual_sheet_name in matched_sheets:
+                continue
+            matched_sheets.add(actual_sheet_name)
+            ws = wb[actual_sheet_name]
+            header_row, col_map = detect_header_row_and_map(ws, cfg["header_row"])
+            
+            rows_for_sheet = []
+            empty_streak = 0
+            max_col = max(cfg["max_col"], max(col_map.values()) + 1 if col_map else 20)
 
-        try:
-            matched_sheets = set()
-            for cfg in SHEETS:
-                actual_sheet_name = find_matching_sheet(sheetnames, cfg)
-                if not actual_sheet_name or actual_sheet_name in matched_sheets:
+            for cells in ws.iter_rows(min_row=header_row + 1, max_col=max_col, values_only=True):
+                if col_map:
+                    parsed = parse_cells_with_map(cells or (), col_map)
+                else:
+                    parsed = parse_cells_by_layout(cfg["layout"], cells or ())
+
+                if not parsed:
+                    empty_streak += 1
+                    if empty_streak >= EMPTY_STREAK_STOP:
+                        break
                     continue
-                matched_sheets.add(actual_sheet_name)
-                ws = wb[actual_sheet_name]
-                header_row, col_map = detect_header_row_and_map(ws, cfg["header_row"])
+                empty_streak = 0
+                rows_for_sheet.append(_row_tuple(cfg["bandeja"], cfg["sentido"], parsed))
+
+            if rows_for_sheet:
+                parsed_rows_by_bandeja[cfg["bandeja"]] = rows_for_sheet
+                total_parsed += len(rows_for_sheet)
+                sheets_processed.append(f"{actual_sheet_name} ({len(rows_for_sheet)} cartas)")
+
+        # Si no se encontró ninguna de las 6 hojas estándar, o si hay hojas adicionales con cartas:
+        if total_parsed == 0:
+            for s_name in sheetnames:
+                ws = wb[s_name]
+                header_row, col_map = detect_header_row_and_map(ws, 1, max_scan=35)
+                if not col_map and not any(k in s_name.lower() for k in ["carta", "doc", "res", "sup", "rl", "oficio", "informe"]):
+                    continue
                 
                 rows_for_sheet = []
                 empty_streak = 0
-                max_col = max(cfg["max_col"], max(col_map.values()) + 1 if col_map else 20)
+                max_col = max(col_map.values()) + 1 if col_map else 25
+
+                s_low = s_name.lower()
+                if "sup" in s_low or "recibida_sup" in s_low:
+                    default_ban, default_sent = "recibida_sup", "recibida"
+                elif "rl" in s_low or "legal" in s_low:
+                    default_ban, default_sent = "rl", "emitida"
+                elif "pronis" in s_low or "entidad" in s_low:
+                    default_ban, default_sent = "recibida_pronis", "recibida"
+                elif "mpsc" in s_low or "muni" in s_low:
+                    default_ban, default_sent = "recibida_mpsc", "recibida"
+                elif "otro" in s_low or "jrd" in s_low:
+                    default_ban, default_sent = "recibida_otros", "recibida"
+                else:
+                    default_ban, default_sent = "residente", "emitida"
 
                 for cells in ws.iter_rows(min_row=header_row + 1, max_col=max_col, values_only=True):
                     if col_map:
                         parsed = parse_cells_with_map(cells or (), col_map)
                     else:
-                        parsed = parse_cells_by_layout(cfg["layout"], cells or ())
+                        parsed = parse_cells_by_layout("emitida", cells or ())
 
                     if not parsed:
                         empty_streak += 1
@@ -462,84 +516,45 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
                             break
                         continue
                     empty_streak = 0
-                    rows_for_sheet.append(_row_tuple(cfg["bandeja"], cfg["sentido"], parsed))
+
+                    raw_ban = str(parsed.get("bandeja") or "").lower()
+                    rec = str(parsed.get("receptor") or "").upper()
+                    if "sup" in raw_ban or "SUPERVIS" in rec:
+                        b, s = "recibida_sup", "recibida"
+                    elif "rl" in raw_ban or "LEGAL" in rec:
+                        b, s = "rl", "emitida"
+                    elif "pronis" in raw_ban or "PRONIS" in rec:
+                        b, s = "recibida_pronis", "recibida"
+                    elif "mpsc" in raw_ban or "MUNI" in rec:
+                        b, s = "recibida_mpsc", "recibida"
+                    elif "otro" in raw_ban or "JRD" in rec:
+                        b, s = "recibida_otros", "recibida"
+                    else:
+                        b, s = default_ban, default_sent
+
+                    rows_for_sheet.append(_row_tuple(b, s, parsed))
 
                 if rows_for_sheet:
-                    parsed_rows_by_bandeja[cfg["bandeja"]] = rows_for_sheet
+                    parsed_rows_by_bandeja[f"{s_name}_{default_ban}"] = rows_for_sheet
                     total_parsed += len(rows_for_sheet)
-                    sheets_processed.append(f"{actual_sheet_name} ({len(rows_for_sheet)} cartas)")
+                    sheets_processed.append(f"{s_name} ({len(rows_for_sheet)} cartas)")
 
-            # Si no se encontró ninguna de las 6 hojas estándar, o si hay hojas adicionales con cartas:
-            if total_parsed == 0:
-                for s_name in sheetnames:
-                    ws = wb[s_name]
-                    header_row, col_map = detect_header_row_and_map(ws, 1, max_scan=35)
-                    if not col_map and not any(k in s_name.lower() for k in ["carta", "doc", "res", "sup", "rl", "oficio", "informe"]):
-                        continue
-                    
-                    rows_for_sheet = []
-                    empty_streak = 0
-                    max_col = max(col_map.values()) + 1 if col_map else 25
+    finally:
+        wb.close()
 
-                    s_low = s_name.lower()
-                    if "sup" in s_low or "recibida_sup" in s_low:
-                        default_ban, default_sent = "recibida_sup", "recibida"
-                    elif "rl" in s_low or "legal" in s_low:
-                        default_ban, default_sent = "rl", "emitida"
-                    elif "pronis" in s_low or "entidad" in s_low:
-                        default_ban, default_sent = "recibida_pronis", "recibida"
-                    elif "mpsc" in s_low or "muni" in s_low:
-                        default_ban, default_sent = "recibida_mpsc", "recibida"
-                    elif "otro" in s_low or "jrd" in s_low:
-                        default_ban, default_sent = "recibida_otros", "recibida"
-                    else:
-                        default_ban, default_sent = "residente", "emitida"
+    # REGLA DE SEGURIDAD CRÍTICA
+    if total_parsed == 0:
+        return {
+            "ok": False,
+            "error": f"No se encontraron registros de cartas en el archivo Excel. Hojas disponibles: {sheetnames}. Asegúrate de que el archivo contenga las hojas de cartas o columnas como N° Documento, Fecha, Asunto.",
+            "sheets": sheetnames,
+        }
 
-                    for cells in ws.iter_rows(min_row=header_row + 1, max_col=max_col, values_only=True):
-                        if col_map:
-                            parsed = parse_cells_with_map(cells or (), col_map)
-                        else:
-                            parsed = parse_cells_by_layout("emitida", cells or ())
-
-                        if not parsed:
-                            empty_streak += 1
-                            if empty_streak >= EMPTY_STREAK_STOP:
-                                break
-                            continue
-                        empty_streak = 0
-
-                        raw_ban = str(parsed.get("bandeja") or "").lower()
-                        rec = str(parsed.get("receptor") or "").upper()
-                        if "sup" in raw_ban or "SUPERVIS" in rec:
-                            b, s = "recibida_sup", "recibida"
-                        elif "rl" in raw_ban or "LEGAL" in rec:
-                            b, s = "rl", "emitida"
-                        elif "pronis" in raw_ban or "PRONIS" in rec:
-                            b, s = "recibida_pronis", "recibida"
-                        elif "mpsc" in raw_ban or "MUNI" in rec:
-                            b, s = "recibida_mpsc", "recibida"
-                        elif "otro" in raw_ban or "JRD" in rec:
-                            b, s = "recibida_otros", "recibida"
-                        else:
-                            b, s = default_ban, default_sent
-
-                        rows_for_sheet.append(_row_tuple(b, s, parsed))
-
-                    if rows_for_sheet:
-                        parsed_rows_by_bandeja[f"{s_name}_{default_ban}"] = rows_for_sheet
-                        total_parsed += len(rows_for_sheet)
-                        sheets_processed.append(f"{s_name} ({len(rows_for_sheet)} cartas)")
-
-        finally:
-            wb.close()
-
-        # REGLA DE SEGURIDAD CRÍTICA
-        if total_parsed == 0:
-            return {
-                "ok": False,
-                "error": f"No se encontraron registros de cartas en el archivo Excel. Hojas disponibles: {sheetnames}. Asegúrate de que el archivo contenga las hojas de cartas o columnas como N° Documento, Fecha, Asunto.",
-                "sheets": sheetnames,
-            }
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) AS c FROM cartas")
+        count = cur.fetchone()["c"]
+        if count > 0 and not force:
+            return {"ok": True, "skipped": True, "existing": count}
 
         # Borrar y reimportar
         if force and count > 0:
@@ -557,11 +572,11 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
             by_bandeja_summary[ban_key] = {"inserted": len(batch)}
             print(f"[import] {ban_key}: {len(batch)} filas", flush=True)
 
-        conn.commit()
-        return {
-            "ok": True,
-            "inserted": inserted,
-            "by_bandeja": by_bandeja_summary,
-            "sheets_processed": sheets_processed,
-            "excel": str(excel_path),
-        }
+    conn.commit()
+    return {
+        "ok": True,
+        "inserted": inserted,
+        "by_bandeja": by_bandeja_summary,
+        "sheets_processed": sheets_processed,
+        "excel": str(excel_path),
+    }

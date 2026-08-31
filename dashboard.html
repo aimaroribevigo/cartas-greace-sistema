@@ -109,24 +109,26 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .meta-pill-lbl{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em}
 
 /* Filter Bar in Panel layout */
-.filter-bar{position:sticky;top:var(--header-height);z-index:100;background:var(--bg);padding:10px 32px 10px;transition:box-shadow .2s,top .15s ease}
+.filter-bar{position:sticky;top:var(--header-height);z-index:100;background:var(--bg);padding:12px 32px;transition:box-shadow .2s,top .15s ease}
 .filter-bar.scrolled .filter-panel{box-shadow:var(--shadow-md)}
-.filter-panel{max-width:100%;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);transition:box-shadow .2s}
-.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.filter-more-fields{display:none;align-items:center;gap:8px;flex-wrap:wrap}
-.filter-more-fields.open{display:inline-flex}
-.filter-search{flex:1 1 220px;min-width:180px;max-width:360px}
-.filter-more-btn{font-family:var(--font-body);font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:#FAFAF8;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:4px}
-.filter-more-btn:hover,.filter-more-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
-.filter-flex-spacer{flex:1 1 8px;min-width:0}
-.filter-active-tag{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:4px 8px;border-radius:4px;display:none}
-.filter-active-tag.visible{display:inline-flex;align-items:center;gap:4px}
-.filter-select,.filter-input{font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 10px;transition:border-color .15s}
-.filter-select:focus,.filter-input:focus{outline:none;border-color:var(--accent)}
+.filter-panel{max-width:100%;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;box-shadow:var(--shadow-sm);transition:box-shadow .2s}
+.filter-row{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.filter-search-wrap{display:none !important;align-items:center;position:relative;flex:1 1 210px;min-width:170px;max-width:290px}
+.filter-search-wrap.floating{display:inline-flex !important}
+.filter-search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13.5px;color:var(--text-muted);pointer-events:none}
+.filter-search-wrap .filter-search{width:100%;padding-left:30px}
+.filter-flex-spacer{flex:1 1 10px;min-width:0}
+.filter-active-tag{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-light);border:1px solid rgba(196,91,62,0.22);padding:5px 10px;border-radius:6px;display:none}
+.filter-active-tag.visible{display:inline-flex;align-items:center;gap:5px}
+.filter-select,.filter-input{font-family:var(--font-body);font-size:12.5px;font-weight:500;color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:7px 11px;transition:border-color .15s,box-shadow .15s}
+.filter-select:hover{border-color:#C5BFB5}
+.filter-select:focus,.filter-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,91,62,0.14)}
 .filter-input{min-width:160px}
-.filter-reset:hover{opacity:.85}
-.filter-reset{font-size:12px;color:var(--accent);cursor:pointer;display:none;align-items:center;gap:4px;white-space:nowrap}
-.filter-reset.visible{display:flex}
+.filter-reset{font-family:var(--font-body);font-size:12px;font-weight:700;color:#9E2A14;background:#FDECE9;border:1px solid #EAA8A0;border-radius:6px;padding:6px 14px;cursor:pointer;display:none;align-items:center;gap:6px;white-space:nowrap;transition:all .18s ease;box-shadow:0 1px 2px rgba(196,91,62,0.08)}
+.filter-reset:hover{background:#FAD4CE;border-color:#D8847A;color:#7A1E0D;transform:translateY(-1px);box-shadow:0 3px 6px rgba(196,91,62,0.15)}
+.filter-reset:active{transform:scale(0.97)}
+.filter-reset i{font-size:13.5px}
+.filter-reset.visible{display:inline-flex}
 
 /* Reportes KPI Cards */
 .kpi-row{max-width:100%;margin:0 auto;padding:18px 32px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -193,6 +195,25 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 /* Delete button */
 .btn-act.btn-act-del{background:#FDF5F5;border-color:#F0D8D5;color:#C45B3E}
 .btn-act.btn-act-del:hover{background:var(--rose);border-color:var(--rose);color:#FFFFFF;box-shadow:0 2px 6px rgba(160,82,92,0.35)}
+
+/* Follow / Continuar trámite (Me deben / Reiterativo) */
+.btn-act.btn-act-follow{background:rgba(24,90,157,0.1);border-color:rgba(24,90,157,0.28);color:#185A9D}
+.btn-act.btn-act-follow:hover{background:#185A9D;border-color:#185A9D;color:#FFFFFF;box-shadow:0 2px 6px rgba(24,90,157,0.35)}
+
+/* Chain / Continuar hilo de trámite */
+.btn-act.btn-act-chain{background:rgba(62,124,126,0.1);border-color:rgba(62,124,126,0.28);color:var(--teal)}
+.btn-act.btn-act-chain:hover{background:var(--teal);border-color:var(--teal);color:#FFFFFF;box-shadow:0 2px 6px rgba(62,124,126,0.35)}
+
+/* Semantic Intent Badges */
+.intent-badge{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:4px;margin-top:4px;white-space:nowrap;letter-spacing:0.02em}
+.intent-badge.ensayo_calidad{background:#EBF3F8;color:#185A9D;border:1px solid #C4DCEE}
+.intent-badge.aprobacion{background:#EAF5F0;color:#2F6B4F;border:1px solid #B7D9C8}
+.intent-badge.consulta_rfi{background:#FBF7EE;color:#8A6A20;border:1px solid #E0D0A8}
+.intent-badge.plazo_economico{background:#FBF1F0;color:var(--rose);border:1px solid #E0B4B0}
+.intent-badge.subsanacion{background:#F2EDF8;color:#6A4C93;border:1px solid #DACBE8}
+.intent-badge.reiterativo{background:#FFF2E8;color:#C45B3E;border:1px solid #F3C4B4}
+.intent-badge.comunicacion{background:#F3F4F6;color:#5C6370;border:1px solid #D8DBE0}
+.intent-badge.gestion_general{background:#F8F7F4;color:var(--text-secondary);border:1px solid var(--border)}
 
 /* Cell Wrapping and Column Sizing for Cartas Table (13 Columns + Acciones) */
 .cell-wrap{word-break:break-word;overflow-wrap:anywhere}
@@ -323,8 +344,6 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 .btn-deadline-filter,.btn-export,.btn-cancel,.btn-save,.btn-new-carta,.btn-jump-cartas,.btn-page,.btn-reimport{font-family:var(--font-body);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .btn-deadline-filter{border:1px solid var(--rose);background:#fff;color:var(--rose)}
 .btn-deadline-filter:hover{background:var(--rose);color:#fff}
-.btn-whatsapp{border-color:#25D366;color:#128C7E}
-.btn-whatsapp:hover{background:#25D366;color:#fff;border-color:#25D366}
 .btn-row-action{background:none;border:none;cursor:pointer;padding:4px 6px;font-size:14px;color:var(--text-muted);border-radius:4px}
 .btn-row-action:hover{color:var(--accent);background:var(--accent-light)}
 .cartas-main-card{border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);background:var(--bg-card);overflow:hidden}
@@ -871,8 +890,10 @@ body.app-locked .app-layout{visibility:hidden}
 <nav class="filter-bar" id="filterBar">
   <div class="filter-panel" id="filterPanel">
     <div class="filter-row">
-      <input class="filter-input filter-search" id="filterQ" type="search" placeholder="N° informe, N° carta, asunto, especialidad, referencia…" aria-label="Búsqueda">
-      <span class="filter-search-hint" id="filterSearchHint"></span>
+      <div class="filter-search-wrap" id="filterSearchWrap">
+        <i class="ri-search-line" aria-hidden="true"></i>
+        <input class="filter-input filter-search" id="filterQ" type="search" placeholder="Buscar cartas…" aria-label="Búsqueda rápida">
+      </div>
       <select class="filter-select" id="filterBandeja" aria-label="Bandeja"><option value="all">Todas las bandejas</option></select>
       <select class="filter-select" id="filterEstado" aria-label="Estado"><option value="all">Todos los estados</option></select>
       <select class="filter-select" id="filterEsp" aria-label="Especialidad"><option value="all">Todas las especialidades</option></select>
@@ -892,6 +913,17 @@ body.app-locked .app-layout{visibility:hidden}
         <option value="me_deben">Me deben respuesta</option>
         <option value="ninguna">Sin deuda / cerrada</option>
       </select>
+      <select class="filter-select" id="filterSemantica" aria-label="Intención / Tipo">
+        <option value="all">Todas las intenciones</option>
+        <option value="ensayo_calidad">🧪 Ensayos / Calidad</option>
+        <option value="consulta_rfi">❓ Consulta Técnica / RFI</option>
+        <option value="aprobacion">📝 Solicitud de Aprobación</option>
+        <option value="plazo_economico">💰 Plazo / Económico</option>
+        <option value="subsanacion">🔧 Subsanación</option>
+        <option value="reiterativo">⚠️ Reiterativo / Urgente</option>
+        <option value="comunicacion">📄 Solo Informativo</option>
+        <option value="gestion_general">📋 Gestión General</option>
+      </select>
       <select class="filter-select" id="filterFlujo" aria-label="Flujo Documentario">
         <option value="all">Todos los flujos</option>
         <option value="RO➔SUP">📤 RO ➔ SUP (Residente a Supervisión)</option>
@@ -905,27 +937,24 @@ body.app-locked .app-layout{visibility:hidden}
         <option value="OTRO➔RO">📥 OTRO ➔ RO (Otros a Residente)</option>
         <option value="RO➔OTRO">📤 RO ➔ OTRO (Residente a Otros)</option>
       </select>
-      <button type="button" class="filter-more-btn" id="btnFilterMore" aria-expanded="false"><i class="ri-equalizer-line"></i> <span>Más</span></button>
-      <div class="filter-more-fields" id="filterMore">
-        <select class="filter-select" id="filterContraparte" aria-label="Contraparte">
-          <option value="all">Toda contraparte</option>
-          <option value="supervisor">Supervisión</option>
-          <option value="entidad">PRONIS</option>
-          <option value="municipalidad">Municipalidad</option>
-          <option value="jrd">Junta Resol. Disputas</option>
-          <option value="otro">Otro</option>
-          <option value="rl">Representante Legal</option>
-          <option value="residente">Residente</option>
-        </select>
-        <select class="filter-select" id="filterNaturaleza" aria-label="Naturaleza">
-          <option value="all">Respuesta + comunicación</option>
-          <option value="respuesta">Solo con respuesta</option>
-          <option value="comunicacion">Solo traslados / comunicación</option>
-        </select>
-      </div>
+      <select class="filter-select" id="filterContraparte" aria-label="Contraparte">
+        <option value="all">Toda contraparte</option>
+        <option value="supervisor">Supervisión</option>
+        <option value="entidad">PRONIS</option>
+        <option value="municipalidad">Municipalidad</option>
+        <option value="jrd">Junta Resol. Disputas</option>
+        <option value="otro">Otro</option>
+        <option value="rl">Representante Legal</option>
+        <option value="residente">Residente</option>
+      </select>
+      <select class="filter-select" id="filterNaturaleza" aria-label="Naturaleza">
+        <option value="all">Respuesta + comunicación</option>
+        <option value="respuesta">Solo con respuesta</option>
+        <option value="comunicacion">Solo traslados / comunicación</option>
+      </select>
       <span class="filter-flex-spacer"></span>
       <span class="filter-active-tag" id="filterActiveTag"><i class="ri-filter-3-line"></i> Filtros activos</span>
-      <div class="filter-reset" id="btnReset"><i class="ri-close-circle-line"></i> Limpiar</div>
+      <button type="button" class="filter-reset" id="btnReset"><i class="ri-refresh-line"></i> <span>Limpiar filtros</span></button>
     </div>
   </div>
 </nav>
@@ -940,7 +969,6 @@ body.app-locked .app-layout{visibility:hidden}
       <div class="deadline-alert-stats" id="deadlineStatsReportes"></div>
       <div class="deadline-alert-actions">
         <button type="button" class="btn-deadline-filter" id="btnFilterVencidasReportes"><i class="ri-alarm-warning-line"></i> Ver en Cartas</button>
-        <button type="button" class="btn-deadline-filter btn-whatsapp" id="btnWhatsappReportes"><i class="ri-whatsapp-line"></i> WhatsApp: Yo debo</button>
       </div>
     </div>
   </div>
@@ -1048,7 +1076,6 @@ body.app-locked .app-layout{visibility:hidden}
           <p class="jump-cartas-text">Hay <strong id="pendJumpCount">0</strong> cartas en el modo actual. Ábrelas en Cartas con los filtros de deuda aplicados.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button type="button" class="btn-jump-cartas" id="btnJumpPendientes"><i class="ri-mail-open-line"></i> Ver en Cartas</button>
-            <button type="button" class="btn-deadline-filter btn-whatsapp" id="btnWhatsappPendientes"><i class="ri-whatsapp-line"></i> WhatsApp: Yo debo</button>
           </div>
         </div>
       </div>
@@ -1621,7 +1648,10 @@ body.app-locked .app-layout{visibility:hidden}
       </form>
     </div>
     <div class="modal-footer" style="padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-      <button type="button" class="btn-docx-outline" id="btnGenerarDocxFromEdit" title="Genera y descarga un borrador de carta en formato Word (.docx)"><i class="ri-file-word-2-line"></i> Borrador Word (.docx)</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button type="button" class="btn-docx-outline" id="btnGenerarDocxFromEdit" title="Genera y descarga un borrador de carta en formato Word (.docx)"><i class="ri-file-word-2-line"></i> Borrador Word (.docx)</button>
+        <button type="button" class="btn-cancel" id="btnEditGoResponder" style="display:none;background:#F0F5FA;color:#185A9D;border-color:#B8D3EE;font-weight:600" title="Abrir ventana de respuesta o continuación de trámite"><i class="ri-reply-line"></i> Responder / Continuar Trámite</button>
+      </div>
       <div style="display:flex;gap:8px">
         <button type="button" class="btn-cancel" id="btnCancelForm">Cancelar</button>
         <button type="button" class="btn-save" id="btnSaveForm"><i class="ri-save-line"></i> Guardar Carta</button>
@@ -2093,7 +2123,6 @@ function applyUserChrome(user){
   if(cfgMaint)cfgMaint.style.display=user.can_import?'':'none';
   const btnNew = document.getElementById('btnNewCarta');
   if(btnNew) btnNew.style.display = userPerm(user,'can_create_cartas') ? '' : 'none';
-  document.querySelectorAll('.btn-whatsapp').forEach(b=>{b.style.display=user.can_notify?'':'none';});
   if(tabU)tabU.style.display=user.can_manage_users?'flex':'none';
   if(tabC)tabC.style.display=user.can_manage_users?'flex':'none';
   if(btnU)btnU.style.display=user.can_manage_users?'':'none';
@@ -2325,50 +2354,122 @@ function isClosedState(est){
   if(e.includes('ABSUELT')||e.includes('CERRAD')||e.includes('ANULAD')||e==='PARA CONOCIMIENTO') return true;
   return false;
 }
-function canRespondCarta(c){
-  if(!c) return false;
+function analyzeSemanticIntent(c){
+  if(!c) return { categoria: 'gestion_general', label: '📋 Gestión General', short_label: 'Gestión', exige_respuesta: true, action_hint: 'Trámite en gestión', keywords: [] };
+  if(c.clasificacion && c.clasificacion.semantica){
+    return c.clasificacion.semantica;
+  }
+  const asunto = String(c.asunto || '');
+  const obs = String(c.observacion || '');
+  const doc = String(c.n_documento || '');
+  const refs = String(c.referencias || '');
+  const blob = `${doc} ${asunto} ${obs} ${refs}`;
+
+  const estado = String(c.estado_norm || c.estado || '').toUpperCase();
+  if(estado === 'PARA CONOCIMIENTO'){
+    return {
+      categoria: 'comunicacion',
+      label: '📄 Solo Comunicación / Informativo',
+      short_label: 'Solo Informativo',
+      exige_respuesta: false,
+      action_hint: 'Trámite registrado para conocimiento, sin deuda de respuesta',
+      keywords: ['PARA CONOCIMIENTO']
+    };
+  }
+
+  const rules = [
+    { cat: 'reiterativo', label: '⚠️ Reiterativo / Urgente', short_label: 'Reiterativo', rx: /\b(?:REITERATIVO|REITERACI[OÓ]N|REITER(?:O|A)\s+(?:SOLICITUD|ATENCI[OÓ]N|PRONUNCIAMIENTO|RESPUESTA)|BAJO\s+APERCIBIMIENTO|URGENTE)\b/i, hint: 'Trámite con reiteración formal de atención urgente', req: true },
+    { cat: 'consulta_rfi', label: '❓ Consulta Técnica / RFI', short_label: 'Consulta Técnica', rx: /\b(?:CONSULTA(?:\s*N[°º]?\s*\d+|\s+T[EÉ]CNICA|\s+DE\s+OBRA)?|INTERFERENCIA(?:S)?|INCOMPATIBILIDAD(?:ES)?|ACLARACI[OÓ]N\s+DE\s+PLANO(?:S)?|DUDAS?\s+T[EÉ]CNICA)\b/i, hint: 'Consulta técnica o incompatibilidad que exige absolución contractual', req: true },
+    { cat: 'ensayo_calidad', label: '🧪 Control de Calidad / Ensayos', short_label: 'Ensayos / Calidad', rx: /\b(?:ENSAYOS?|DENSIDAD(?:ES)?|COMPRESI[OÓ]N|RESISTENCIA|PROCTOR|CALIDAD|DOSIFICACI[OÓ]N|DISE[ÑN]O\s+DE\s+MEZCLA|ROTURA\s+DE\s+PROBETA|SLUMP|ASENTAMIENTO|MTC|ESPECIFICACION(?:ES)?\s+T[EÉ]CNICA(?:S)?)\b/i, hint: 'Presentación de ensayos o control de calidad para conformidad técnica', req: true },
+    { cat: 'plazo_economico', label: '💰 Plazo / Económico', short_label: 'Plazo / Económico', rx: /\b(?:AMPLIACI[OÓ]N\s+DE\s+PLAZO|VALORIZACI[OÓ]N(?:\s*N[°º]?\s*\d+)?|ADICIONAL\s+DE\s+OBRA|MAYORES\s+METRADOS|DEDUCTIVO|LIQUIDACI[OÓ]N|PENALIDAD(?:ES)?|RECONOCIMIENTO\s+DE\s+GASTOS)\b/i, hint: 'Trámite contractual con plazos legales de Ley de Contrataciones', req: true },
+    { cat: 'subsanacion', label: '🔧 Subsanación de Observaciones', short_label: 'Subsanación', rx: /\b(?:SUBSANACI[OÓ]N(?:\s+DE\s+OBSERVACI[OÓ]N(?:ES)?)?|LEVANTAMIENTO\s+DE\s+OBSERVACI[OÓ]N(?:ES)?|REINGRESO|ABSOLUCI[OÓ]N\s+DE\s+OBSERVACI[OÓ]N(?:ES)?|OBSERVACI[OÓ]N(?:ES)?\s+AL\s+INFORME)\b/i, hint: 'Subsanación o levantamiento de observaciones presentado para verificación', req: true },
+    { cat: 'aprobacion', label: '📝 Solicitud de Aprobación', short_label: 'Solicitud Aprobación', rx: /\b(?:APROBACI[OÓ]N|SOLICIT(?:UD|O|A)\s+(?:DE\s+)?(?:APROBACI[OÓ]N|PRONUNCIAMIENTO|AUTORIZACI[OÓ]N|CONFORMIDAD|PERMISO|REVISI[OÓ]N)|SOLICIT(?:UD|O|A)\s+SE\s+(?:AUTORICE|APRUEBE|PRONUNCIE)|PRONUNCIAMIENTO|CONFORMIDAD)\b/i, hint: 'Solicitud formal que requiere pronunciamiento o autorización expresa', req: true },
+    { cat: 'comunicacion', label: '📄 Solo Comunicación / Informativo', short_label: 'Solo Informativo', rx: /\b(?:PARA\s+(?:SU\s+)?CONOCIMIENTO|TRASLAD(?:O|AR)|REMIT(?:E|O)\s+COPIA|PARA\s+(?:FINES\s+DE\s+)?ARCHIVO|COMUNIC(?:O|A)\s+INICIO|PONE\s+EN\s+CONOCIMIENTO|INFORMATIVO)\b/i, hint: 'Documento informativo o traslado sin requerimiento de respuesta', req: false },
+  ];
+
+  for(const r of rules){
+    const matches = blob.match(r.rx);
+    if(matches){
+      const kw = Array.from(new Set(matches.map(m => m.trim().toUpperCase()))).slice(0, 4);
+      return {
+        categoria: r.cat,
+        label: r.label,
+        short_label: r.short_label,
+        exige_respuesta: r.req,
+        action_hint: r.hint,
+        keywords: kw
+      };
+    }
+  }
+
+  return {
+    categoria: 'gestion_general',
+    label: '📋 Gestión General',
+    short_label: 'Gestión General',
+    exige_respuesta: isOpen(estado),
+    action_hint: 'Trámite regular de obra en gestión',
+    keywords: []
+  };
+}
+
+function getCartaActionInfo(c){
+  if(!c) return { canAction: false };
   const est = String(c.estado_norm || c.estado || '').trim().toUpperCase();
-  if(!isOpen(est) || isClosedState(est)) return false;
-
+  const closed = isClosedState(est);
   const cl = (typeof classif === 'function') ? classif(c) : (c.clasificacion || {});
-  if(cl.solo_comunicacion || cl.naturaleza === 'comunicacion') return false;
+  const sem = analyzeSemanticIntent(c);
+  
+  if(closed || cl.solo_comunicacion || cl.naturaleza === 'comunicacion' || sem.categoria === 'comunicacion'){
+    return {
+      canAction: false,
+      isClosed: true,
+      reason: 'Trámite cerrado o solo informativo'
+    };
+  }
 
-  // 1. Si alguna otra carta en el sistema ya tomó esta carta como referencia, ya fue continuada/respondida
   const cDocNorm = typeof normalize_doc_key === 'function' ? normalize_doc_key(c.n_documento) : String(c.n_documento||'').trim().toUpperCase();
-  if(cDocNorm && (ALL_CARTAS||[]).some(other => {
+  const childCarta = (ALL_CARTAS||[]).find(other => {
     if(!other || other.id === c.id) return false;
     const oRef = typeof normalize_doc_key === 'function' ? normalize_doc_key(other.referencia) : String(other.referencia||'').trim().toUpperCase();
-    if(oRef && oRef === cDocNorm) return true;
-    if(c.hilo_id && other.hilo_id === c.hilo_id && (other.id > c.id || String(other.fecha||'') > String(c.fecha||''))) return true;
-    return false;
-  })){
-    return false;
+    return oRef && oRef === cDocNorm;
+  });
+
+  if(childCarta){
+    return {
+      canAction: true,
+      mode: 'chain',
+      icon: 'ri-git-branch-line',
+      btnClass: 'btn-act-chain',
+      title: `Trámite continuado en ${childCarta.n_documento}. Clic para emitir nueva carta en este hilo`,
+      childDoc: childCarta.n_documento,
+      targetId: c.id
+    };
   }
 
-  // 2. Revisar el hilo en HILOS
-  const hilo = (typeof findHiloForCarta === 'function') ? findHiloForCarta(c) : null;
-  if(hilo){
-    if(hilo.abierto === false || hilo.estado === 'cerrado') return false;
-    if(hilo.n_abiertas === 0) return false;
+  if(cl.deuda === 'debo'){
+    return {
+      canAction: true,
+      mode: 'reply',
+      icon: 'ri-reply-line',
+      btnClass: 'btn-act-reply',
+      title: `Responder a este trámite: Emitir respuesta oficial de obra`,
+      targetId: c.id
+    };
   }
 
-  // 3. Revisar la cadena completa: solo la última carta activa de la línea de trámite puede responderse
-  const chain = (typeof getHiloChainCartas === 'function') ? getHiloChainCartas(c) : [c];
-  if(chain && chain.length > 0){
-    const latest = chain[chain.length - 1];
-    if(latest && latest.id !== c.id) return false;
+  return {
+    canAction: true,
+    mode: 'follow',
+    icon: 'ri-mail-send-line',
+    btnClass: 'btn-act-follow',
+    title: `Continuar trámite / Enviar reiterativo a ${quienRecibeLabel(c)} (Esperando respuesta)`,
+    targetId: c.id
+  };
+}
 
-    const sLatest = String(latest.estado_norm || latest.estado || '').trim().toUpperCase();
-    if(!isOpen(sLatest) || isClosedState(sLatest)) return false;
-
-    const hasAnyOpen = chain.some(ch => {
-      const s = String(ch.estado_norm || ch.estado || '').trim().toUpperCase();
-      return isOpen(s) && !isClosedState(s);
-    });
-    if(!hasAnyOpen) return false;
-  }
-
-  return true;
+function canRespondCarta(c){
+  const act = getCartaActionInfo(c);
+  return act.canAction;
 }
 function parseDate(v){if(!v)return null;const s=String(v).trim().slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;const d=new Date(s+'T12:00:00');return isNaN(d)?null:d;}
 function today(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate(),12,0,0);}
@@ -2633,6 +2734,7 @@ function showView(view){
   if(view==='usuarios')loadUsersAdmin();
   if(view==='configuracion')loadConfigAdmin();
   if(view==='cartas')syncCartasSearchUI();
+  updateFloatingSearchOnScroll();
   closeMobileSidebar();
 }
 
@@ -3084,46 +3186,73 @@ function cartaMatchesSearch(c,q){
   return true;
 }
 
-function syncCartasSearchUI(){
-  const q=document.getElementById('filterQ')?.value||'';
-  const tableQ=document.getElementById('cartasTableQ');
-  if(tableQ&&tableQ.value!==q)tableQ.value=q;
-  const clr=document.getElementById('cartasTableQClear');
-  if(clr)clr.classList.toggle('visible',!!q.trim());
-  const term=q.trim();
-  const hintText=term&&currentView==='cartas'
-    ?`${filtered.length} resultado${filtered.length===1?'':'s'}`
-    :'';
-  const hint=document.getElementById('cartasSearchHint');
-  if(hint)hint.textContent=term?`${hintText} para “${term}”`:'';
-  const filterHint=document.getElementById('filterSearchHint');
-  if(filterHint)filterHint.textContent=term?hintText:'';
+function syncCartasSearchUI(explicitVal){
+  const tableQ = document.getElementById('cartasTableQ');
+  const fQ = document.getElementById('filterQ');
+  const q = explicitVal !== undefined ? explicitVal : (tableQ?.value ?? fQ?.value ?? '');
+  if(tableQ && tableQ.value !== q) tableQ.value = q;
+  if(fQ && fQ.value !== q) fQ.value = q;
+  const clr = document.getElementById('cartasTableQClear');
+  if(clr) clr.classList.toggle('visible', !!q.trim());
+  const term = q.trim();
+  const hintText = term && currentView === 'cartas'
+    ? `${filtered.length} resultado${filtered.length === 1 ? '' : 's'}`
+    : '';
+  const hint = document.getElementById('cartasSearchHint');
+  if(hint) hint.textContent = term ? `${hintText} para “${term}”` : '';
+}
+
+function updateFloatingSearchOnScroll(){
+  const floatWrap = document.getElementById('filterSearchWrap');
+  if(!floatWrap) return;
+  
+  if(currentView !== 'cartas'){
+    floatWrap.classList.remove('floating');
+    return;
+  }
+
+  const tableQ = document.getElementById('cartasTableQ');
+  const filterBar = document.getElementById('filterBar');
+  if(!tableQ || !filterBar){
+    floatWrap.classList.remove('floating');
+    return;
+  }
+
+  const tRect = tableQ.getBoundingClientRect();
+  const fRect = filterBar.getBoundingClientRect();
+  const isScrolledPast = tRect.bottom < fRect.bottom;
+  
+  floatWrap.classList.toggle('floating', isScrolledPast);
 }
 
 function setupCartasSearchFloat(){
   syncCartasSearchUI();
+  updateFloatingSearchOnScroll();
 }
 
 function setCartasSearchQuery(value){
-  document.getElementById('filterQ').value=value;
-  const tableQ=document.getElementById('cartasTableQ');
-  if(tableQ)tableQ.value=value;
-  syncCartasSearchUI();
+  const v = value || '';
+  const tableQ = document.getElementById('cartasTableQ');
+  const fQ = document.getElementById('filterQ');
+  if(tableQ) tableQ.value = v;
+  if(fQ) fQ.value = v;
+  syncCartasSearchUI(v);
   clearTimeout(qTimer);
-  qTimer=setTimeout(applyFilters,value.trim()?180:0);
+  qTimer = setTimeout(applyFilters, v.trim() ? 180 : 0);
 }
 
 function applyFilters(){
   const bandeja=document.getElementById('filterBandeja')?.value||activeBandeja||'all';
   activeBandeja=bandeja;
-  const estado=document.getElementById('filterEstado').value;
-  const esp=document.getElementById('filterEsp').value;
+  const estado=document.getElementById('filterEstado')?.value||'all';
+  const esp=document.getElementById('filterEsp')?.value||'all';
+  const semantica=document.getElementById('filterSemantica')?.value||'all';
   const flujo=document.getElementById('filterFlujo')?.value||'all';
-  const q=document.getElementById('filterQ').value.trim().toLowerCase();
-  const plazo=document.getElementById('filterPlazo').value;
-  const deuda=document.getElementById('filterDeuda').value;
-  const contraparte=document.getElementById('filterContraparte').value;
-  const naturaleza=document.getElementById('filterNaturaleza').value;
+  const q=(document.getElementById('cartasTableQ')?.value||document.getElementById('filterQ')?.value||'').trim().toLowerCase();
+  const plazo=document.getElementById('filterPlazo')?.value||'all';
+  const deuda=document.getElementById('filterDeuda')?.value||'all';
+  const contraparte=document.getElementById('filterContraparte')?.value||'all';
+  const naturaleza=document.getElementById('filterNaturaleza')?.value||'all';
   filtered=ALL_CARTAS.filter(c=>{
     const cl=classif(c);
     if(bandeja!=='all'&&c.bandeja!==bandeja)return false;
@@ -3132,6 +3261,10 @@ function applyFilters(){
       if(en!==estado)return false;
     }
     if(esp!=='all'&&!cartaMatchesEsp(c,esp))return false;
+    if(semantica!=='all'){
+      const sem=analyzeSemanticIntent(c);
+      if(sem.categoria!==semantica)return false;
+    }
     if(!cartaMatchesFlujo(c,flujo))return false;
     if(q&&!cartaMatchesSearch(c,q))return false;
     if(!matchesPlazo(c,plazo))return false;
@@ -3153,19 +3286,9 @@ function applyFilters(){
     if(fa&&fb&&fa.getTime()!==fb.getTime())return fb-fa;
     return(b.id||0)-(a.id||0);
   });
-  const has=estado!=='all'||esp!=='all'||flujo!=='all'||q||plazo!=='all'||bandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
-  document.getElementById('btnReset').classList.toggle('visible',has);
-  document.getElementById('filterActiveTag').classList.toggle('visible',has);
-  const moreActive=contraparte!=='all'||naturaleza!=='all';
-  const moreEl=document.getElementById('filterMore');
-  const moreBtn=document.getElementById('btnFilterMore');
-  if(moreActive){
-    moreEl?.classList.add('open');
-    moreBtn?.classList.add('active');
-    moreBtn?.setAttribute('aria-expanded','true');
-    const label=moreBtn?.querySelector('span');
-    if(label)label.textContent='Menos';
-  }
+  const has=estado!=='all'||esp!=='all'||semantica!=='all'||flujo!=='all'||q||plazo!=='all'||bandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
+  document.getElementById('btnReset')?.classList.toggle('visible',has);
+  document.getElementById('filterActiveTag')?.classList.toggle('visible',has);
   currentPage=1;updateAll();
   syncCartasSearchUI();
   if(!filtered.length&&has&&ALL_CARTAS.length){
@@ -3175,29 +3298,25 @@ function applyFilters(){
 }
 
 function resetFiltersSilent(){
-  document.getElementById('filterEstado').value='all';
-  document.getElementById('filterEsp').value='all';
-  const fFlujo=document.getElementById('filterFlujo');
-  if(fFlujo)fFlujo.value='all';
-  document.getElementById('filterQ').value='';
-  document.getElementById('filterPlazo').value='all';
-  document.getElementById('filterDeuda').value='all';
-  document.getElementById('filterContraparte').value='all';
-  document.getElementById('filterNaturaleza').value='all';
-  document.getElementById('filterBandeja').value='all';
+  const fEst=document.getElementById('filterEstado'); if(fEst)fEst.value='all';
+  const fEsp=document.getElementById('filterEsp'); if(fEsp)fEsp.value='all';
+  const fSem=document.getElementById('filterSemantica'); if(fSem)fSem.value='all';
+  const fFlujo=document.getElementById('filterFlujo'); if(fFlujo)fFlujo.value='all';
+  const tableQ=document.getElementById('cartasTableQ'); if(tableQ)tableQ.value='';
+  const fQ=document.getElementById('filterQ'); if(fQ)fQ.value='';
+  const fPlazo=document.getElementById('filterPlazo'); if(fPlazo)fPlazo.value='all';
+  const fDeuda=document.getElementById('filterDeuda'); if(fDeuda)fDeuda.value='all';
+  const fContra=document.getElementById('filterContraparte'); if(fContra)fContra.value='all';
+  const fNat=document.getElementById('filterNaturaleza'); if(fNat)fNat.value='all';
+  const fBan=document.getElementById('filterBandeja'); if(fBan)fBan.value='all';
   activeBandeja='all';
+  syncCartasSearchUI('');
 }
 
 function resetFilters(){
   resetFiltersSilent();
-  const moreEl=document.getElementById('filterMore');
-  const moreBtn=document.getElementById('btnFilterMore');
-  moreEl?.classList.remove('open');
-  moreBtn?.classList.remove('active');
-  moreBtn?.setAttribute('aria-expanded','false');
-  const label=moreBtn?.querySelector('span');
-  if(label)label.textContent='Más';
-  initBandejas();applyFilters();
+  initBandejas();
+  applyFilters();
 }
 
 function applyPlazosConfig(stats){
@@ -3487,6 +3606,8 @@ function updateTable(){
   if(!rows.length){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';updatePagination(start,0);return;}
   rows.forEach((c,idx)=>{
     const st=deadlineStatus(c);
+    const sem=analyzeSemanticIntent(c);
+    const act=getCartaActionInfo(c);
     const tr=document.createElement('tr');
     tr.className='row-rendered';
     tr.style.animationDelay=`${Math.min(idx*12,180)}ms`;
@@ -3494,6 +3615,16 @@ function updateTable(){
     if(st.kind==='por_vencer')tr.classList.add('row-por-vencer');
     const pb=st.kind==='por_vencer'?'por-vencer':st.kind.replace('_','-');
     const itemNumber=start+idx+1;
+
+    const semBadge=(sem&&sem.categoria!=='gestion_general')
+      ?`<div class="intent-badge ${sem.categoria}" title="${escapeHtml(sem.action_hint)}">${escapeHtml(sem.short_label)}</div>`
+      :'';
+
+    let actionBtnHtml='';
+    if(CURRENT_USER&&CURRENT_USER.can_create_cartas&&act.canAction){
+      actionBtnHtml=`<button type="button" class="btn-act ${act.btnClass}" title="${escapeHtml(act.title)}" onclick="openResponderModal(${c.id})"><i class="${act.icon}"></i></button>`;
+    }
+
     tr.innerHTML=`
       <td style="text-align:center;font-weight:600;color:var(--text-muted);font-size:11.5px">${itemNumber}</td>
       <td class="cell-wrap" style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento||'—')}</td>
@@ -3502,7 +3633,7 @@ function updateTable(){
       <td class="cell-wrap">${escapeHtml(getEspecialidadDisplay(c))}</td>
       <td class="cell-wrap" style="font-size:12px">${escapeHtml(quienEnviaLabel(c))}</td>
       <td class="cell-wrap" style="font-size:12px">${escapeHtml(quienRecibeLabel(c))}</td>
-      <td class="cell-wrap">${escapeHtml(c.asunto||'—')}</td>
+      <td class="cell-wrap">${escapeHtml(c.asunto||'—')}${semBadge}</td>
       <td class="cell-wrap" style="font-weight:600;color:var(--text-primary)">${escapeHtml(getCartaReferenciaDisplay(c))}</td>
       <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
       <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
@@ -3510,7 +3641,7 @@ function updateTable(){
       <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(c.observacion||'')}">${escapeHtml(c.observacion||'—')}</td>
       <td class="col-acc">
         <div class="actions-group">
-          ${(CURRENT_USER&&CURRENT_USER.can_create_cartas&&canRespondCarta(c))?`<button type="button" class="btn-act btn-act-reply" title="Responder a este trámite" onclick="openResponderModal(${c.id})"><i class="ri-reply-line"></i></button>`:''}
+          ${actionBtnHtml}
           <button type="button" class="btn-act btn-act-edit" title="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'Editar carta':'Ver carta (solo lectura)'}" onclick="openEditModal(${c.id})"><i class="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'ri-edit-line':'ri-eye-line'}"></i></button>
           ${(CURRENT_USER&&CURRENT_USER.can_delete_cartas)?`<button type="button" class="btn-act btn-act-del" title="Eliminar carta" onclick="confirmDelete(${c.id})"><i class="ri-delete-bin-line"></i></button>`:''}
         </div>
@@ -4882,9 +5013,11 @@ function openResponderModal(parentCartaId){
   let baseCarta = null;
   if(parentCartaId){
     baseCarta = (ALL_CARTAS||[]).find(x => x.id === parentCartaId);
-    if(baseCarta && !canRespondCarta(baseCarta)){
-      showToast('Este trámite / hilo de carta ya se encuentra cerrado o absuelto y no requiere respuesta.', 'warning');
-      return;
+    if(baseCarta){
+      const est = String(baseCarta.estado_norm || baseCarta.estado || '').toUpperCase();
+      if(isClosedState(est)){
+        showToast(`Nota: Este trámite (${baseCarta.n_documento || 'ID '+baseCarta.id}) figura como ${est}. Se abrirá para continuar o reabrir el hilo.`, 'info');
+      }
     }
   }
   setupResponderCartaPadreSearch();
@@ -4900,6 +5033,24 @@ function openResponderModal(parentCartaId){
 
   if(parentCartaId && baseCarta){
     selectResponderCartaPadre(baseCarta);
+    
+    // Sugerir asunto inteligente según la intención de la carta
+    const rfAsunto = document.getElementById('rf_asunto');
+    if(rfAsunto && !rfAsunto.value.trim()){
+      const sem = analyzeSemanticIntent(baseCarta);
+      const cleanDoc = baseCarta.n_documento || '';
+      if(sem.categoria === 'ensayo_calidad'){
+        rfAsunto.value = `PRONUNCIAMIENTO RESPECTO A ENSAYOS DE CALIDAD (${cleanDoc})`;
+      } else if(sem.categoria === 'consulta_rfi'){
+        rfAsunto.value = `ABSOLUCIÓN A CONSULTA TÉCNICA (${cleanDoc})`;
+      } else if(sem.categoria === 'subsanacion'){
+        rfAsunto.value = `VERIFICACIÓN DE SUBSANACIÓN DE OBSERVACIONES (${cleanDoc})`;
+      } else if(sem.categoria === 'reiterativo'){
+        rfAsunto.value = `ATENCIÓN A REITERATIVO (${cleanDoc})`;
+      } else if(baseCarta.asunto){
+        rfAsunto.value = `RESPUESTA A ${cleanDoc} — ${baseCarta.asunto.slice(0, 80)}`;
+      }
+    }
   } else {
     clearResponderCartaPadre();
     populateResponderEspChips([]);
@@ -5490,6 +5641,8 @@ function openNewModal(){
   editingId = null;
   const sumEl = document.getElementById('cartaReadonlySummary');
   if (sumEl) sumEl.style.display = 'none';
+  const btnResp = document.getElementById('btnEditGoResponder');
+  if (btnResp) btnResp.style.display = 'none';
 
   document.getElementById('modalTitle').textContent = 'Nueva Carta';
   const sub = document.getElementById('modalSub');
@@ -5569,9 +5722,26 @@ async function openEditModal(id){
     editingId = id;
     const canEdit = CURRENT_USER && (CURRENT_USER.can_edit_cartas || CURRENT_USER.can_edit_formal);
     const sumEl = document.getElementById('cartaReadonlySummary');
+    const sem = analyzeSemanticIntent(c);
+    const act = getCartaActionInfo(c);
 
     const docLabel = c.n_documento || ('ID ' + id);
     const estadoLabel = c.estado_norm || c.estado || '—';
+
+    const btnResp = document.getElementById('btnEditGoResponder');
+    if(btnResp){
+      if(CURRENT_USER && CURRENT_USER.can_create_cartas && act.canAction){
+        btnResp.style.display = 'inline-flex';
+        btnResp.title = act.title;
+        btnResp.innerHTML = `<i class="${act.icon}"></i> ${act.mode === 'reply' ? 'Responder Trámite' : (act.mode === 'follow' ? 'Continuar / Reiterar' : 'Continuar Hilo')}`;
+        btnResp.onclick = () => {
+          closeModal();
+          openResponderModal(c.id);
+        };
+      } else {
+        btnResp.style.display = 'none';
+      }
+    }
 
     if (!canEdit) {
       if (sumEl) {
@@ -5586,18 +5756,18 @@ async function openEditModal(id){
         if (document.getElementById('csum_remite')) document.getElementById('csum_remite').textContent = c.receptor || (sentido === 'recibida' ? 'SUPERVISOR' : 'RESIDENTE');
         if (document.getElementById('csum_destinatario')) document.getElementById('csum_destinatario').textContent = c.dirigido_a || (sentido === 'recibida' ? 'RESIDENTE' : 'SUPERVISOR');
         if (document.getElementById('csum_padre')) document.getElementById('csum_padre').textContent = c.referencia || '— (Inicia tema)';
-        if (document.getElementById('csum_salida_text')) document.getElementById('csum_salida_text').textContent = estadoLabel;
+        if (document.getElementById('csum_salida_text')) document.getElementById('csum_salida_text').textContent = `${estadoLabel} · ${sem.short_label}`;
         if (document.getElementById('csum_asunto')) document.getElementById('csum_asunto').textContent = c.asunto || 'Sin asunto registrado';
         if (document.getElementById('csum_respaldo')) document.getElementById('csum_respaldo').textContent = c.observacion || 'Sin sustento registrado';
       }
       document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
-      if (sub) sub.textContent = `Solo lectura · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
+      if (sub) sub.textContent = `Solo lectura · ${bandejaLabel(c.bandeja)} · ${estadoLabel} · ${sem.short_label}`;
     } else {
       if (sumEl) sumEl.style.display = 'none';
       document.getElementById('modalTitle').textContent = docLabel;
       const sub = document.getElementById('modalSub');
-      if (sub) sub.textContent = `Editando · ${bandejaLabel(c.bandeja)} · ${estadoLabel}`;
+      if (sub) sub.textContent = `Editando · ${bandejaLabel(c.bandeja)} · ${estadoLabel} · ${sem.short_label}`;
       document.getElementById('btnSaveForm').innerHTML = '<i class="ri-save-line"></i> Actualizar Carta';
     }
 
@@ -6132,25 +6302,14 @@ document.querySelectorAll('.view-tab').forEach(btn=>btn.addEventListener('click'
   showView(btn.dataset.view);
   if(isMobileScreen())closeMobileSidebar();
 }));
-document.getElementById('btnReset').addEventListener('click',resetFilters);
-document.getElementById('filterBandeja').addEventListener('change',()=>{activeBandeja=document.getElementById('filterBandeja').value;applyFilters();});
-document.getElementById('btnFilterMore').addEventListener('click',()=>{
-  const more=document.getElementById('filterMore');
-  const btn=document.getElementById('btnFilterMore');
-  const open=more.classList.toggle('open');
-  btn.classList.toggle('active',open);
-  btn.setAttribute('aria-expanded',open?'true':'false');
-  const label=btn.querySelector('span');
-  if(label)label.textContent=open?'Menos':'Más';
-});
-document.getElementById('btnJumpCartas').addEventListener('click',goToCartasWithFilters);
-document.getElementById('btnFilterVencidasReportes').addEventListener('click',()=>filterVencidas(true));
-document.getElementById('btnWhatsappReportes').addEventListener('click',sendWhatsapp);
-document.getElementById('btnWhatsappPendientes').addEventListener('click',sendWhatsapp);
-document.getElementById('btnNewCarta').addEventListener('click',openNewModal);
+document.getElementById('btnReset')?.addEventListener('click',resetFilters);
+document.getElementById('filterBandeja')?.addEventListener('change',()=>{activeBandeja=document.getElementById('filterBandeja')?.value||'all';applyFilters();});
+document.getElementById('btnJumpCartas')?.addEventListener('click',goToCartasWithFilters);
+document.getElementById('btnFilterVencidasReportes')?.addEventListener('click',()=>filterVencidas(true));
+document.getElementById('btnNewCarta')?.addEventListener('click',openNewModal);
 document.getElementById('modalClose')?.addEventListener('click',()=>closeModal());
-document.getElementById('btnCancelForm').addEventListener('click',()=>closeModal());
-document.getElementById('btnSaveForm').addEventListener('click',handleSave);
+document.getElementById('btnCancelForm')?.addEventListener('click',()=>closeModal());
+document.getElementById('btnSaveForm')?.addEventListener('click',handleSave);
 document.getElementById('f_bandeja')?.addEventListener('change',updateBandejaHint);
 document.getElementById('f_especialidad')?.addEventListener('change',()=>suggestAreaFromEspecialidad(true));
 
@@ -6634,34 +6793,44 @@ document.getElementById('btnReloadApp')?.addEventListener('click', () => {
   window.location.reload();
 });
 
-document.getElementById('btnConfirmCancel').addEventListener('click',closeConfirm);
-document.getElementById('btnConfirmOk').addEventListener('click',handleConfirmOk);
+document.getElementById('btnConfirmCancel')?.addEventListener('click',closeConfirm);
+document.getElementById('btnConfirmOk')?.addEventListener('click',handleConfirmOk);
 document.getElementById('confirmOverlay')?.addEventListener('click',e=>{
   if(e.target.id==='confirmOverlay')closeConfirm();
 });
-document.getElementById('btnCSV').addEventListener('click',exportCSV);
+document.getElementById('btnCSV')?.addEventListener('click',exportCSV);
 document.getElementById('btnDownloadBackupExcel')?.addEventListener('click',downloadBackupExcel);
 document.getElementById('btnReimportConfig')?.addEventListener('click',confirmReimport);
 document.getElementById('btnGenerarDocxFromEdit')?.addEventListener('click',handleDownloadDocxFromEdit);
 document.getElementById('filterFlujo')?.addEventListener('change',applyFilters);
-document.getElementById('filterEstado').addEventListener('change',applyFilters);
-document.getElementById('filterEsp').addEventListener('change',applyFilters);
-document.getElementById('filterPlazo').addEventListener('change',applyFilters);
-document.getElementById('filterDeuda').addEventListener('change',applyFilters);
-document.getElementById('filterContraparte').addEventListener('change',applyFilters);
-document.getElementById('filterNaturaleza').addEventListener('change',applyFilters);
-document.getElementById('filterQ').addEventListener('input',()=>{syncCartasSearchUI();clearTimeout(qTimer);qTimer=setTimeout(applyFilters,280);});
-document.getElementById('cartasTableQ').addEventListener('input',()=>{
-  document.getElementById('filterQ').value=document.getElementById('cartasTableQ').value;
+document.getElementById('filterEstado')?.addEventListener('change',applyFilters);
+document.getElementById('filterEsp')?.addEventListener('change',applyFilters);
+document.getElementById('filterSemantica')?.addEventListener('change',applyFilters);
+document.getElementById('filterPlazo')?.addEventListener('change',applyFilters);
+document.getElementById('filterDeuda')?.addEventListener('change',applyFilters);
+document.getElementById('filterContraparte')?.addEventListener('change',applyFilters);
+document.getElementById('filterNaturaleza')?.addEventListener('change',applyFilters);
+document.getElementById('filterQ')?.addEventListener('input',()=>{
+  const val = document.getElementById('filterQ')?.value || '';
+  const tableQ = document.getElementById('cartasTableQ');
+  if(tableQ) tableQ.value = val;
   syncCartasSearchUI();
   clearTimeout(qTimer);
   qTimer=setTimeout(applyFilters,180);
 });
-document.getElementById('cartasTableQClear').addEventListener('click',()=>{
-  setCartasSearchQuery('');
-  document.getElementById('cartasTableQ').focus();
+document.getElementById('cartasTableQ')?.addEventListener('input',()=>{
+  const val = document.getElementById('cartasTableQ')?.value || '';
+  const fQ = document.getElementById('filterQ');
+  if(fQ) fQ.value = val;
+  syncCartasSearchUI();
+  clearTimeout(qTimer);
+  qTimer=setTimeout(applyFilters,180);
 });
-document.getElementById('btnJumpPendientes').addEventListener('click',()=>applyPendienteToFilters(pendMode,pendActor,'all'));
+document.getElementById('cartasTableQClear')?.addEventListener('click',()=>{
+  setCartasSearchQuery('');
+  document.getElementById('cartasTableQ')?.focus();
+});
+document.getElementById('btnJumpPendientes')?.addEventListener('click',()=>applyPendienteToFilters(pendMode,pendActor,'all'));
 document.querySelectorAll('#pendMode button').forEach(btn=>{
   btn.addEventListener('click',()=>{
     applyPendSelection(btn.dataset.mode,'all',{focus:true,skipScroll:isPendDetailVisible()});
@@ -6698,10 +6867,12 @@ function updateHeaderHeight(){
   if(h) document.documentElement.style.setProperty('--header-height', h + 'px');
 }
 window.addEventListener('scroll',()=>{
-  document.getElementById('filterBar').classList.toggle('scrolled',window.scrollY>10);
+  document.getElementById('filterBar')?.classList.toggle('scrolled',window.scrollY>10);
+  updateFloatingSearchOnScroll();
 },{passive:true});
 window.addEventListener('resize',()=>{
   updateHeaderHeight();
+  updateFloatingSearchOnScroll();
   Object.values(charts).forEach(ch=>ch&&ch.resize());
 });
 window.openEditModal=openEditModal;window.confirmDelete=confirmDelete;

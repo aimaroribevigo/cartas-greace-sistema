@@ -240,6 +240,7 @@ def backfill_cartas(
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM cartas ORDER BY id")
             rows = cur.fetchall()
+        conn.commit()
 
         fill_stats: dict[str, Any] = {
             "total": len(rows),
@@ -249,6 +250,7 @@ def backfill_cartas(
             "samples": [],
         }
 
+        update_batch = []
         for row in rows:
             cid = row["id"]
             new_ref = infer_referencia(row)
@@ -275,15 +277,15 @@ def backfill_cartas(
                     }
                 )
 
-            if dry_run or not updates:
-                continue
+            if not dry_run and updates:
+                update_batch.append((updates, cid))
 
-            sets = ", ".join(f"{k}=%s" for k in updates)
-            vals = list(updates.values()) + [cid]
+        if not dry_run and update_batch:
             with conn.cursor() as cur:
-                cur.execute(f"UPDATE cartas SET {sets} WHERE id=%s", vals)
-
-        if not dry_run:
+                for updates, cid in update_batch:
+                    sets = ", ".join(f"{k}=%s" for k in updates)
+                    vals = list(updates.values()) + [cid]
+                    cur.execute(f"UPDATE cartas SET {sets} WHERE id=%s", vals)
             conn.commit()
         result["fill"] = fill_stats
 

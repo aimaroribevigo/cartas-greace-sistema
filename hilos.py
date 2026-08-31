@@ -706,20 +706,22 @@ def rebuild_hilos_fast(conn) -> dict:
             groups_map[find(c["id"])].append(c)
 
         cur.execute("SET FOREIGN_KEY_CHECKS=0")
-        cur.execute("TRUNCATE TABLE hilos")
         cur.execute("UPDATE cartas SET hilo_id=NULL")
-
+        cur.execute("DELETE FROM hilos")
+        cur.execute("ALTER TABLE hilos AUTO_INCREMENT = 1")
         summarized = []
         used_claves = set()
         for root_id, items in groups_map.items():
             g = _summarize_group(items, stable=True)
-            base_clave = g["clave"][:240]
+            base_clave = g["clave"][:200]
             clave = base_clave
             counter = 2
-            while clave in used_claves:
+            norm_k = re.sub(r"[^A-Z0-9]+", "_", clave.upper()).strip("_")
+            while norm_k in used_claves:
                 clave = f"{base_clave}#{counter}"
+                norm_k = re.sub(r"[^A-Z0-9]+", "_", clave.upper()).strip("_")
                 counter += 1
-            used_claves.add(clave)
+            used_claves.add(norm_k)
             g["clave"] = clave
             summarized.append((g, items))
 
