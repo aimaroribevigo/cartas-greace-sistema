@@ -3779,27 +3779,99 @@ function updatePendOperPagination(start,shown,total){
   }
   bar.style.display='flex';
   if(!total){
-    info.textContent='Sin resultados';
+    info.innerHTML='<span style="color:var(--text-muted)">Sin resultados</span>';
     ctrl.innerHTML='';
     return;
   }
-  info.textContent=`Mostrando ${start+1}–${start+shown} de ${total} (páginas de ${PEND_OPER_PAGE_SIZE})`;
   const pages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
+  const startItem=start+1;
+  const endItem=Math.min(start+shown,total);
+  info.innerHTML=`
+    <span style="font-weight:500">Mostrando <strong style="color:var(--text-primary);font-weight:700">${startItem}–${endItem}</strong> de <strong style="color:var(--text-primary);font-weight:700">${total}</strong> cartas</span>
+    <span class="badge-soft" style="font-size:11px;padding:3px 8px;font-weight:700;color:var(--text-secondary);background:#ECE8E1;border:1px solid #DFD9CE;border-radius:5px">
+      Página ${pendOperPage} de ${pages}
+    </span>`;
   ctrl.innerHTML='';
-  const mk=(label,page,dis=false,act=false)=>{
+  const mkBtn=(html,page,disabled=false,active=false,title='')=>{
     const b=document.createElement('button');
     b.type='button';
-    b.className='btn-page'+(act?' active':'');
-    b.innerHTML=label;
-    b.disabled=dis;
+    b.className='btn-page'+(active?' active':'');
+    b.innerHTML=html;
+    b.disabled=disabled;
+    if(title)b.title=title;
     b.onclick=()=>setPendOperPage(page);
     ctrl.appendChild(b);
   };
-  mk('<i class="ri-arrow-left-s-line"></i>',pendOperPage-1,pendOperPage<=1);
-  let from=Math.max(1,pendOperPage-2),to=Math.min(pages,from+4);
-  from=Math.max(1,to-4);
-  for(let p=from;p<=to;p++)mk(String(p),p,false,p===pendOperPage);
-  mk('<i class="ri-arrow-right-s-line"></i>',pendOperPage+1,pendOperPage>=pages);
+  const mkEllipsis=()=>{
+    const span=document.createElement('span');
+    span.className='btn-page-ellipsis';
+    span.textContent='…';
+    ctrl.appendChild(span);
+  };
+
+  // 1. Primera página (⏮)
+  mkBtn('<i class="ri-skip-back-mini-line"></i>',1,pendOperPage<=1,false,'Primera página (Pág. 1)');
+  // 2. Página anterior (◀)
+  mkBtn('<i class="ri-arrow-left-s-line"></i>',pendOperPage-1,pendOperPage<=1,false,'Página anterior');
+
+  // 3. Botones numéricos inteligentes con elipsis
+  if(pages<=7){
+    for(let p=1;p<=pages;p++){
+      mkBtn(String(p),p,false,p===pendOperPage,`Página ${p}`);
+    }
+  } else {
+    mkBtn('1',1,false,pendOperPage===1,'Página 1');
+    let from=Math.max(2,pendOperPage-1);
+    let to=Math.min(pages-1,pendOperPage+1);
+    if(pendOperPage<=3){
+      from=2;to=4;
+    } else if(pendOperPage>=pages-2){
+      from=pages-3;to=pages-1;
+    }
+    if(from>2)mkEllipsis();
+    for(let p=from;p<=to;p++){
+      mkBtn(String(p),p,false,p===pendOperPage,`Página ${p}`);
+    }
+    if(to<pages-1)mkEllipsis();
+    mkBtn(String(pages),pages,false,pendOperPage===pages,`Página ${pages}`);
+  }
+
+  // 4. Página siguiente (▶)
+  mkBtn('<i class="ri-arrow-right-s-line"></i>',pendOperPage+1,pendOperPage>=pages,false,'Página siguiente');
+  // 5. Última página (⏭)
+  mkBtn('<i class="ri-skip-forward-mini-line"></i>',pages,pendOperPage>=pages,false,`Última página (Pág. ${pages})`);
+
+  // 6. Desplegable rápido ("Ir a página...")
+  if(pages>1){
+    const jumpWrap=document.createElement('div');
+    jumpWrap.className='pagination-jump-wrap';
+    const jumpLabel=document.createElement('label');
+    jumpLabel.htmlFor='pendOperPageJump';
+    jumpLabel.className='pagination-jump-label';
+    jumpLabel.textContent='Ir a:';
+    const jumpSelect=document.createElement('select');
+    jumpSelect.id='pendOperPageJump';
+    jumpSelect.className='pagination-select';
+    jumpSelect.setAttribute('aria-label','Seleccionar página directa');
+    for(let p=1;p<=pages;p++){
+      const opt=document.createElement('option');
+      opt.value=p;
+      const pStart=(p-1)*PEND_OPER_PAGE_SIZE+1;
+      const pEnd=Math.min(p*PEND_OPER_PAGE_SIZE,total);
+      opt.textContent=`Pág. ${p} (${pStart}–${pEnd})`;
+      if(p===pendOperPage)opt.selected=true;
+      jumpSelect.appendChild(opt);
+    }
+    jumpSelect.onchange=(e)=>{
+      const targetPage=parseInt(e.target.value,10);
+      if(!isNaN(targetPage)&&targetPage>=1&&targetPage<=pages){
+        setPendOperPage(targetPage);
+      }
+    };
+    jumpWrap.appendChild(jumpLabel);
+    jumpWrap.appendChild(jumpSelect);
+    ctrl.appendChild(jumpWrap);
+  }
 }
 
 function renderPendOperTable(){
