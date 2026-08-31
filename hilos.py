@@ -17,6 +17,11 @@ HILO_AMARILLO_DIA = int(os.environ.get("HILO_AMARILLO_DIA", "4"))
 HILO_LEGADO_DIAS = int(os.environ.get("HILO_LEGADO_DIAS", "60"))
 HILO_OPERATIVO_MAX_DIAS = int(os.environ.get("HILO_OPERATIVO_MAX_DIAS", "15"))
 
+HILOS_CARTAS_COLS = (
+    "id, bandeja, sentido, fecha, n_documento, tipo_documento, asunto, "
+    "especialidad, especialidad_norm, estado, estado_norm, referencias, referencia, hilo_id"
+)
+
 _RUNTIME_HILO_CFG: dict | None = None
 
 
@@ -596,7 +601,6 @@ def sync_hilos_metadata(conn, cartas: list[dict] | None = None) -> dict:
                 doc_map[normalize_doc_key(c.get("n_documento"))] = hid
                 doc_map[str(c.get("n_documento") or "").strip().upper()] = hid
 
-        cur.execute("SELECT * FROM cartas")
         cartas = _fetch_all_cartas(cur)
         groups = build_groups_from_fk(cartas)
         hilo_ids_seen: set[int] = set()
@@ -1012,7 +1016,7 @@ def is_respuesta_emitida(nueva: dict) -> bool:
 
 
 def _fetch_all_cartas(cur) -> list[dict]:
-    cur.execute("SELECT * FROM cartas")
+    cur.execute(f"SELECT {HILOS_CARTAS_COLS} FROM cartas")
     out = []
     for r in cur.fetchall():
         d = dict(r) if not isinstance(r, dict) else dict(r)

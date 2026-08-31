@@ -11,7 +11,10 @@ from flask import g, jsonify, session
 from normalizers import split_especialidades, CATALOGO_ESPECIALIDADES, normalize_especialidad
 from werkzeug.security import check_password_hash, generate_password_hash
 
-AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") in ("1", "true", "True", "yes")
+AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") not in ("0", "false", "False", "no")
+
+USUARIO_COLS = "id, username, password_hash, nombre, rol, especialidades_json, activo, must_change_password, password_changed_at, creado_en"
+
 DEFAULT_PASSWORD = (os.environ.get("DEFAULT_USER_PASSWORD") or "greace2026").strip()
 FORCE_ROTATION = os.environ.get("FORCE_PASSWORD_ROTATION", "0") in ("1", "true", "True", "yes")
 INCLUDE_MIXTA_FOR_ING = os.environ.get("AUTH_INCLUDE_MIXTA", "1") in (
@@ -225,9 +228,9 @@ def user_from_row(r: dict | None) -> dict | None:
 def fetch_user_row(conn, uid: int, only_active: bool = True) -> dict | None:
     with conn.cursor() as cur:
         if only_active:
-            cur.execute("SELECT * FROM usuarios WHERE id=%s AND activo=1 LIMIT 1", (uid,))
+            cur.execute(f"SELECT {USUARIO_COLS} FROM usuarios WHERE id=%s AND activo=1 LIMIT 1", (uid,))
         else:
-            cur.execute("SELECT * FROM usuarios WHERE id=%s LIMIT 1", (uid,))
+            cur.execute(f"SELECT {USUARIO_COLS} FROM usuarios WHERE id=%s LIMIT 1", (uid,))
         return cur.fetchone()
 
 
@@ -245,7 +248,7 @@ def verify_login(conn, username: str, password: str) -> tuple[dict | None, str |
     with conn.cursor() as cur:
         ensure_usuarios_table(cur)
         cur.execute(
-            "SELECT * FROM usuarios WHERE username=%s LIMIT 1",
+            f"SELECT {USUARIO_COLS} FROM usuarios WHERE username=%s LIMIT 1",
             (clean_user,),
         )
         row = cur.fetchone()
@@ -258,7 +261,7 @@ def verify_login(conn, username: str, password: str) -> tuple[dict | None, str |
             seed_usuarios(conn)
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT * FROM usuarios WHERE username=%s LIMIT 1",
+                    f"SELECT {USUARIO_COLS} FROM usuarios WHERE username=%s LIMIT 1",
                     (clean_user,),
                 )
                 row = cur.fetchone()

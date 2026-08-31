@@ -5,6 +5,8 @@ import hashlib
 import json
 import logging
 import os
+import queue
+import re
 import threading
 import time
 from datetime import date, timedelta
@@ -106,7 +108,26 @@ CARTA_FIELDS = [
     "caducidad",
     "fecha_respuesta",
     "carta_respuesta",
+    "link_drive",
 ]
+
+CARTA_SELECT_COLS = (
+    "id, bandeja, sentido, n_orden, fecha, n_documento, tipo_documento, asunto, "
+    "especialidad, especialidad_norm, estado, estado_norm, referencias, referencia, "
+    "folios, cd, dirigido_a, receptor, cargo, observacion, area, empresa, caducidad, "
+    "fecha_respuesta, carta_respuesta, hilo_id, link_drive"
+)
+
+CONFIG_SELECT_COLS = (
+    "id, nombre_sistema, subtitulo_proyecto, logo_url, favicon_url, logo_membrete_word, "
+    "dias_vencida, dias_por_vencer, dias_hilo, plazo_sup_dias, plazo_entidad_dias, "
+    "plazo_muni_dias, plazo_jrd_dias, plazo_ro_dias, actualizado_en"
+)
+
+CONFIG_PLAZOS_COLS = (
+    "id, dias_vencida, dias_por_vencer, dias_hilo, plazo_sup_dias, "
+    "plazo_entidad_dias, plazo_muni_dias, plazo_jrd_dias, plazo_ro_dias"
+)
 
 BANDEJAS = {
     "residente": "1. Emitidas Residente",
@@ -204,20 +225,107 @@ def scoped_cartas(db=None):
     return filter_cartas_for_user(rows, current_user())
 
 
+class MySQLConnectionPool:
+    """Pool de conexiones MySQL thread-safe, auto-reciclable y de alta disponibilidad."""
+
+    def __init__(self, max_size=10, timeout=10.0):
+        self.max_size = max(2, max_size)
+        self.timeout = timeout
+        self._pool = queue.Queue(maxsize=self.max_size)
+        self._created_count = 0
+        self._lock = threading.Lock()
+
+    def _create_raw_connection(self):
+        kwargs = {
+            "host": MYSQL_HOST,
+            "port": MYSQL_PORT,
+            "user": MYSQL_USER,
+            "password": MYSQL_PASSWORD,
+            "database": MYSQL_DATABASE,
+            "charset": "utf8mb4",
+            "cursorclass": DictCursor,
+            "autocommit": False,
+            "connect_timeout": 5,
+        }
+        if MYSQL_SSL:
+            kwargs["ssl"] = {"check_hostname": False}
+        return pymysql.connect(**kwargs)
+
+    def get_connection(self):
+        """Obtiene una conexión viva del pool o crea una nueva si no se ha alcanzado el límite."""
+        conn = None
+        try:
+            conn = self._pool.get_nowait()
+        except queue.Empty:
+            with self._lock:
+                if self._created_count < self.max_size:
+                    self._created_count += 1
+                    try:
+                        conn = self._create_raw_connection()
+                    except Exception:
+                        self._created_count -= 1
+                        raise
+
+        if conn is None:
+            try:
+                conn = self._pool.get(timeout=self.timeout)
+            except queue.Empty:
+                logging.warning("[db-pool] Pool saturado (%d conexiones), creando conexión de respaldo", self.max_size)
+                return self._create_raw_connection()
+
+        try:
+            conn.ping()
+        except Exception:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            conn = self._create_raw_connection()
+
+        return conn
+
+    def release_connection(self, conn):
+        """Devuelve la conexión al pool tras hacer rollback preventivo de transacciones."""
+        if conn is None:
+            return
+        try:
+            if getattr(conn, "open", False):
+                conn.rollback()
+                self._pool.put_nowait(conn)
+            else:
+                with self._lock:
+                    self._created_count = max(0, self._created_count - 1)
+        except (queue.Full, Exception):
+            try:
+                conn.close()
+            except Exception:
+                pass
+            with self._lock:
+                self._created_count = max(0, self._created_count - 1)
+
+    def close_all(self):
+        """Cierra todas las conexiones del pool."""
+        while not self._pool.empty():
+            try:
+                conn = self._pool.get_nowait()
+                conn.close()
+            except Exception:
+                pass
+        with self._lock:
+            self._created_count = 0
+
+
+DB_POOL = MySQLConnectionPool(max_size=int(os.environ.get("MYSQL_POOL_SIZE", "12")))
+
+
+def connect_raw_mysql():
+    """Crea una conexión dedicada no administrada por el pool (para workers largos o scripts)."""
+    return DB_POOL._create_raw_connection()
+
+
 def connect_mysql():
-    kwargs = {
-        "host": MYSQL_HOST,
-        "port": MYSQL_PORT,
-        "user": MYSQL_USER,
-        "password": MYSQL_PASSWORD,
-        "database": MYSQL_DATABASE,
-        "charset": "utf8mb4",
-        "cursorclass": DictCursor,
-        "autocommit": False,
-    }
-    if MYSQL_SSL:
-        kwargs["ssl"] = {"check_hostname": False}
-    return pymysql.connect(**kwargs)
+    """Obtiene una conexión del pool compartido."""
+    return DB_POOL.get_connection()
 
 
 def wait_for_mysql():
@@ -225,7 +333,7 @@ def wait_for_mysql():
     last_err = None
     while time.time() < deadline:
         try:
-            conn = connect_mysql()
+            conn = connect_raw_mysql()
             conn.close()
             return
         except pymysql.MySQLError as exc:
@@ -236,7 +344,7 @@ def wait_for_mysql():
 
 def get_db():
     if "db" not in g:
-        g.db = connect_mysql()
+        g.db = DB_POOL.get_connection()
     return g.db
 
 
@@ -245,7 +353,7 @@ def close_db(exc):
     db = g.pop("db", None)
     if db is not None:
         try:
-            db.close()
+            DB_POOL.release_connection(db)
         except Exception:
             pass
 
@@ -326,7 +434,8 @@ def init_db(conn=None):
                 ("idx_cartas_bandeja_fecha", "ADD KEY idx_cartas_bandeja_fecha (bandeja, fecha)"),
                 ("idx_cartas_estado_fecha", "ADD KEY idx_cartas_estado_fecha (estado_norm, fecha)"),
                 ("idx_cartas_esp_fecha", "ADD KEY idx_cartas_esp_fecha (especialidad_norm, fecha)"),
-                ("idx_cartas_sentido_fecha", "ADD KEY idx_cartas_sentido_fecha (sentido, fecha)")
+                ("idx_cartas_sentido_fecha", "ADD KEY idx_cartas_sentido_fecha (sentido, fecha)"),
+                ("ft_cartas_search", "ADD FULLTEXT KEY ft_cartas_search (n_documento, asunto, referencias, observacion, especialidad)")
             ]
             for iname, isql in idx_defs:
                 if iname not in existing_idx:
@@ -497,17 +606,17 @@ def _validate_carta_payload(d: dict) -> tuple[dict, str | None]:
     field_limits = [
         ("n_documento", 255, "El N° de documento"),
         ("tipo_documento", 80, "El tipo de documento"),
-        ("asunto", 5000, "El asunto"),
+        ("asunto", 20000, "El asunto"),
         ("especialidad", 150, "La especialidad"),
         ("estado", 80, "El estado"),
-        ("referencias", 2000, "Las referencias"),
+        ("referencias", 20000, "Las referencias"),
         ("referencia", 255, "La referencia"),
         ("folios", 100, "El campo folios"),
         ("cd", 150, "El campo anexos / CD"),
         ("dirigido_a", 250, "El destinatario"),
         ("receptor", 150, "El receptor"),
         ("cargo", 150, "El cargo"),
-        ("observacion", 3000, "Las observaciones"),
+        ("observacion", 20000, "Las observaciones"),
     ]
     for field, max_len, label in field_limits:
         val = d.get(field)
@@ -707,7 +816,7 @@ def api_auth_users_set_password(uid):
 def _get_system_config(conn=None) -> dict:
     c = conn or get_db()
     with c.cursor() as cur:
-        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        cur.execute(f"SELECT {CONFIG_SELECT_COLS} FROM configuracion_sistema WHERE id=1")
         row = cur.fetchone()
     if not row:
         return {
@@ -967,7 +1076,7 @@ def api_cartas_list():
         return resp
 
     db = get_db()
-    sql = "SELECT * FROM cartas WHERE 1=1"
+    sql = f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE 1=1"
     params = []
     if bandeja and bandeja != "all":
         sql += " AND bandeja=%s"
@@ -980,9 +1089,18 @@ def api_cartas_list():
         like = f"%{esp}%"
         params.extend([like, like])
     if qtext:
-        sql += " AND (n_documento LIKE %s OR asunto LIKE %s OR referencias LIKE %s OR referencia LIKE %s OR especialidad LIKE %s)"
+        words = [w.strip() for w in re.split(r'\s+', qtext) if w.strip()]
         like = f"%{qtext}%"
-        params.extend([like, like, like, like, like])
+        if len(qtext) >= 3 and any(len(w) >= 3 for w in words):
+            ft_query = " ".join(f"+{w}*" if not w.startswith(("+", "-", "*", "~", '"')) else w for w in words)
+            sql += (
+                " AND (MATCH(n_documento, asunto, referencias, observacion, especialidad) AGAINST(%s IN BOOLEAN MODE) "
+                " OR n_documento LIKE %s OR asunto LIKE %s OR referencias LIKE %s OR referencia LIKE %s OR especialidad LIKE %s)"
+            )
+            params.extend([ft_query, like, like, like, like, like])
+        else:
+            sql += " AND (n_documento LIKE %s OR asunto LIKE %s OR referencias LIKE %s OR referencia LIKE %s OR especialidad LIKE %s)"
+            params.extend([like, like, like, like, like])
     sql += " ORDER BY fecha IS NULL, fecha DESC, id DESC"
     with db.cursor() as cur:
         cur.execute(sql, params)
@@ -1122,7 +1240,7 @@ def api_status_supervision():
 def api_cartas_get(cid):
     db = get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+        cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (cid,))
         r = cur.fetchone()
     if not r:
         return jsonify({"error": "Carta no encontrada"}), 404
@@ -1143,7 +1261,7 @@ def api_cartas_generar_docx():
     db = get_db()
 
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM configuracion_sistema WHERE id=1")
+        cur.execute("SELECT id, nombre_sistema, subtitulo_proyecto, logo_membrete_word FROM configuracion_sistema WHERE id=1")
         cfg_row = cur.fetchone() or {}
 
     config_dict = {
@@ -1157,7 +1275,7 @@ def api_cartas_generar_docx():
     cid = d.get("carta_id") or d.get("padre_id")
     if cid:
         with db.cursor() as cur:
-            cur.execute("SELECT * FROM cartas WHERE id=%s", (int(cid),))
+            cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (int(cid),))
             p_row = cur.fetchone()
             if p_row:
                 p_carta = row_to_dict(p_row)
@@ -1235,7 +1353,7 @@ def api_cartas_add():
         with db.cursor() as cur:
             cur.execute(sql, [data[k] for k in cols])
             new_id = cur.lastrowid
-            cur.execute("SELECT * FROM cartas WHERE id=%s", (new_id,))
+            cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (new_id,))
             r = cur.fetchone()
         db.commit()
     except pymysql.err.DataError:
@@ -1245,7 +1363,7 @@ def api_cartas_add():
     full = row_to_dict(r)
     hilo_link = assign_carta_hilo(db, new_id, full)
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (new_id,))
+        cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (new_id,))
         r = cur.fetchone()
     full = row_to_dict(r)
     close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
@@ -1261,16 +1379,21 @@ def api_cartas_add():
 @require_perm("can_edit_cartas")
 def api_cartas_edit(cid):
     db = get_db()
+    d = request.get_json(silent=True) or {}
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+        cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (cid,))
         r = cur.fetchone()
+        if not r and d.get("n_documento"):
+            cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE n_documento=%s LIMIT 1", (d.get("n_documento"),))
+            r = cur.fetchone()
+            if r:
+                cid = r["id"]
         if not r:
             return jsonify({"error": "Carta no encontrada"}), 404
         existing = row_to_dict(r)
         if not filter_cartas_for_user([existing], current_user()):
             return jsonify({"error": "Sin acceso a esta carta"}), 403
 
-    d = request.get_json(silent=True) or {}
     u = current_user()
     # Solo administrador puede editar cartas (ingeniero: solo lectura; residente: crea, no edita).
     merged = {**existing, **d}
@@ -1293,7 +1416,7 @@ def api_cartas_edit(cid):
                 f"UPDATE cartas SET {', '.join(sets)}, actualizado_en=NOW() WHERE id=%s",
                 vals,
             )
-            cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+            cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (cid,))
             r2 = cur.fetchone()
         db.commit()
     except pymysql.err.DataError:
@@ -1303,7 +1426,7 @@ def api_cartas_edit(cid):
     full = row_to_dict(r2)
     hilo_link = assign_carta_hilo(db, cid, full)
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+        cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (cid,))
         r2 = cur.fetchone()
     full = row_to_dict(r2)
     close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
@@ -1320,7 +1443,7 @@ def api_cartas_edit(cid):
 def api_cartas_del(cid):
     db = get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas WHERE id=%s", (cid,))
+        cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas WHERE id=%s", (cid,))
         r = cur.fetchone()
         if not r:
             return jsonify({"error": "Carta no encontrada"}), 404
@@ -1509,7 +1632,7 @@ def _load_cartas(db=None):
         return _RAW_CARTAS_CACHE
     db = db or get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM cartas ORDER BY fecha IS NULL, fecha DESC, id DESC")
+        cur.execute(f"SELECT {CARTA_SELECT_COLS} FROM cartas ORDER BY fecha IS NULL, fecha DESC, id DESC")
         rows = [row_to_dict(r) for r in cur.fetchall()]
         _RAW_CARTAS_CACHE = rows
         return rows

@@ -163,21 +163,60 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .table-card-body{padding:16px 20px 0}
 .table-card-body .pend-mode{margin-bottom:12px}
 .table-card-body .pend-actor-row{margin-bottom:0;padding-bottom:12px}
-table.data-table{width:100%;min-width:1580px;border-collapse:collapse;font-size:12.5px}
-table.data-table th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);text-align:left;padding:12px 14px;border-bottom:2px solid var(--border);white-space:nowrap;background:#FAF9F6;position:sticky;top:0;z-index:2}
-table.data-table td{padding:12px 14px;border-bottom:1px solid #EDE9E2;vertical-align:middle;line-height:1.45}
-table.data-table tr:hover td{background:#FAF9F5}
-table.data-table tr.row-vencida td{background:#FCF4F3}
-table.data-table tr.row-por-vencer td{background:#FCF8EE}
+table.data-table{width:100%;min-width:1580px;border-collapse:separate;border-spacing:0;font-size:12.5px}
+table.data-table th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);text-align:left;padding:12px 14px;border-bottom:2px solid var(--border);background:#F8F7F4;position:sticky;top:0;z-index:2}
+table.data-table td{padding:11px 14px;border-bottom:1px solid #EDE9E2;vertical-align:middle;line-height:1.45;transition:background-color .15s ease}
+table.data-table tbody tr{transition:background-color .15s ease, box-shadow .15s ease}
+table.data-table tbody tr:hover td{background:#FAF8F2}
+table.data-table tbody tr:hover td:first-child{border-left:3px solid var(--accent);padding-left:11px}
+table.data-table tbody tr.row-vencida td{background:#FCF4F3}
+table.data-table tbody tr.row-vencida:hover td{background:#FAEBE9}
+table.data-table tbody tr.row-vencida:hover td:first-child{border-left:3px solid var(--rose);padding-left:11px}
+table.data-table tbody tr.row-por-vencer td{background:#FCF8EE}
+table.data-table tbody tr.row-por-vencer:hover td{background:#F8F2DF}
+table.data-table tbody tr.row-por-vencer:hover td:first-child{border-left:3px solid var(--amber);padding-left:11px}
 table.data-table td.col-acc{text-align:right;white-space:nowrap}
 
-/* Sticky Action Column */
+/* Sticky Action Column with smooth elevation shadow */
 table.data-table th.col-acc,
-table.data-table th:last-child{text-align:right;position:sticky;right:0;z-index:3;background:#FAF9F6;box-shadow:-3px 0 6px rgba(0,0,0,0.04);min-width:115px;width:125px}
-table.data-table td.col-acc{text-align:right;white-space:nowrap;position:sticky;right:0;z-index:2;background:#FFFFFF;box-shadow:-3px 0 6px rgba(0,0,0,0.04);min-width:115px;width:125px}
-table.data-table tr:hover td.col-acc{background:#FAF9F5}
+table.data-table th:last-child{text-align:right;position:sticky;right:0;z-index:3;background:#F8F7F4;box-shadow:-4px 0 8px rgba(0,0,0,0.05);min-width:115px;width:125px}
+table.data-table td.col-acc{text-align:right;white-space:nowrap;position:sticky;right:0;z-index:2;background:#FFFFFF;box-shadow:-4px 0 8px rgba(0,0,0,0.05);min-width:115px;width:125px}
+table.data-table tr:hover td.col-acc{background:#FAF8F2}
 table.data-table tr.row-vencida td.col-acc{background:#FCF4F3}
+table.data-table tr.row-vencida:hover td.col-acc{background:#FAEBE9}
 table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
+table.data-table tr.row-por-vencer:hover td.col-acc{background:#F8F2DF}
+
+/* Document Number & Copy Micro-Interaction */
+.doc-num-wrap{display:inline-flex;align-items:center;gap:6px;max-width:100%}
+.doc-num-text{font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;font-size:12.5px}
+.btn-copy-doc{opacity:0;transform:scale(0.85);transition:all .15s ease;background:#EDEAE3;border:1px solid #D8D3C8;border-radius:4px;width:22px;height:22px;font-size:11px;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;outline:none}
+table.data-table tr:hover .btn-copy-doc{opacity:0.75;transform:scale(1)}
+.btn-copy-doc:hover{opacity:1 !important;background:var(--accent);border-color:var(--accent);color:#FFFFFF;box-shadow:0 2px 5px rgba(196,91,62,0.3)}
+.btn-copy-doc.copied{opacity:1 !important;background:var(--sage);border-color:var(--sage);color:#FFFFFF}
+
+/* Specialty Tags with Harmonic Colors */
+.esp-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:0.01em;background:#F3F1ED;border:1px solid #E4E0D6;color:#4A463F;white-space:normal;word-break:break-word;overflow-wrap:anywhere;max-width:100%;line-height:1.35}
+.esp-tag.estructuras,.esp-tag.geotecnia{background:#EBF3F8;border-color:#C6DDEE;color:#185A9D}
+.esp-tag.arquitectura,.esp-tag.calidad{background:#EAF5F0;border-color:#BEDCCB;color:#236B48}
+.esp-tag.sanitarias,.esp-tag.electricas,.esp-tag.electromecanicas{background:#FDF7E7;border-color:#EEDB9E;color:#8A6510}
+.esp-tag.seguridad,.esp-tag.ssoma{background:#FDF0ED;border-color:#F3C4B8;color:#C45B3E}
+.esp-tag.legal,.esp-tag.administracion{background:#F3EDF8;border-color:#DCCCE9;color:#643B8A}
+.esp-tag.mixta{background:#EAEBF2;border-color:#CDD0E2;color:#3C4B78}
+
+/* Mini Actor Badge & Custom Text */
+.actor-badge-mini{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600;background:#EDEAE3;border:1px solid #DBD5C8;color:#45413A;white-space:normal;word-break:break-word;overflow-wrap:anywhere;max-width:100%;line-height:1.35}
+.actor-badge-mini.ro{background:#FDF0ED;border-color:#F3C6BA;color:#C45B3E}
+.actor-badge-mini.sup{background:#EBF3F8;border-color:#C8DFEF;color:#185A9D}
+.actor-badge-mini.ent{background:#F3EDF8;border-color:#DACBE8;color:#6A4C93}
+.actor-badge-mini.muni{background:#FDF7E7;border-color:#EEDB9E;color:#8A6510}
+.actor-custom-text{display:inline-block;font-size:11.5px;font-weight:500;color:var(--text-primary);line-height:1.35;word-break:break-word;overflow-wrap:anywhere;max-width:100%}
+
+/* Row Indicator Dot for Deadlines */
+.row-num-cell{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:600;color:var(--text-muted);font-size:11.5px}
+.row-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.row-dot.vencida{background:var(--rose)}
+.row-dot.por-vencer{background:var(--amber)}
 
 /* Action Buttons Group & Compact Styles */
 .actions-group{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;vertical-align:middle}
@@ -218,31 +257,33 @@ table.data-table tr.row-por-vencer td.col-acc{background:#FCF8EE}
 /* Cell Wrapping and Column Sizing for Cartas Table (13 Columns + Acciones) */
 .cell-wrap{word-break:break-word;overflow-wrap:anywhere}
 #view-cartas table.data-table th:nth-child(1), #view-cartas table.data-table td:nth-child(1){width:45px;min-width:45px;text-align:center}
-#view-cartas table.data-table th:nth-child(2), #view-cartas table.data-table td:nth-child(2){min-width:135px;max-width:190px;font-weight:700}
+#view-cartas table.data-table th:nth-child(2), #view-cartas table.data-table td:nth-child(2){min-width:150px;max-width:220px}
 #view-cartas table.data-table th:nth-child(3), #view-cartas table.data-table td:nth-child(3){min-width:85px;white-space:nowrap}
 #view-cartas table.data-table th:nth-child(4), #view-cartas table.data-table td:nth-child(4){min-width:120px;max-width:160px;font-weight:600}
-#view-cartas table.data-table th:nth-child(5), #view-cartas table.data-table td:nth-child(5){min-width:110px;max-width:150px}
-#view-cartas table.data-table th:nth-child(6), #view-cartas table.data-table td:nth-child(6){min-width:110px;max-width:150px}
-#view-cartas table.data-table th:nth-child(7), #view-cartas table.data-table td:nth-child(7){min-width:110px;max-width:150px}
-#view-cartas table.data-table th:nth-child(8), #view-cartas table.data-table td:nth-child(8){min-width:180px;max-width:280px}
-#view-cartas table.data-table th:nth-child(9), #view-cartas table.data-table td:nth-child(9){min-width:130px;max-width:200px}
+#view-cartas table.data-table th:nth-child(5), #view-cartas table.data-table td:nth-child(5){min-width:120px;max-width:170px}
+#view-cartas table.data-table th:nth-child(6), #view-cartas table.data-table td:nth-child(6){min-width:140px;max-width:190px}
+#view-cartas table.data-table th:nth-child(7), #view-cartas table.data-table td:nth-child(7){min-width:140px;max-width:190px}
+#view-cartas table.data-table th:nth-child(8), #view-cartas table.data-table td:nth-child(8){min-width:220px;max-width:340px}
+#view-cartas table.data-table th:nth-child(9), #view-cartas table.data-table td:nth-child(9){min-width:140px;max-width:220px}
 #view-cartas table.data-table th:nth-child(10), #view-cartas table.data-table td:nth-child(10){min-width:130px;max-width:170px}
 #view-cartas table.data-table th:nth-child(11), #view-cartas table.data-table td:nth-child(11){min-width:110px;white-space:nowrap}
 #view-cartas table.data-table th:nth-child(12), #view-cartas table.data-table td:nth-child(12){min-width:115px;max-width:160px}
 #view-cartas table.data-table th:nth-child(13), #view-cartas table.data-table td:nth-child(13){min-width:130px;max-width:240px}
 #view-cartas table.data-table th:nth-child(14), #view-cartas table.data-table td:nth-child(14){min-width:115px;width:125px;text-align:right}
-.status-badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 8px;border-radius:12px;line-height:1.25;max-width:180px}
-.status-badge.abierto{background:var(--lavender-light);color:var(--lavender)}
-.status-badge.cerrado{background:var(--sage-light);color:var(--sage)}
-.status-badge.observado{background:var(--amber-light);color:var(--amber)}
-.status-badge.otro{background:var(--slate-light);color:var(--slate)}
-.plazo-badge{display:inline-flex;flex-direction:column;gap:2px;font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;line-height:1.25}
+
+.status-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:14px;line-height:1.25;max-width:180px;letter-spacing:0.02em}
+.status-badge.abierto{background:#EEF2FA;color:#245899;border:1px solid #C7D8F2}
+.status-badge.cerrado{background:#EAF5F0;color:#236B48;border:1px solid #BFE0D0}
+.status-badge.observado{background:#FDF4E7;color:#946200;border:1px solid #F0D4A8}
+.status-badge.otro{background:#F4F3F0;color:#5C5852;border:1px solid #DDD9D0}
+
+.plazo-badge{display:inline-flex;flex-direction:column;gap:2px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:7px;line-height:1.25;border:1px solid transparent}
 .plazo-badge .plazo-date{font-weight:500;opacity:.85;font-size:10px}
-.plazo-badge.vencida{background:var(--rose-light);color:var(--rose)}
-.plazo-badge.por-vencer{background:var(--amber-light);color:#8A6A20}
-.plazo-badge.ok{background:var(--sage-light);color:var(--sage)}
-.plazo-badge.cerrada{background:var(--slate-light);color:var(--slate)}
-.plazo-badge.comunicacion{background:#E8F0F0;color:var(--teal)}
+.plazo-badge.vencida{background:#FDF2F0;color:#C43828;border-color:#F5CAC4}
+.plazo-badge.por-vencer{background:#FDF8EB;color:#8A6510;border-color:#EDDDAC}
+.plazo-badge.ok{background:#EAF5F0;color:#236B48;border-color:#BFE0D0}
+.plazo-badge.cerrada{background:#F2F1ED;color:#69655E;border-color:#DCD8CD}
+.plazo-badge.comunicacion{background:#E8F3F3;color:#246B6D;border-color:#BEE0E0}
 .debt-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:.02em;text-transform:uppercase}
 .debt-badge.debo{background:var(--rose-light);color:var(--rose)}
 .debt-badge.me_deben{background:var(--amber-light);color:#8A6A20}
@@ -463,7 +504,24 @@ table.data-table tbody tr.row-rendered,
 .carta-padre-suggest{position:absolute;top:100%;left:0;right:0;max-height:220px;overflow-y:auto;background:#FFFFFF;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:1000;display:none;margin-top:4px}
 .carta-padre-item{padding:9px 12px;border-bottom:1px solid #F0EEEA;cursor:pointer;font-size:12px;transition:background .15s}
 .carta-padre-item:hover{background:var(--accent-light)}
-.carta-padre-selected-card{display:flex;align-items:center;justify-content:space-between;background:#FAF8F4;border:1px solid #DFD9CD;border-radius:8px;padding:10px 14px;gap:12px}
+.carta-padre-selected-card{display:flex;flex-direction:column;background:linear-gradient(135deg, #FAF8F4 0%, #F5F1E8 100%);border:1.5px solid #D5CEBF;border-radius:10px;padding:12px 16px;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03)}
+.carta-padre-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.carta-padre-badge{display:inline-flex;align-items:center;gap:4px;background:var(--teal);color:#FFFFFF;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;text-transform:uppercase}
+.carta-padre-title{font-size:13.5px;font-weight:700;color:var(--text-primary)}
+.carta-padre-actions{display:inline-flex;align-items:center;gap:6px}
+.btn-padre-preview{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--teal);background:#FFFFFF;border:1px solid #C0D8D7;border-radius:5px;padding:4px 8px;cursor:pointer;transition:all 0.15s ease}
+.btn-padre-preview:hover{background:var(--teal);color:#FFFFFF}
+.carta-padre-meta{font-size:12px;color:var(--text-secondary);line-height:1.4;background:rgba(255,255,255,0.7);padding:8px 10px;border-radius:6px;border:1px solid rgba(224,216,204,0.6)}
+.carta-hilo-stepper{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed #DCD6CA;font-size:11.5px}
+.carta-hilo-step{display:inline-flex;align-items:center;gap:5px;background:#FFFFFF;border:1px solid #D8D2C4;padding:4px 9px;border-radius:6px;cursor:pointer;transition:all 0.15s ease;color:var(--text-secondary);font-size:11px}
+.carta-hilo-step:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.carta-hilo-step.current{background:var(--accent);color:#FFFFFF;border-color:var(--accent);font-weight:700;box-shadow:0 1px 3px rgba(196,91,62,0.3)}
+.carta-hilo-arrow{color:var(--text-muted);font-size:11px}
+.ref-link-chip{display:inline-flex;align-items:center;gap:3px;background:#F4EFE6;border:1px solid #D8D0C0;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;color:var(--text-primary);text-decoration:none;transition:all 0.15s ease;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ref-link-chip:hover{background:var(--teal);color:#FFFFFF;border-color:var(--teal)}
+.ref-plain-text{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hilo-counter-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(196,91,62,0.1);color:var(--accent);border:1px solid rgba(196,91,62,0.25);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;cursor:pointer;transition:all 0.15s ease}
+.hilo-counter-badge:hover{background:var(--accent);color:#FFFFFF}
 .btn-responder-act{display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:#fff;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;white-space:nowrap}
 .btn-responder-act:hover{background:#A8452B;transform:translateY(-1px);box-shadow:0 1px 4px rgba(196,91,62,.3)}
 .btn-responder-act i{font-size:12px}
@@ -1569,7 +1627,30 @@ body.app-locked .app-layout{visibility:hidden}
             </select>
           </div>
 
-          <!-- 6. Plazo / Fecha de Atraso (días) -->
+          <!-- 6. Estado del Trámite / Carta -->
+          <div class="form-group">
+            <label>Estado del Trámite / Carta <span class="req">*</span></label>
+            <select id="f_estado" required style="font-weight:700">
+              <option value="ABIERTO">⚡ EN TRÁMITE / ABIERTO</option>
+              <option value="CERRADO">🔒 CERRADO / ATENDIDO</option>
+              <option value="ABSUELTO ENTIDAD">🔒 ABSUELTO ENTIDAD (PRONIS)</option>
+              <option value="ABSUELTO SUPERVISION">🔒 ABSUELTO SUPERVISIÓN</option>
+              <option value="PARA CONOCIMIENTO">ℹ️ PARA CONOCIMIENTO (SOLO INFORMATIVO)</option>
+              <option value="PENDIENTE ENTIDAD">⏳ PENDIENTE ENTIDAD</option>
+              <option value="PENDIENTE SUPERVISION">⏳ PENDIENTE SUPERVISIÓN</option>
+              <option value="PENDIENTE CGGC">⏳ PENDIENTE CGGC / RESIDENTE</option>
+              <option value="PENDIENTE RO">⏳ PENDIENTE RESIDENTE (RO)</option>
+              <option value="PENDIENTE MUNICIPALIDAD">⏳ PENDIENTE MUNICIPALIDAD</option>
+              <option value="PARA RESPUESTA">⏳ PARA RESPUESTA</option>
+              <option value="EN PROCESO">⏳ EN PROCESO</option>
+              <option value="EN REVISION">🔍 EN REVISIÓN</option>
+              <option value="SUBSANADO">✓ SUBSANADO</option>
+              <option value="REITERADO">🔁 REITERADO</option>
+              <option value="ANULADA">❌ ANULADA</option>
+            </select>
+          </div>
+
+          <!-- 7. Plazo / Fecha de Atraso (días) -->
           <div class="form-group">
             <label>Plazo / Fecha de Atraso (días) <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(cálculo de días para responder)</span></label>
             <div style="display:flex;align-items:center;gap:8px">
@@ -1609,16 +1690,21 @@ body.app-locked .app-layout{visibility:hidden}
             <div class="carta-padre-widget">
               <!-- Vista cuando hay Carta Padre seleccionada -->
               <div id="cartaPadreSelectedCard" class="carta-padre-selected-card" style="display:none">
-                <div>
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-                    <span class="status-badge abierto" style="font-size:10px;padding:2px 6px">CARTA PADRE VINCULADA</span>
-                    <strong id="cartaPadreSelectedDoc" style="font-size:13px;color:var(--text-primary)">—</strong>
+                <div class="carta-padre-header">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <strong id="cartaPadreSelectedDoc" class="carta-padre-title">—</strong>
                   </div>
-                  <span id="cartaPadreSelectedSub" style="font-size:11.5px;color:var(--text-muted)">—</span>
+                  <div class="carta-padre-actions">
+                    <button type="button" class="btn-padre-preview" id="btnPreviewCartaPadre" title="Ver detalle de la carta padre">
+                      <i class="ri-eye-line"></i> Ver Carta
+                    </button>
+                    <button type="button" class="btn-cancel" id="btnRemoveCartaPadre" title="Desvincular carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
+                      <i class="ri-close-line"></i> Quitar
+                    </button>
+                  </div>
                 </div>
-                <button type="button" class="btn-cancel" id="btnRemoveCartaPadre" title="Desvincular carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
-                  <i class="ri-close-line"></i> Quitar
-                </button>
+                <div id="cartaPadreSelectedSub" class="carta-padre-meta">—</div>
+                <div id="cartaPadreTimelineWrap" style="display:none"></div>
               </div>
 
               <!-- Input buscador cuando no hay Carta Padre seleccionada -->
@@ -1629,19 +1715,46 @@ body.app-locked .app-layout{visibility:hidden}
             </div>
           </div>
 
-          <!-- 10. Referencias adicionales -->
-          <div class="form-group">
-            <label>Referencias adicionales</label>
-            <input type="text" id="f_referencias" maxlength="2000" placeholder="Ej: Oficio N° 12-2026, Asiento N° 45…">
+          <!-- 10. Referencias / Antecedentes y Enlaces Digitales (Lista Dinámica Inteligente) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+              <label style="margin:0;display:flex;align-items:center;gap:6px">
+                <i class="ri-attachment-2" style="color:var(--accent);font-size:15px"></i>
+                <span>Referencias / Documentos Citados y Enlaces <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(agrega contratos, asientos o enlaces de Drive/OneDrive)</span></span>
+              </label>
+              <button type="button" class="btn-docx-outline" onclick="addRefListItem()" style="padding:3px 10px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:4px">
+                <i class="ri-add-line"></i> + Agregar Referencia o Link
+              </button>
+            </div>
+            
+            <input type="hidden" id="f_referencias">
+            
+            <div id="referenciasListContainer" style="display:flex;flex-direction:column;gap:6px;padding:8px;background:#FAFAF8;border:1px solid var(--border);border-radius:8px;min-height:50px">
+              <!-- Filas dinámicas generadas con JS -->
+            </div>
           </div>
 
           <!-- 11. Categoría Carta (Requiere Respuesta vs Informativa) -->
-          <div class="form-group" style="justify-content:center">
+          <div class="form-group" style="justify-content:center;grid-column:1/-1">
             <label style="margin-bottom:6px">Categoría de la Carta</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-primary);background:#FAF9F6;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+            
+            <!-- Vista interactiva cuando está activa y editable -->
+            <label id="reqCheckInteractiveWrap" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-primary);background:#FAF9F6;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
               <input type="checkbox" id="f_requiere_respuesta" checked style="width:16px;height:16px;cursor:pointer">
               <span>Requiere respuesta operativa <span style="font-size:11px;font-weight:normal;color:var(--text-muted);display:block">(si se desmarca, queda solo informativa / comunicado sin deuda)</span></span>
             </label>
+
+            <!-- Vista protegida cuando está bloqueada o concluida (sin check vacío confuso) -->
+            <div id="reqCheckLockedWrap" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;background:#F5F5F3;border:1px solid var(--border);border-radius:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <i id="reqLockIcon" class="ri-lock-2-line" style="color:#185A9D;font-size:18px"></i>
+                <div>
+                  <strong id="reqLockTitle" style="font-size:12.5px;color:var(--text-primary);display:block">Categoría Protegida</strong>
+                  <span id="reqLockSubtitle" style="font-size:11.5px;color:var(--text-muted)">Esta carta tiene respuestas vinculadas en el hilo</span>
+                </div>
+              </div>
+              <span id="reqLockBadge" class="badge-soft" style="font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;white-space:nowrap">🔒 BLOQUEADO</span>
+            </div>
           </div>
 
         </div>
@@ -1741,17 +1854,23 @@ body.app-locked .app-layout{visibility:hidden}
             <div class="carta-padre-widget">
               <!-- Tarjeta de Carta Padre seleccionada -->
               <div id="rf_cartaPadreSelectedCard" class="carta-padre-selected-card" style="display:none">
-                <div>
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-                    <span class="status-badge abierto" style="font-size:10px;padding:2px 6px">AMARRE AUTOMÁTICO AL HILO</span>
-                    <strong id="rf_cartaPadreSelectedDoc" style="font-size:13px;color:var(--text-primary)">—</strong>
+                <div class="carta-padre-header">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span class="carta-padre-badge"><i class="ri-git-branch-line"></i> Trámite Vinculado</span>
+                    <strong id="rf_cartaPadreSelectedDoc" class="carta-padre-title">—</strong>
                   </div>
-                  <span id="rf_cartaPadreSelectedSub" style="font-size:11.5px;color:var(--text-muted)">—</span>
-                  <div id="rf_hiloBreadcrumb" style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600"></div>
+                  <div class="carta-padre-actions">
+                    <button type="button" class="btn-padre-preview" id="rf_btnPreviewCartaPadre" title="Ver detalle del antecedente">
+                      <i class="ri-eye-line"></i> Ver Carta
+                    </button>
+                    <button type="button" class="btn-cancel" id="rf_btnRemoveCartaPadre" title="Cambiar carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
+                      <i class="ri-refresh-line"></i> Cambiar
+                    </button>
+                  </div>
                 </div>
-                <button type="button" class="btn-cancel" id="rf_btnRemoveCartaPadre" title="Cambiar carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
-                  <i class="ri-refresh-line"></i> Cambiar
-                </button>
+                <div id="rf_cartaPadreSelectedSub" class="carta-padre-meta">—</div>
+                <div id="rf_hiloBreadcrumb" style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600"></div>
+                <div id="rf_cartaPadreTimelineWrap" style="display:none"></div>
               </div>
 
               <!-- Input buscador -->
@@ -1978,7 +2097,7 @@ const OPEN_STATES=new Set(['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIEN
 const CLOSED_PEND_STATES=new Set(['CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD']);
 let VENCIDA_DIAS=15,POR_VENCER_DIAS=10,HILO_PLAZO_DIAS=5;
 const PAGE_SIZE=20,DRAFT_KEY='sistemagreace_nueva_carta_draft';
-const FORM_FIELDS=['n_documento','tipo_documento','fecha','emisor','destinatario','especialidad','asunto','observacion','referencias','referencia','hilo_id','plazo_dias'];
+const FORM_FIELDS=['n_documento','tipo_documento','fecha','emisor','destinatario','especialidad','asunto','observacion','referencias','referencia','hilo_id','plazo_dias','estado'];
 const ESTADO_OPTS=['ABSUELTA POR SUPERVISOR','ABSUELTA POR ENTIDAD','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PARA RESPUESTA','EN PROCESO','C. OBSERVADA','SIN RESPUESTA','REINGRESO','CERRADO','PARA CONOCIMIENTO','ANULADA'];
 const BANDEJA_IDS=['residente','rl','recibida_sup','recibida_pronis','recibida_mpsc','recibida_otros'];
 const PALETTE=['#C45B3E','#4A7C7E','#7A8B6F','#7B6E8A','#C49A3E','#A0525C','#5C6370','#6E9EAF','#8B9E6F','#B87045'];
@@ -2777,7 +2896,7 @@ function initBandejas(){
 
 function splitEspecialidades(raw){
   if(!raw)return['SIN ESPECIALIDAD'];
-  const parts=String(raw).split(/[,/;\+]|\s+Y\s+/i).map(s=>s.trim().toUpperCase()).filter(Boolean);
+  const parts=String(raw).split(/[,/;\+]|\s{2,}|\s+Y\s+/i).map(s=>s.trim().toUpperCase()).filter(Boolean);
   const norms=parts.filter(p=>p!=='MIXTA');
   return norms.length?norms:['SIN ESPECIALIDAD'];
 }
@@ -2923,29 +3042,154 @@ function getTipoDocumentoDisplay(c){
   if(doc.includes('FICHA')) return 'Ficha Técnica';
   if(doc.includes('PLANO')) return 'Planos';
   if(doc.includes('CONSULTA')) return 'Consulta';
-  if(doc.includes('CARTA')) return 'Carta';
   return 'Carta';
 }
 
+function formatCartaReferenciaTableHtml(c){
+  const currentDocNorm = normalize_doc_key(c.n_documento);
+  const currentDt = parseDate(c.fecha)?.getTime() || 0;
+  const ref = String(c.referencia || '').trim();
+  const rawRefs = String(c.referencias || '').trim();
+  const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(c) : [];
+  const parts = [];
+  
+  if(ref && ref !== '—' && normalize_doc_key(ref) !== currentDocNorm) {
+    parts.push({ text: ref, isRef: true });
+  }
+  
+  if(rawRefs && rawRefs !== '—'){
+    const rawList = rawRefs.includes('\n') ? rawRefs.split('\n') : (typeof parseReferenciasAntecedentes === 'function' ? parseReferenciasAntecedentes(rawRefs) : [rawRefs]);
+    rawList.forEach(rawItem => {
+      const item = String(rawItem || '').trim();
+      if(!item) return;
+      
+      const isUrl = /^https?:\/\//i.test(item) || /^(drive\.google|docs\.google|onedrive|sharepoint)/i.test(item);
+      if(isUrl){
+        parts.push({ text: item, isUrl: true });
+      } else {
+        const normP = normalize_doc_key(item);
+        if(normP && normP !== currentDocNorm && !parts.some(existing => !existing.isUrl && normalize_doc_key(existing.text) === normP)){
+          const otherCarta = (ALL_CARTAS || []).find(x => normalize_doc_key(x.n_documento) === normP);
+          if(otherCarta){
+            const otherDt = parseDate(otherCarta.fecha)?.getTime() || 0;
+            if(!currentDt || !otherDt || otherDt <= currentDt){
+              parts.push({ text: item });
+            }
+          } else {
+            parts.push({ text: item });
+          }
+        }
+      }
+    });
+  }
+  
+  if(!parts.length && chain.length <= 1){
+    return '<span style="color:var(--text-muted)">—</span>';
+  }
+  
+  let html = '';
+  if(parts.length){
+    const shown = parts.slice(0, 2);
+    html += shown.map(it => {
+      if(it.isUrl){
+        let url = it.text;
+        if(!url.startsWith('http')) url = 'https://' + url;
+        const isDrive = url.includes('drive.google') || url.includes('docs.google');
+        const isOneDrive = url.includes('onedrive') || url.includes('sharepoint');
+        const icon = isDrive ? 'ri-google-drive-fill' : (isOneDrive ? 'ri-microsoft-fill' : 'ri-link');
+        const label = isDrive ? 'Drive' : (isOneDrive ? 'OneDrive' : 'Link');
+        return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="ref-link-chip" style="background:#EBF3FA;color:#185A9D;border-color:#B8D3EE" title="Abrir enlace: ${escapeHtml(url)}"><i class="${icon}" style="font-size:10px"></i> ${label}</a>`;
+      }
+      const cleanP = escapeHtml(cleanSpaces(it.text));
+      const isKnown = (ALL_CARTAS || []).some(x => normalize_doc_key(x.n_documento) === normalize_doc_key(it.text));
+      if(isKnown){
+        return `<a href="javascript:void(0)" class="ref-link-chip" onclick="previewRefCartaDoc('${escapeHtml(it.text)}', event)" title="Ver carta citada: ${cleanP}"><i class="ri-git-commit-line" style="font-size:10px"></i> ${cleanP}</a>`;
+      }
+      return `<span class="ref-plain-text" title="${cleanP}"><i class="ri-git-commit-line" style="color:var(--text-muted);font-size:10px"></i> ${cleanP}</span>`;
+    }).join(' ');
+    
+    if(parts.length > 2){
+      html += ` <span style="font-size:10px;color:var(--text-muted);font-weight:600">+${parts.length - 2}</span>`;
+    }
+  }
+  
+  if(chain.length > 1){
+    html += `<div style="margin-top:3px"><span class="hilo-counter-badge" onclick="filterByHiloCustom(${c.id}, event)" title="Trámite con ${chain.length} cartas vinculadas. Clic para ver hilo"><i class="ri-git-merge-line"></i> Trámite (${chain.length})</span></div>`;
+  }
+  
+  return `<div class="cell-wrap" style="line-height:1.35">${html}</div>`;
+}
+
+function previewRefCartaDoc(docName, event){
+  if(event){
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  if(!docName) return;
+  const norm = normalize_doc_key(docName);
+  const c = (ALL_CARTAS || []).find(x => normalize_doc_key(x.n_documento) === norm);
+  if(c){
+    previewRefCarta(c.id);
+  } else {
+    showToast(`Documento citado: ${docName}`, 'info');
+  }
+}
+
+let activeHiloFilter = null;
+
+function filterByHiloCustom(cartaId, event){
+  if(event){
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const c = (ALL_CARTAS || []).find(x => x.id === cartaId);
+  if(!c) return;
+  const chain = getHiloChainCartas(c);
+  if(!chain.length) return;
+
+  activeHiloFilter = {
+    hilo_id: c.hilo_id || null,
+    carta_ids: new Set(chain.map(x => x.id)),
+    title: c.n_documento || (`Trámite #${c.hilo_id || c.id}`),
+    count: chain.length
+  };
+
+  const tableQ = document.getElementById('cartasTableQ');
+  if(tableQ) tableQ.value = '';
+  const fQ = document.getElementById('filterQ');
+  if(fQ) fQ.value = '';
+
+  applyFilters();
+  showToast(`Mostrando los ${chain.length} registros del trámite`, 'info');
+}
+
+function clearActiveHiloFilter(e){
+  if(e){
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  activeHiloFilter = null;
+  applyFilters();
+}
+
 function getCartaReferencia(c){
+  if(!c) return '';
   const ref = String(c.referencia || '').trim();
   const refs = String(c.referencias || '').trim();
   const parts = [];
   if(ref && ref !== '—') parts.push(ref);
-  if(refs && refs !== '—' && !parts.includes(refs)) {
-    if(typeof parseReferenciasAntecedentes === 'function'){
-      const parsed = parseReferenciasAntecedentes(refs);
-      if(parsed.length) {
-        parsed.forEach(p => { if(p && !parts.includes(p)) parts.push(p); });
-      } else {
-        parts.push(refs);
-      }
+  if(refs && refs !== '—') {
+    const items = typeof parseRefStringIntoItems === 'function' ? parseRefStringIntoItems(refs) : [];
+    if(items.length){
+      items.forEach(it => {
+        const d = (it.doc || '').trim();
+        if(d && !parts.includes(d)) parts.push(d);
+      });
     } else {
-      parts.push(refs);
+      if(!parts.includes(refs)) parts.push(refs);
     }
   }
-  if(parts.length) return parts.join(', ');
-  return '';
+  return parts.join(', ');
 }
 
 function getCartaReferenciaDisplay(c){
@@ -3056,14 +3300,98 @@ function quienRecibeLabel(c){
   return 'Supervisión';
 }
 
+function cleanSpaces(str){
+  if(!str) return '';
+  return String(str).replace(/\s+/g, ' ').trim();
+}
+
 function getEspecialidadDisplay(c){
-  const ban=String(c.bandeja||'').trim();
-  const isSup = ban==='recibida_sup' || String(c.receptor||'').toUpperCase().includes('SUPERVIS');
-  const esp = String(c.especialidad||c.especialidad_norm||'').trim();
-  if(isSup && (!esp || esp==='SIN ESPECIALIDAD' || esp==='GENERAL' || esp==='MIXTA')) {
+  const ban = String(c.bandeja || '').trim();
+  const isSup = ban === 'recibida_sup' || String(c.receptor || '').toUpperCase().includes('SUPERVIS');
+  const raw = String(c.especialidad || c.especialidad_norm || '').trim();
+  if(isSup && (!raw || raw === 'SIN ESPECIALIDAD' || raw === 'GENERAL' || raw === 'MIXTA')) {
     return '—';
   }
-  return esp || '—';
+  if(!raw || raw === '—') return '—';
+  const parts = splitEspecialidades(raw).map(p => normalizeEspecialidadJs(p) || cleanSpaces(p));
+  const uniqueParts = [...new Set(parts.filter(p => p && p !== 'SIN ESPECIALIDAD' && p !== 'MIXTA'))];
+  if(uniqueParts.length){
+    return uniqueParts.join(', ');
+  }
+  return cleanSpaces(c.especialidad_norm || raw) || '—';
+}
+
+function formatEspecialidadBadge(c){
+  const txt = getEspecialidadDisplay(c);
+  if(!txt || txt === '—') return '<span style="color:var(--text-muted)">—</span>';
+  const norm = txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let cls = 'general';
+  if(norm.includes('estruct') || norm.includes('geotec')) cls = 'estructuras';
+  else if(norm.includes('arquit') || norm.includes('calidad')) cls = 'arquitectura';
+  else if(norm.includes('sanitar') || norm.includes('electr') || norm.includes('electromecan')) cls = 'sanitarias';
+  else if(norm.includes('segurid') || norm.includes('ssoma')) cls = 'seguridad';
+  else if(norm.includes('legal') || norm.includes('admin')) cls = 'legal';
+  else if(norm.includes('mixta')) cls = 'mixta';
+  return `<span class="esp-tag ${cls}" title="Especialidad: ${escapeHtml(txt)}"><i class="ri-folder-2-line" style="font-size:10px;opacity:0.8"></i> ${escapeHtml(txt)}</span>`;
+}
+
+function formatActorBadge(actorStr){
+  const str = String(actorStr || '').trim();
+  if(!str || str === '—') return '<span style="color:var(--text-muted)">—</span>';
+  const u = str.toUpperCase();
+  let cls = '';
+  let shortLabel = str;
+  if(u === 'RESIDENTE (RO)' || u === 'RESIDENTE' || u === 'RO' || u.includes('CONTRATISTA')) {
+    cls = 'ro';
+    shortLabel = 'Residente (RO)';
+  } else if(u === 'SUPERVISIÓN' || u === 'SUPERVISION' || u === 'SUPERVISOR' || u.includes('SUPERVISIÓN') || u.includes('SUPERVISION')) {
+    cls = 'sup';
+    shortLabel = 'Supervisión';
+  } else if(u === 'PRONIS' || u === 'MINSA' || u.includes('PRONIS')) {
+    cls = 'ent';
+    shortLabel = 'PRONIS';
+  } else if(u === 'MUNICIPALIDAD' || u === 'MPSC' || u.includes('MUNICIPALIDAD')) {
+    cls = 'muni';
+    shortLabel = 'Municipalidad';
+  }
+  
+  if(cls && shortLabel.length <= 22){
+    return `<span class="actor-badge-mini ${cls}" title="${escapeHtml(str)}">${escapeHtml(shortLabel)}</span>`;
+  }
+  return `<span class="actor-custom-text" title="${escapeHtml(str)}">${escapeHtml(str)}</span>`;
+}
+
+async function copyDocToClipboard(text, btn, event){
+  if(event){
+    if(event.stopPropagation) event.stopPropagation();
+    if(event.preventDefault) event.preventDefault();
+  }
+  if(!text) return;
+  try {
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    if(btn){
+      btn.classList.add('copied');
+      btn.innerHTML = '<i class="ri-check-line"></i>';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<i class="ri-file-copy-line"></i>';
+      }, 1500);
+    }
+    showToast('N° de carta copiado: ' + text, 'success', 2200);
+  } catch(e) {
+    showToast('No se pudo copiar el texto', 'warning', 2000);
+  }
 }
 
 function yoDeboResponderLabel(c){
@@ -3111,6 +3439,60 @@ function normalizeSearchText(str){
     .replace(/[\/\-_.,;:()]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function normalize_doc_key(raw){
+  if(!raw) return '';
+  return String(raw)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/N[°º]/gi, 'N ')
+    .replace(/\./g, '')
+    .replace(/[\-_/]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+}
+
+function getCartaSearchRelevance(c, q, normQ){
+  if(!q) return 0;
+  const doc = String(c.n_documento || '').trim();
+  const normDoc = normalize_doc_key(doc);
+  const normQuery = normalize_doc_key(q);
+  
+  // 1. Coincidencia exacta en N° de documento (Prioridad Máxima #1)
+  if(normDoc && normQuery && normDoc === normQuery) return 100000;
+  
+  // 2. N° de documento empieza exactamente con la búsqueda
+  if(normDoc && normQuery && normDoc.startsWith(normQuery)) return 50000;
+  
+  // 3. N° de documento contiene la búsqueda completa
+  if(normDoc && normQuery && normDoc.includes(normQuery)) return 30000;
+  
+  // 4. Búsqueda directa sin normalizar en el doc
+  const lowDoc = doc.toLowerCase();
+  if(lowDoc.includes(q)) return 20000;
+  
+  // 5. Carta padre (referencia directa) coincide exactamente
+  const ref = String(c.referencia || '').trim();
+  if(ref){
+    const normRef = normalize_doc_key(ref);
+    if(normRef === normQuery) return 10000;
+    if(normRef.includes(normQuery)) return 8000;
+  }
+  
+  // 6. Referencias adicionales contienen el documento buscado
+  const refs = String(c.referencias || '').trim();
+  if(refs){
+    const normRefs = normalize_doc_key(refs);
+    if(normRefs.includes(normQuery)) return 5000;
+  }
+  
+  // 7. El asunto contiene el término buscado
+  const asunto = normalizeSearchText(String(c.asunto || ''));
+  if(normQ && asunto.includes(normQ)) return 2000;
+  
+  return 100;
 }
 
 function buildCartaSearchIndex(c){
@@ -3193,13 +3575,18 @@ function syncCartasSearchUI(explicitVal){
   if(tableQ && tableQ.value !== q) tableQ.value = q;
   if(fQ && fQ.value !== q) fQ.value = q;
   const clr = document.getElementById('cartasTableQClear');
-  if(clr) clr.classList.toggle('visible', !!q.trim());
+  if(clr) clr.classList.toggle('visible', !!q.trim() || !!activeHiloFilter);
   const term = q.trim();
-  const hintText = term && currentView === 'cartas'
-    ? `${filtered.length} resultado${filtered.length === 1 ? '' : 's'}`
-    : '';
   const hint = document.getElementById('cartasSearchHint');
-  if(hint) hint.textContent = term ? `${hintText} para “${term}”` : '';
+  if(hint){
+    if(activeHiloFilter){
+      hint.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);color:var(--accent);padding:3px 10px;border-radius:6px;font-weight:700;font-size:12px"><i class="ri-git-merge-line"></i> Trámite: ${escapeHtml(activeHiloFilter.title)} (${filtered.length} cartas) <button type="button" onclick="clearActiveHiloFilter(event)" style="border:none;background:rgba(196,91,62,0.15);color:var(--accent);cursor:pointer;font-weight:bold;padding:1px 6px;border-radius:4px;margin-left:4px">✕ Ver todas</button></span>`;
+    } else if(term && currentView === 'cartas'){
+      hint.textContent = `${filtered.length} resultado${filtered.length === 1 ? '' : 's'} para “${term}”`;
+    } else {
+      hint.textContent = '';
+    }
+  }
 }
 
 function updateFloatingSearchOnScroll(){
@@ -3253,40 +3640,59 @@ function applyFilters(){
   const deuda=document.getElementById('filterDeuda')?.value||'all';
   const contraparte=document.getElementById('filterContraparte')?.value||'all';
   const naturaleza=document.getElementById('filterNaturaleza')?.value||'all';
-  filtered=ALL_CARTAS.filter(c=>{
-    const cl=classif(c);
-    if(bandeja!=='all'&&c.bandeja!==bandeja)return false;
-    if(estado!=='all'){
-      const en=String(c.estado_norm||c.estado||'').trim().toUpperCase();
-      if(en!==estado)return false;
-    }
-    if(esp!=='all'&&!cartaMatchesEsp(c,esp))return false;
-    if(semantica!=='all'){
-      const sem=analyzeSemanticIntent(c);
-      if(sem.categoria!==semantica)return false;
-    }
-    if(!cartaMatchesFlujo(c,flujo))return false;
-    if(q&&!cartaMatchesSearch(c,q))return false;
-    if(!matchesPlazo(c,plazo))return false;
-    if(deuda!=='all'){
-      if(deuda==='ninguna'){
-        if(cl.deuda&&cl.deuda!=='ninguna')return false;
-      }else if(cl.deuda!==deuda)return false;
-    }
-    if(contraparte!=='all'&&!cartaMatchesContraparte(c,contraparte))return false;
-    if(naturaleza!=='all'&&cartaNaturaleza(cl)!==naturaleza)return false;
-    return true;
-  });
-  filtered.sort((a,b)=>{
-    const sa=deadlineStatus(a),sb=deadlineStatus(b);
-    const ra=plazoRank(sa.kind),rb=plazoRank(sb.kind);
-    if(ra!==rb)return ra-rb;
-    if(sa.days!=null&&sb.days!=null&&ra<=1)return sa.days-sb.days;
-    const fa=parseDate(a.fecha),fb=parseDate(b.fecha);
-    if(fa&&fb&&fa.getTime()!==fb.getTime())return fb-fa;
-    return(b.id||0)-(a.id||0);
-  });
-  const has=estado!=='all'||esp!=='all'||semantica!=='all'||flujo!=='all'||q||plazo!=='all'||bandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
+
+  if(activeHiloFilter && activeHiloFilter.carta_ids){
+    filtered = ALL_CARTAS.filter(c => activeHiloFilter.carta_ids.has(c.id));
+    filtered.sort((a, b) => {
+      const fa = String(a.fecha || '');
+      const fb = String(b.fecha || '');
+      if(fa !== fb) return fa.localeCompare(fb);
+      return (a.id || 0) - (b.id || 0);
+    });
+  } else {
+    filtered=ALL_CARTAS.filter(c=>{
+      const cl=classif(c);
+      if(bandeja!=='all'&&c.bandeja!==bandeja)return false;
+      if(estado!=='all'){
+        const en=String(c.estado_norm||c.estado||'').trim().toUpperCase();
+        if(en!==estado)return false;
+      }
+      if(esp!=='all'&&!cartaMatchesEsp(c,esp))return false;
+      if(semantica!=='all'){
+        const sem=analyzeSemanticIntent(c);
+        if(sem.categoria!==semantica)return false;
+      }
+      if(!cartaMatchesFlujo(c,flujo))return false;
+      if(q&&!cartaMatchesSearch(c,q))return false;
+      if(!matchesPlazo(c,plazo))return false;
+      if(deuda!=='all'){
+        if(deuda==='ninguna'){
+          if(cl.deuda&&cl.deuda!=='ninguna')return false;
+        }else if(cl.deuda!==deuda)return false;
+      }
+      if(contraparte!=='all'&&!cartaMatchesContraparte(c,contraparte))return false;
+      if(naturaleza!=='all'&&cartaNaturaleza(cl)!==naturaleza)return false;
+      return true;
+    });
+    const normQ = q ? normalizeSearchText(q) : '';
+
+    filtered.sort((a,b)=>{
+      if(q){
+        const relA = getCartaSearchRelevance(a, q, normQ);
+        const relB = getCartaSearchRelevance(b, q, normQ);
+        if(relA !== relB) return relB - relA; // Mayor relevancia primero
+      }
+      const sa=deadlineStatus(a),sb=deadlineStatus(b);
+      const ra=plazoRank(sa.kind),rb=plazoRank(sb.kind);
+      if(ra!==rb)return ra-rb;
+      if(sa.days!=null&&sb.days!=null&&ra<=1)return sa.days-sb.days;
+      const fa=parseDate(a.fecha),fb=parseDate(b.fecha);
+      if(fa&&fb&&fa.getTime()!==fb.getTime())return fb-fa;
+      return(b.id||0)-(a.id||0);
+    });
+  }
+
+  const has=!!activeHiloFilter||estado!=='all'||esp!=='all'||semantica!=='all'||flujo!=='all'||q||plazo!=='all'||bandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
   document.getElementById('btnReset')?.classList.toggle('visible',has);
   document.getElementById('filterActiveTag')?.classList.toggle('visible',has);
   currentPage=1;updateAll();
@@ -3298,6 +3704,7 @@ function applyFilters(){
 }
 
 function resetFiltersSilent(){
+  activeHiloFilter = null;
   const fEst=document.getElementById('filterEstado'); if(fEst)fEst.value='all';
   const fEsp=document.getElementById('filterEsp'); if(fEsp)fEsp.value='all';
   const fSem=document.getElementById('filterSemantica'); if(fSem)fSem.value='all';
@@ -3616,9 +4023,15 @@ function updateTable(){
     const pb=st.kind==='por_vencer'?'por-vencer':st.kind.replace('_','-');
     const itemNumber=start+idx+1;
 
+    const dotHtml = st.kind==='vencida' ? '<span class="row-dot vencida" title="Vencida"></span>' : (st.kind==='por_vencer' ? '<span class="row-dot por-vencer" title="Por vencer"></span>' : '');
+    const docNum = escapeHtml(cleanSpaces(c.n_documento || '—'));
+    const copyBtn = c.n_documento ? `<button type="button" class="btn-copy-doc" title="Copiar N° de documento" onclick="copyDocToClipboard('${escapeHtml(c.n_documento)}', this, event)"><i class="ri-file-copy-line"></i></button>` : '';
+
     const semBadge=(sem&&sem.categoria!=='gestion_general')
       ?`<div class="intent-badge ${sem.categoria}" title="${escapeHtml(sem.action_hint)}">${escapeHtml(sem.short_label)}</div>`
       :'';
+
+    const refHtml = formatCartaReferenciaTableHtml(c);
 
     let actionBtnHtml='';
     if(CURRENT_USER&&CURRENT_USER.can_create_cartas&&act.canAction){
@@ -3626,19 +4039,19 @@ function updateTable(){
     }
 
     tr.innerHTML=`
-      <td style="text-align:center;font-weight:600;color:var(--text-muted);font-size:11.5px">${itemNumber}</td>
-      <td class="cell-wrap" style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento||'—')}</td>
-      <td style="white-space:nowrap">${escapeHtml(fmtDate(c.fecha)||'—')}</td>
-      <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
-      <td class="cell-wrap">${escapeHtml(getEspecialidadDisplay(c))}</td>
-      <td class="cell-wrap" style="font-size:12px">${escapeHtml(quienEnviaLabel(c))}</td>
-      <td class="cell-wrap" style="font-size:12px">${escapeHtml(quienRecibeLabel(c))}</td>
-      <td class="cell-wrap">${escapeHtml(c.asunto||'—')}${semBadge}</td>
-      <td class="cell-wrap" style="font-weight:600;color:var(--text-primary)">${escapeHtml(getCartaReferenciaDisplay(c))}</td>
+      <td><div class="row-num-cell">${itemNumber}${dotHtml}</div></td>
+      <td class="cell-wrap"><div class="doc-num-wrap"><span class="doc-num-text">${docNum}</span>${copyBtn}</div></td>
+      <td style="white-space:nowrap;font-weight:500;color:var(--text-secondary)">${escapeHtml(fmtDate(c.fecha)||'—')}</td>
+      <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(cleanSpaces(getTipoDocumentoDisplay(c)))}</td>
+      <td class="cell-wrap">${formatEspecialidadBadge(c)}</td>
+      <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienEnviaLabel(c)))}</td>
+      <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienRecibeLabel(c)))}</td>
+      <td class="cell-wrap" style="line-height:1.4">${escapeHtml(cleanSpaces(c.asunto||'—'))}${semBadge}</td>
+      <td class="cell-wrap">${refHtml}</td>
       <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
       <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
-      <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
-      <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(c.observacion||'')}">${escapeHtml(c.observacion||'—')}</td>
+      <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(cleanSpaces(c.estado_norm||c.estado||'—'))}</span></td>
+      <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(cleanSpaces(c.observacion||''))}">${escapeHtml(cleanSpaces(c.observacion||'—'))}</td>
       <td class="col-acc">
         <div class="actions-group">
           ${actionBtnHtml}
@@ -4524,8 +4937,16 @@ async function loadData(){
     if(stats.user)applyUserChrome(stats.user);
     applyCatalogoFromStats(stats);
     applyPlazosConfig(stats);initBandejas();initFilters();updateHeroMeta();applyFilters();
-    try{await loadHilos();}catch(e){console.warn('hilos',e);HILOS={hilos:[],counts:{}};}
-    if(currentView==='pendientes')renderPendientes();
+    if(currentView==='pendientes'){
+      try{await loadHilos();}catch(e){console.warn('hilos',e);HILOS={hilos:[],counts:{}};}
+      renderPendientes();
+    } else {
+      if(window.requestIdleCallback){
+        requestIdleCallback(()=>{loadHilos().catch(()=>{});},{timeout:800});
+      } else {
+        setTimeout(()=>{loadHilos().catch(()=>{});},150);
+      }
+    }
     if(currentView==='saldos')renderSaldos();
     if(currentView==='cartas')requestAnimationFrame(setupCartasSearchFloat);
   }catch(e){
@@ -4726,6 +5147,7 @@ function setupCartaPadreSearch(){
   const removeBtn = document.getElementById('btnRemoveCartaPadre');
   const emisorSel = document.getElementById('f_emisor');
   const destSel = document.getElementById('f_destinatario');
+  const estadoSel = document.getElementById('f_estado');
   const reqCheck = document.getElementById('f_requiere_respuesta');
 
   emisorSel?.addEventListener('change', () => updateDestinatarioOptions());
@@ -4733,7 +5155,44 @@ function setupCartaPadreSearch(){
     if(document.getElementById('f_plazo_dias')) document.getElementById('f_plazo_dias').dataset.auto = '1';
     updatePlazoFromActors();
   });
-  reqCheck?.addEventListener('change', () => updatePlazoFromActors());
+  estadoSel?.addEventListener('change', (e) => {
+    const v = e.target.value;
+    const isClosed = isClosedState(v) || v === 'PARA CONOCIMIENTO';
+    
+    // Check if intermediate letter in thread
+    const currentCarta = editingId ? (ALL_CARTAS||[]).find(x => x.id === editingId) : null;
+    const chain = currentCarta && typeof getHiloChainCartas === 'function' ? getHiloChainCartas(currentCarta) : [];
+    const currentIdx = currentCarta ? chain.findIndex(x => x.id === currentCarta.id) : -1;
+    const hasSuccessors = currentIdx !== -1 && currentIdx < chain.length - 1;
+    
+    if(hasSuccessors){
+      setCategoriaCartaMode('successors', { numSuccessors: chain.length - 1 - currentIdx });
+      updatePlazoFromActors();
+      return;
+    }
+    
+    if(isClosed){
+      setCategoriaCartaMode('closed', { estado: v });
+    } else {
+      setCategoriaCartaMode('editable');
+      if(reqCheck) reqCheck.checked = true;
+    }
+    updatePlazoFromActors();
+  });
+  reqCheck?.addEventListener('change', () => {
+    if(!reqCheck.checked){
+      if(estadoSel && !isClosedState(estadoSel.value)){
+        estadoSel.value = 'PARA CONOCIMIENTO';
+      }
+    } else {
+      if(estadoSel){
+        if(estadoSel.value === 'PARA CONOCIMIENTO' || isClosedState(estadoSel.value) || !estadoSel.value){
+          estadoSel.value = 'ABIERTO';
+        }
+      }
+    }
+    updatePlazoFromActors();
+  });
 
   if(searchInput && suggestBox){
     searchInput.addEventListener('input', () => {
@@ -4766,14 +5225,17 @@ function setupCartaPadreSearch(){
         const stBadge = closed 
           ? `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;background:var(--sage-light);color:var(--sage)">🔒 ${escapeHtml(est)}</span>`
           : `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;background:var(--lavender-light);color:var(--lavender)">⚡ EN TRÁMITE</span>`;
+        const espDisplay = getEspecialidadDisplay(c);
+        const asuntoDisplay = cleanSpaces(c.asunto || 'Sin asunto');
+        const docDisplay = cleanSpaces(c.n_documento || 'ID ' + c.id);
         return `
         <div class="carta-padre-item" data-id="${c.id}" style="${closed?'background:#FAFAF9;opacity:0.9':''}">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <span style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento || 'ID ' + c.id)} <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(${fmtDate(c.fecha) || 'Sin fecha'})</span></span>
+            <span style="font-weight:700;color:var(--text-primary)">${escapeHtml(docDisplay)} <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(${fmtDate(c.fecha) || 'Sin fecha'})</span></span>
             ${stBadge}
           </div>
-          <div style="font-size:11.5px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:550px;margin-top:2px">${escapeHtml(c.asunto || 'Sin asunto')}</div>
-          <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">${escapeHtml(c.especialidad || c.especialidad_norm || 'GENERAL')} · ${escapeHtml(quienEnviaLabel(c))} ➔ ${escapeHtml(quienRecibeLabel(c))}</div>
+          <div style="font-size:11.5px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:550px;margin-top:2px">${escapeHtml(asuntoDisplay)}</div>
+          <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">${escapeHtml(espDisplay)} · ${escapeHtml(cleanSpaces(quienEnviaLabel(c)))} ➔ ${escapeHtml(cleanSpaces(quienRecibeLabel(c)))}</div>
         </div>`;
       }).join('');
       suggestBox.style.display = 'block';
@@ -4799,10 +5261,7 @@ function setupCartaPadreSearch(){
   }
 }
 
-function normalize_doc_key(raw){
-  if(!raw) return '';
-  return String(raw).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/N[°º]/g, 'N ').replace(/\./g, '').replace(/\s+/g, ' ').trim().toUpperCase();
-}
+
 
 function findHiloForCarta(cartaOrId){
   if(!cartaOrId) return null;
@@ -4902,25 +5361,11 @@ function selectCartaPadre(c){
     return;
   }
   const latest = getLatestCartaInHilo(c) || c;
-  const chain = getHiloChainCartas(c);
 
   document.getElementById('f_referencia').value = latest.n_documento || '';
   document.getElementById('f_hilo_id').value = latest.hilo_id || latest.id || '';
   
-  const isDifferent = latest.id !== c.id;
-  const note = isDifferent ? ` <span style="color:var(--teal);font-weight:600">(Última carta activa del hilo: ${escapeHtml(latest.n_documento||'')})</span>` : '';
-  
-  document.getElementById('cartaPadreSelectedDoc').innerHTML = escapeHtml(latest.n_documento || ('ID ' + latest.id)) + note;
-  
-  let breadcrumb = '';
-  if(chain.length > 1){
-    breadcrumb = `<div style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600">Trámite: ${chain.map((ch, idx) => (idx === chain.length - 1 ? `<strong>${escapeHtml(ch.n_documento || 'ID ' + ch.id)} (actual)</strong>` : escapeHtml(ch.n_documento || 'ID ' + ch.id))).join(' ➔ ')}</div>`;
-  }
-  
-  document.getElementById('cartaPadreSelectedSub').innerHTML = `Fecha: ${fmtDate(latest.fecha) || '—'} · Especialidad: ${latest.especialidad || latest.especialidad_norm || '—'} · Asunto: ${escapeHtml((latest.asunto || '—').slice(0, 80))}${breadcrumb}`;
-  document.getElementById('cartaPadreSelectedCard').style.display = 'flex';
-  document.getElementById('cartaPadreSearchWrap').style.display = 'none';
-  document.getElementById('cartaPadreSuggest').style.display = 'none';
+  renderCartaPadreCardUI('', latest, editingId);
 
   // Solo pre-llenar Tipo de Documento si el formulario no tiene uno definido
   const currentTipo = document.getElementById('f_tipo_documento')?.value?.trim();
@@ -4948,6 +5393,39 @@ function clearCartaPadre(){
   document.getElementById('cartaPadreSuggest').style.display = 'none';
 }
 
+const ESP_ALIAS_MAP = {
+  'ESTR.': 'ESTRUCTURAS', 'ESTR': 'ESTRUCTURAS', '.ESTR': 'ESTRUCTURAS', 'ESTRUCTURAS': 'ESTRUCTURAS',
+  'ARQ.': 'ARQUITECTURA', 'ARQ': 'ARQUITECTURA', 'ARQUI.': 'ARQUITECTURA', 'ARQUITECTURA': 'ARQUITECTURA',
+  'INST. ELECTRICAS': 'INST. ELECTRICAS', 'INST. ELÉCTRICAS': 'INST. ELECTRICAS', 'INST. ELECTR.': 'INST. ELECTRICAS', 'II.EE': 'INST. ELECTRICAS', 'IIEE': 'INST. ELECTRICAS', 'INT. ELECTRICAS': 'INST. ELECTRICAS',
+  'INST. SANITARIAS': 'INST. SANITARIAS', 'INST. SANITARIAS.': 'INST. SANITARIAS', 'INSTALACIONES SANITARIAS': 'INST. SANITARIAS', 'IISS': 'INST. SANITARIAS',
+  'INST. MECANICAS': 'INST. MECANICAS', 'INST. MECÁNICAS': 'INST. MECANICAS', 'INST MECANICAS': 'INST. MECANICAS', 'MECANICA': 'INST. MECANICAS',
+  'COMUNICACIONES': 'COMUNICACIONES', 'INST. COMUNICACIONES': 'COMUNICACIONES', 'INST. Y COMUNICACIONES': 'COMUNICACIONES', 'INST Y COMUNICACIONES': 'COMUNICACIONES', 'INST. DE COMUNICACIONES': 'COMUNICACIONES', 'INST. COMUN.': 'COMUNICACIONES',
+  'EQUIPAMIENTO': 'EQUIPAMIENTO', 'EQUIPAMEINTO': 'EQUIPAMIENTO', 'EQUIP. MEDICO': 'EQUIPAMIENTO', 'EQUI. MEDICO': 'EQUIPAMIENTO', 'EQUIP.': 'EQUIPAMIENTO', 'EQUI.': 'EQUIPAMIENTO', 'INST. EQUIP. HOSPITALARIO': 'EQUIPAMIENTO',
+  'GEOTECNIA': 'GEOTECNIA', 'GEOT.': 'GEOTECNIA', 'ESP. GEOTECNIA': 'GEOTECNIA',
+  'COSTOS': 'COSTOS', 'CALIDAD': 'CALIDAD', 'SSOMA': 'SSOMA', 'SOMA': 'SSOMA',
+  'MEDIO AMBIENTE': 'MEDIO AMBIENTE', 'ESP. M. AMBIENTE': 'MEDIO AMBIENTE', 'M. AMBIENTE': 'MEDIO AMBIENTE', 'M. AMB': 'MEDIO AMBIENTE',
+  'ADM. DE CONTR.': 'ADM. DE CONTRATOS', 'ADM. CONTRATOS': 'ADM. DE CONTRATOS', 'ADM CONTRATOS': 'ADM. DE CONTRATOS', 'ADM DE CONTRATOS': 'ADM. DE CONTRATOS', 'ADMIN DE CONTRATOS': 'ADM. DE CONTRATOS', 'ADMIN. DE CONTRATOS': 'ADM. DE CONTRATOS', 'ADMINIST DE CONTR': 'ADM. DE CONTRATOS', 'ADMINIST DE CONTRATOS': 'ADM. DE CONTRATOS', 'ADM. DE CONTRATOS': 'ADM. DE CONTRATOS',
+  'PRODUCCION': 'PRODUCCION', 'PRODUCCIÓN': 'PRODUCCION', 'PROD.': 'PRODUCCION',
+  'TOPOGRAFIA': 'TOPOGRAFIA', 'TOPOGRAFÍA': 'TOPOGRAFIA', 'TOP.': 'TOPOGRAFIA',
+  'RR.HH.': 'RR.HH.', 'RRHH': 'RR.HH.',
+  'OFICINA TECNICA': 'OFICINA TECNICA',
+  'CAMPO': 'CAMPO', 'ING. CAMPO': 'CAMPO',
+  'BIM': 'BIM', 'SEGURIDAD': 'SSOMA',
+  'RESIDENTE': 'RO', 'RESIDENCIA': 'RO', 'WILINTONG DELGADO': 'RO', 'MILER': 'CAMPO'
+};
+
+function normalizeEspecialidadJs(raw){
+  if(!raw) return '';
+  const s = String(raw).trim().toUpperCase();
+  if(ESP_ALIAS_MAP[s]) return ESP_ALIAS_MAP[s];
+  const clean = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  if(ESP_ALIAS_MAP[clean]) return ESP_ALIAS_MAP[clean];
+  for(const [k, v] of Object.entries(ESP_ALIAS_MAP)){
+    if(s === k || s.startsWith(k) || k.startsWith(s)) return v;
+  }
+  return s;
+}
+
 let fSelectedEspecialidades = new Set();
 
 function populateFormEspChips(initialValues){
@@ -4962,13 +5440,28 @@ function populateFormEspChips(initialValues){
     } else if(typeof initialValues === 'string'){
       rawList = splitEspecialidades(initialValues);
     }
-    rawList.map(s => String(s).trim().toUpperCase()).filter(s => s && s !== 'SIN ESPECIALIDAD' && s !== 'MIXTA').forEach(p => fSelectedEspecialidades.add(p));
+    rawList.forEach(p => {
+      const norm = normalizeEspecialidadJs(p);
+      if(norm && norm !== 'SIN ESPECIALIDAD' && norm !== 'MIXTA'){
+        fSelectedEspecialidades.add(norm);
+      }
+    });
   }
 
-  const catalog = getCatalogoEspecialidadesForUser();
+  const catalog = [...getCatalogoEspecialidadesForUser()];
+  // Si la carta tiene una especialidad (histórica o personalizada como RO) que no está en el catálogo base, incluirla dinámicamente para que se vea seleccionada y con check
+  fSelectedEspecialidades.forEach(selectedEsp => {
+    const normSel = normalizeEspecialidadJs(selectedEsp);
+    const inCatalog = catalog.some(c => normalizeEspecialidadJs(c) === normSel || c.toUpperCase() === normSel);
+    if(!inCatalog && normSel && normSel !== 'SIN ESPECIALIDAD' && normSel !== 'MIXTA'){
+      catalog.push(selectedEsp);
+    }
+  });
+
   container.innerHTML = catalog.map(esp => {
-    const isActive = fSelectedEspecialidades.has(esp.toUpperCase());
-    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(esp)}">
+    const normCatalog = normalizeEspecialidadJs(esp);
+    const isActive = fSelectedEspecialidades.has(normCatalog) || fSelectedEspecialidades.has(esp.toUpperCase());
+    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(normCatalog || esp)}">
       <i class="${isActive ? 'ri-checkbox-circle-fill' : 'ri-add-line'}"></i>
       <span>${escapeHtml(esp)}</span>
     </button>`;
@@ -4977,7 +5470,7 @@ function populateFormEspChips(initialValues){
   container.querySelectorAll('.esp-chip-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const esp = btn.dataset.esp.toUpperCase();
+      const esp = normalizeEspecialidadJs(btn.dataset.esp);
       if(fSelectedEspecialidades.has(esp)){
         fSelectedEspecialidades.delete(esp);
         btn.classList.remove('active');
@@ -5026,13 +5519,27 @@ function populateResponderEspChips(initialValues){
     } else if(typeof initialValues === 'string'){
       rawList = splitEspecialidades(initialValues);
     }
-    rawList.map(s => String(s).trim().toUpperCase()).filter(s => s && s !== 'SIN ESPECIALIDAD' && s !== 'MIXTA').forEach(p => rfSelectedEspecialidades.add(p));
+    rawList.forEach(p => {
+      const norm = normalizeEspecialidadJs(p);
+      if(norm && norm !== 'SIN ESPECIALIDAD' && norm !== 'MIXTA'){
+        rfSelectedEspecialidades.add(norm);
+      }
+    });
   }
 
-  const catalog = getCatalogoEspecialidadesForUser();
+  const catalog = [...getCatalogoEspecialidadesForUser()];
+  rfSelectedEspecialidades.forEach(selectedEsp => {
+    const normSel = normalizeEspecialidadJs(selectedEsp);
+    const inCatalog = catalog.some(c => normalizeEspecialidadJs(c) === normSel || c.toUpperCase() === normSel);
+    if(!inCatalog && normSel && normSel !== 'SIN ESPECIALIDAD' && normSel !== 'MIXTA'){
+      catalog.push(selectedEsp);
+    }
+  });
+
   container.innerHTML = catalog.map(esp => {
-    const isActive = rfSelectedEspecialidades.has(esp.toUpperCase());
-    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(esp)}">
+    const normCatalog = normalizeEspecialidadJs(esp);
+    const isActive = rfSelectedEspecialidades.has(normCatalog) || rfSelectedEspecialidades.has(esp.toUpperCase());
+    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(normCatalog || esp)}">
       <i class="${isActive ? 'ri-checkbox-circle-fill' : 'ri-add-line'}"></i>
       <span>${escapeHtml(esp)}</span>
     </button>`;
@@ -5041,7 +5548,7 @@ function populateResponderEspChips(initialValues){
   container.querySelectorAll('.esp-chip-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const esp = btn.dataset.esp.toUpperCase();
+      const esp = normalizeEspecialidadJs(btn.dataset.esp);
       if(rfSelectedEspecialidades.has(esp)){
         rfSelectedEspecialidades.delete(esp);
         btn.classList.remove('active');
@@ -5149,7 +5656,6 @@ function closeResponderModal(){
 function selectResponderCartaPadre(c){
   const latest = getLatestCartaInHilo(c) || c;
   responderParentCarta = latest;
-  const chain = getHiloChainCartas(c);
 
   document.getElementById('rf_padre_id').value = latest.id || '';
   document.getElementById('rf_padre_doc').value = latest.n_documento || '';
@@ -5159,25 +5665,7 @@ function selectResponderCartaPadre(c){
     document.getElementById('rf_tipo_documento').value = latest.tipo_documento || c.tipo_documento || 'CARTA';
   }
 
-  const isDifferent = latest.id !== c.id;
-  const note = isDifferent ? ` <span style="color:var(--teal);font-weight:600">(Última carta activa del hilo: ${escapeHtml(latest.n_documento||'')})</span>` : '';
-
-  document.getElementById('rf_cartaPadreSelectedDoc').innerHTML = escapeHtml(latest.n_documento || ('ID ' + latest.id)) + note;
-  document.getElementById('rf_cartaPadreSelectedSub').textContent = `Fecha: ${fmtDate(latest.fecha) || '—'} · Emisor: ${latest.receptor || latest.sentido || '—'} · Destinatario: ${latest.dirigido_a || '—'}`;
-
-  const bcEl = document.getElementById('rf_hiloBreadcrumb');
-  if(bcEl){
-    if(chain.length > 1){
-      bcEl.innerHTML = `Secuencia del hilo: ${chain.map((ch, idx) => (idx === chain.length - 1 ? `<strong>${escapeHtml(ch.n_documento || 'ID ' + ch.id)} (última)</strong>` : escapeHtml(ch.n_documento || 'ID ' + ch.id))).join(' ➔ ')}`;
-      bcEl.style.display = 'block';
-    } else {
-      bcEl.style.display = 'none';
-    }
-  }
-
-  document.getElementById('rf_cartaPadreSelectedCard').style.display = 'flex';
-  document.getElementById('rf_cartaPadreSearchWrap').style.display = 'none';
-  document.getElementById('rf_cartaPadreSuggest').style.display = 'none';
+  renderCartaPadreCardUI('rf', latest, c);
 
   if(latest.especialidad){
     populateResponderEspChips(latest.especialidad);
@@ -5272,9 +5760,9 @@ function setupResponderCartaPadreSearch(){
 
       suggestBox.innerHTML = matches.map(c => `
         <div class="carta-padre-item" data-id="${c.id}">
-          <div style="font-weight:700;color:var(--text-primary)">${escapeHtml(c.n_documento || 'ID ' + c.id)} <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(${fmtDate(c.fecha) || 'Sin fecha'})</span></div>
-          <div style="font-size:11.5px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:550px">${escapeHtml(c.asunto || 'Sin asunto')}</div>
-          <div style="font-size:10.5px;color:var(--accent);margin-top:2px">${escapeHtml(c.especialidad || c.especialidad_norm || 'GENERAL')} · ${escapeHtml(c.estado_norm || c.estado || 'ABIERTO')}</div>
+          <div style="font-weight:700;color:var(--text-primary)">${escapeHtml(cleanSpaces(c.n_documento || 'ID ' + c.id))} <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(${fmtDate(c.fecha) || 'Sin fecha'})</span></div>
+          <div style="font-size:11.5px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:550px">${escapeHtml(cleanSpaces(c.asunto || 'Sin asunto'))}</div>
+          <div style="font-size:10.5px;color:var(--accent);margin-top:2px">${escapeHtml(getEspecialidadDisplay(c))} · ${escapeHtml(cleanSpaces(c.estado_norm || c.estado || 'ABIERTO'))}</div>
         </div>
       `).join('');
       suggestBox.style.display = 'block';
@@ -5557,6 +6045,180 @@ function formHasContent(d){
   return meaningful.some(f => String(d[f] || '').trim() !== '');
 }
 
+function findParentCartaFor(d){
+  if(!d) return null;
+  const currentDocNorm = normalize_doc_key(d.n_documento);
+  const currentDt = parseDate(d.fecha)?.getTime() || 0;
+  
+  // 1. Direct explicit referencia (must be strictly earlier or same day)
+  const ref = String(d.referencia || '').trim();
+  if(ref && ref !== '—' && ref !== d.n_documento){
+    const normRef = normalize_doc_key(ref);
+    const parent = (ALL_CARTAS || []).find(x => x.id !== d.id && normalize_doc_key(x.n_documento) === normRef);
+    if(parent){
+      const pDt = parseDate(parent.fecha)?.getTime() || 0;
+      if(!currentDt || !pDt || pDt <= currentDt){
+        return parent;
+      }
+    }
+  }
+  
+  // 2. Parse from referencias (antecedentes citados, strictly earlier or same day)
+  const rawRefs = d.referencias || '';
+  if(rawRefs && typeof parseReferenciasAntecedentes === 'function'){
+    const parts = parseReferenciasAntecedentes(rawRefs);
+    for(const p of parts){
+      const normP = normalize_doc_key(p);
+      if(normP && normP !== currentDocNorm){
+        const parent = (ALL_CARTAS || []).find(x => x.id !== d.id && normalize_doc_key(x.n_documento) === normP);
+        if(parent){
+          const pDt = parseDate(parent.fecha)?.getTime() || 0;
+          if(!currentDt || !pDt || pDt <= currentDt){
+            return parent;
+          }
+        }
+      }
+    }
+  }
+  
+  // 3. From Hilo chain (immediately preceding letter in the thread)
+  if(typeof getHiloChainCartas === 'function'){
+    const chain = getHiloChainCartas(d);
+    if(chain && chain.length > 1){
+      const earlier = chain.filter(x => x.id !== d.id && (parseDate(x.fecha)?.getTime() || 0) <= currentDt);
+      if(earlier.length){
+        return earlier[earlier.length - 1]; // Immediately preceding letter in the conversation
+      }
+    }
+  }
+  
+  return null;
+}
+
+
+
+function renderCartaPadreCardUI(prefix, parentCarta, currentCartaOrId){
+  const card = document.getElementById(prefix ? `${prefix}_cartaPadreSelectedCard` : 'cartaPadreSelectedCard');
+  const docEl = document.getElementById(prefix ? `${prefix}_cartaPadreSelectedDoc` : 'cartaPadreSelectedDoc');
+  const subEl = document.getElementById(prefix ? `${prefix}_cartaPadreSelectedSub` : 'cartaPadreSelectedSub');
+  const timelineEl = document.getElementById(prefix ? `${prefix}_cartaPadreTimelineWrap` : 'cartaPadreTimelineWrap');
+  const previewBtn = document.getElementById(prefix ? `${prefix}_btnPreviewCartaPadre` : 'btnPreviewCartaPadre');
+  const removeBtn = document.getElementById(prefix ? `${prefix}_btnRemoveCartaPadre` : 'btnRemoveCartaPadre');
+  
+  if(!card) return;
+  
+  const currentCarta = typeof currentCartaOrId === 'object' ? currentCartaOrId : (ALL_CARTAS||[]).find(x => x.id === currentCartaOrId);
+  const currentId = currentCarta ? currentCarta.id : (currentCartaOrId || editingId);
+  const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(currentCarta || parentCarta) : [];
+  const currentIdx = currentId ? chain.findIndex(x => x.id === currentId) : -1;
+  const hasSuccessors = currentIdx !== -1 && currentIdx < chain.length - 1;
+  const numSuccessors = hasSuccessors ? (chain.length - 1 - currentIdx) : 0;
+
+  if(parentCarta){
+    const parentDoc = parentCarta.n_documento || ('ID ' + parentCarta.id);
+    if(docEl) docEl.innerHTML = `<span class="carta-padre-badge" style="background:#EBF3FA;color:#185A9D;margin-right:6px"><i class="ri-git-branch-line"></i> Carta Padre Vinculada</span><strong>${escapeHtml(parentDoc)}</strong>`;
+    
+    const emisor = cleanSpaces(quienEnviaLabel(parentCarta));
+    const dest = cleanSpaces(quienRecibeLabel(parentCarta));
+    const esp = getEspecialidadDisplay(parentCarta);
+    const fecha = fmtDate(parentCarta.fecha) || 'Sin fecha';
+    const asunto = cleanSpaces(parentCarta.asunto || 'Sin asunto');
+    
+    if(subEl){
+      subEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <span><strong>${escapeHtml(emisor)}</strong> ➔ <strong>${escapeHtml(dest)}</strong></span>
+          <span style="color:var(--text-muted)">📅 ${escapeHtml(fecha)}</span>
+          ${esp !== '—' ? `<span class="esp-tag general" style="padding:1px 6px;font-size:10px">${escapeHtml(esp)}</span>` : ''}
+        </div>
+        <div style="color:var(--text-primary);font-size:12px;margin-top:2px;line-height:1.35;word-break:break-word"><strong>Asunto:</strong> ${escapeHtml(asunto)}</div>
+      `;
+    }
+    if(previewBtn){
+      previewBtn.style.display = 'inline-flex';
+      previewBtn.onclick = (e) => {
+        e.stopPropagation();
+        previewRefCarta(parentCarta.id);
+      };
+    }
+    if(removeBtn){
+      if(hasSuccessors){
+        removeBtn.style.display = 'none';
+        let lockIndicator = card.querySelector('.padre-lock-indicator');
+        if(!lockIndicator){
+          lockIndicator = document.createElement('span');
+          lockIndicator.className = 'padre-lock-indicator badge-soft';
+          lockIndicator.style.fontSize = '11px';
+          lockIndicator.style.background = '#F0F5FA';
+          lockIndicator.style.color = '#185A9D';
+          lockIndicator.style.border = '1px solid #B8D3EE';
+          lockIndicator.style.display = 'inline-flex';
+          lockIndicator.style.alignItems = 'center';
+          lockIndicator.style.gap = '4px';
+          lockIndicator.style.padding = '3px 8px';
+          lockIndicator.style.borderRadius = '4px';
+          lockIndicator.title = `Protegido: esta carta ya tiene ${numSuccessors} respuesta(s) posterior(es) en el trámite`;
+          lockIndicator.innerHTML = `<i class="ri-lock-2-line"></i> Trámite protegido (${numSuccessors} derivaciones)`;
+          card.querySelector('.carta-padre-actions')?.prepend(lockIndicator);
+        }
+      } else {
+        removeBtn.style.display = 'inline-flex';
+        card.querySelector('.padre-lock-indicator')?.remove();
+      }
+    }
+  } else if(chain.length > 1){
+    // Es la CARTA INICIAL de un trámite con varias cartas/respuestas posteriores
+    if(docEl) docEl.innerHTML = `<span class="carta-padre-badge" style="background:#E1F5EA;color:#1B663E;margin-right:6px"><i class="ri-flag-2-line"></i> CARTA INICIAL DEL TRÁMITE</span><strong>Inicia este trámite (Sin carta previa)</strong>`;
+    if(subEl){
+      subEl.innerHTML = `<div style="font-size:12px;color:var(--text-muted)">Este documento dio origen a la conversación. A continuación se muestran las respuestas y cartas derivadas:</div>`;
+    }
+    if(previewBtn) previewBtn.style.display = 'none';
+    if(removeBtn) removeBtn.style.display = 'none';
+    card.querySelector('.padre-lock-indicator')?.remove();
+  } else {
+    card.style.display = 'none';
+    const searchWrap = document.getElementById(prefix ? `${prefix}_cartaPadreSearchWrap` : 'cartaPadreSearchWrap');
+    if(searchWrap) searchWrap.style.display = 'block';
+    return;
+  }
+  
+  // Línea de vida / Stepper del trámite
+  if(timelineEl){
+    if(chain.length > 1){
+      const hid = (parentCarta && parentCarta.hilo_id) || (currentCarta && currentCarta.hilo_id) || '';
+      let stepsHtml = chain.map((ch, idx) => {
+        const isCur = currentId && ch.id === currentId;
+        const label = escapeHtml(ch.n_documento || ('ID ' + ch.id));
+        const dt = fmtDate(ch.fecha) || '';
+        return `
+          <button type="button" class="carta-hilo-step ${isCur ? 'current' : ''}" onclick="previewRefCarta(${ch.id})" title="${isCur ? 'Carta actual en edición' : 'Clic para ver detalle'} (${escapeHtml(ch.asunto||'')})">
+            <span>${idx + 1}.</span> <strong>${label}</strong> ${dt ? `<span style="font-size:10px;opacity:0.85">(${dt})</span>` : ''}
+          </button>
+        `;
+      }).join('<span class="carta-hilo-arrow"><i class="ri-arrow-right-s-line"></i></span>');
+      
+      timelineEl.innerHTML = `
+        <div class="carta-hilo-stepper">
+          <div style="width:100%;font-size:11px;font-weight:700;color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-bottom:2px">
+            <i class="ri-git-merge-line" style="color:var(--accent)"></i> LÍNEA DE VIDA DEL TRÁMITE ${hid ? `(#${hid})` : ''} · ${chain.length} cartas vinculadas:
+          </div>
+          ${stepsHtml}
+        </div>
+      `;
+      timelineEl.style.display = 'block';
+    } else {
+      timelineEl.style.display = 'none';
+      timelineEl.innerHTML = '';
+    }
+  }
+  
+  card.style.display = 'flex';
+  const searchWrap = document.getElementById(prefix ? `${prefix}_cartaPadreSearchWrap` : 'cartaPadreSearchWrap');
+  if(searchWrap) searchWrap.style.display = 'none';
+  const suggest = document.getElementById(prefix ? `${prefix}_cartaPadreSuggest` : 'cartaPadreSuggest');
+  if(suggest) suggest.style.display = 'none';
+}
+
 function applyForm(d){
   if(!d) return;
   document.getElementById('f_n_documento').value = d.n_documento || '';
@@ -5591,14 +6253,41 @@ function applyForm(d){
   }
   populateFormEspChips(d.especialidad || []);
 
-  document.getElementById('f_asunto').value = d.asunto || '';
-  document.getElementById('f_observacion').value = d.observacion || '';
-  document.getElementById('f_referencias').value = d.referencias || '';
+  document.getElementById('f_asunto').value = cleanSpaces(d.asunto || '');
+  document.getElementById('f_observacion').value = cleanSpaces(d.observacion || '');
+  const rawRefs = d.referencias || '';
+  document.getElementById('f_referencias').value = rawRefs;
+  populateRefList(rawRefs);
 
-  const est = String(d.estado_norm || d.estado || '').toUpperCase();
-  const isSoloInfo = est === 'PARA CONOCIMIENTO';
+  const est = String(d.estado_norm || d.estado || 'ABIERTO').trim().toUpperCase();
+  const fEstadoEl = document.getElementById('f_estado');
+  if(fEstadoEl){
+    if(est && ![...fEstadoEl.options].some(o => o.value === est)){
+      const opt = document.createElement('option');
+      opt.value = est;
+      opt.textContent = est;
+      fEstadoEl.appendChild(opt);
+    }
+    fEstadoEl.value = est || 'ABIERTO';
+  }
+
+  const isSoloInfo = est === 'PARA CONOCIMIENTO' || isClosedState(est);
   const reqCheck = document.getElementById('f_requiere_respuesta');
-  if(reqCheck) reqCheck.checked = !isSoloInfo;
+  
+  // Protección de Integridad de Hilo para cartas con respuestas posteriores
+  const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(d) : [];
+  const currentIdx = chain.findIndex(x => x.id === d.id);
+  const hasSuccessors = currentIdx !== -1 && currentIdx < chain.length - 1;
+  const numSuccessors = hasSuccessors ? (chain.length - 1 - currentIdx) : 0;
+  
+  if(hasSuccessors){
+    setCategoriaCartaMode('successors', { numSuccessors });
+  } else if(isClosedState(est) || est === 'PARA CONOCIMIENTO'){
+    setCategoriaCartaMode('closed', { estado: est });
+  } else {
+    setCategoriaCartaMode('editable');
+    if(reqCheck) reqCheck.checked = !isSoloInfo;
+  }
 
   const pInput = document.getElementById('f_plazo_dias');
   if(pInput){
@@ -5607,26 +6296,20 @@ function applyForm(d){
   }
   updatePlazoFromActors();
 
-  const ref = String(d.referencia || '').trim();
-  if(ref && ref !== '—' && ref !== d.n_documento){
-    const parentCarta = (ALL_CARTAS || []).find(x => x.n_documento === ref);
-    document.getElementById('f_referencia').value = ref;
-    document.getElementById('f_hilo_id').value = d.hilo_id || parentCarta?.id || '';
-    
-    document.getElementById('cartaPadreSelectedDoc').textContent = ref;
-    const parentSub = parentCarta ? `Fecha: ${fmtDate(parentCarta.fecha) || '—'} · Especialidad: ${parentCarta.especialidad || parentCarta.especialidad_norm || '—'} · Asunto: ${escapeHtml((parentCarta.asunto || '—').slice(0, 80))}` : 'Antecedente / Carta inicial citada';
-    
-    const chain = getHiloChainCartas(d);
-    let breadcrumb = '';
-    if(chain.length > 1){
-      breadcrumb = `<div style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:600">Trámite: ${chain.map((ch) => (ch.id === d.id ? `<strong>${escapeHtml(ch.n_documento || 'ID ' + ch.id)} (actual)</strong>` : escapeHtml(ch.n_documento || 'ID ' + ch.id))).join(' ➔ ')}</div>`;
-    }
-    document.getElementById('cartaPadreSelectedSub').innerHTML = parentSub + breadcrumb;
-    document.getElementById('cartaPadreSelectedCard').style.display = 'flex';
-    document.getElementById('cartaPadreSearchWrap').style.display = 'none';
-    document.getElementById('cartaPadreSuggest').style.display = 'none';
+  const parentCarta = findParentCartaFor(d);
+  if(parentCarta){
+    document.getElementById('f_referencia').value = parentCarta.n_documento || '';
+    document.getElementById('f_hilo_id').value = d.hilo_id || parentCarta.hilo_id || parentCarta.id || '';
+    renderCartaPadreCardUI('', parentCarta, d);
   } else {
-    clearCartaPadre();
+    document.getElementById('f_referencia').value = '';
+    document.getElementById('f_hilo_id').value = d.hilo_id || '';
+    const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(d) : [];
+    if(chain.length > 1){
+      renderCartaPadreCardUI('', null, d);
+    } else {
+      clearCartaPadre();
+    }
   }
 
   // Asegurar que se preserve el tipo de documento y especialidad propios de la carta al editar
@@ -5667,13 +6350,13 @@ function setDraftHint(v){
     el.style.transform = 'translateY(0)';
     draftHintTimeout = setTimeout(() => {
       el.style.opacity = '0';
-      el.style.transform = 'translateY(-4px)';
+      el.style.transform = '';
       setTimeout(() => {
         el.classList.remove('visible');
         el.style.opacity = '';
         el.style.transform = '';
       }, 300);
-    }, 3000);
+    }, 2500);
   } else {
     el.classList.remove('visible');
     el.style.opacity = '';
@@ -5718,6 +6401,7 @@ function openNewModal(){
   document.getElementById('btnSaveForm').innerHTML = '<i class="ri-save-line"></i> Guardar Carta';
   document.getElementById('cartaForm').reset();
   document.getElementById('f_id').value = '';
+  populateRefList('');
   
   populateFormEspChips([]);
   clearCartaPadre();
@@ -5726,7 +6410,13 @@ function openNewModal(){
   }
   document.getElementById('f_emisor').value = 'RO';
   updateDestinatarioOptions('Supervisión');
-  document.getElementById('f_requiere_respuesta').checked = true;
+  if(document.getElementById('f_estado')){
+    document.getElementById('f_estado').value = 'ABIERTO';
+  }
+  setCategoriaCartaMode('editable');
+  if(document.getElementById('f_requiere_respuesta')){
+    document.getElementById('f_requiere_respuesta').checked = true;
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('f_fecha').value = today;
@@ -5879,6 +6569,7 @@ async function handleSave(){
   const esp = document.getElementById('f_especialidad')?.value?.trim() || '';
   const asunto = document.getElementById('f_asunto')?.value?.trim() || '';
   const observacion = document.getElementById('f_observacion')?.value?.trim() || '';
+  syncRefListToHiddenField();
   const cartaPadreRef = document.getElementById('f_referencia')?.value?.trim() || '';
   const cartaPadreHilo = document.getElementById('f_hilo_id')?.value?.trim() || '';
   const refs = document.getElementById('f_referencias')?.value?.trim() || '';
@@ -5920,24 +6611,26 @@ async function handleSave(){
   else if (emisor === 'JRD') { ban = 'recibida_otros'; sentido = 'recibida'; receptorLabel = 'JRD'; }
   else if (emisor === 'MUNICIPALIDAD') { ban = 'recibida_mpsc'; sentido = 'recibida'; receptorLabel = 'MUNICIPALIDAD'; }
 
-  // Estado mapping
-  let estado = 'ABIERTO';
-  if (!requiereResp) {
-    if (cartaPadreRef) {
-      estado = (sentido === 'recibida')
-        ? (emisor === 'PRONIS' ? 'ABSUELTA POR ENTIDAD' : 'ABSUELTA POR SUPERVISOR')
-        : 'CERRADO';
+  // Estado mapping & selection
+  let estado = document.getElementById('f_estado')?.value?.trim() || '';
+  if (!estado) {
+    if (!requiereResp) {
+      if (cartaPadreRef) {
+        estado = (sentido === 'recibida')
+          ? (emisor === 'PRONIS' ? 'ABSUELTA POR ENTIDAD' : 'ABSUELTA POR SUPERVISOR')
+          : 'CERRADO';
+      } else {
+        estado = 'PARA CONOCIMIENTO';
+      }
+    } else if (sentido === 'recibida') {
+      estado = 'PENDIENTE CGGC';
     } else {
-      estado = 'PARA CONOCIMIENTO';
+      if (dest.toUpperCase().includes('SUPERVIS')) estado = 'PENDIENTE SUPERVISION';
+      else if (dest.toUpperCase().includes('PRONIS')) estado = 'PENDIENTE ENTIDAD';
+      else if (dest.toUpperCase().includes('MUNICIPAL')) estado = 'PENDIENTE MUNICIPALIDAD';
+      else if (dest.toUpperCase().includes('JRD')) estado = 'PENDIENTE JRD';
+      else estado = 'ABIERTO';
     }
-  } else if (sentido === 'recibida') {
-    estado = 'PENDIENTE CGGC';
-  } else {
-    if (dest.toUpperCase().includes('SUPERVIS')) estado = 'PENDIENTE SUPERVISION';
-    else if (dest.toUpperCase().includes('PRONIS')) estado = 'PENDIENTE ENTIDAD';
-    else if (dest.toUpperCase().includes('MUNICIPAL')) estado = 'PENDIENTE MUNICIPALIDAD';
-    else if (dest.toUpperCase().includes('JRD')) estado = 'PENDIENTE JRD';
-    else estado = 'ABIERTO';
   }
 
   const data = {
@@ -6378,6 +7071,10 @@ document.getElementById('btnNewCarta')?.addEventListener('click',openNewModal);
 document.getElementById('modalClose')?.addEventListener('click',()=>closeModal());
 document.getElementById('btnCancelForm')?.addEventListener('click',()=>closeModal());
 document.getElementById('btnSaveForm')?.addEventListener('click',handleSave);
+document.getElementById('f_referencias')?.addEventListener('blur',(e)=>{
+  const v=e.target.value;
+  if(v) e.target.value=formatReferenciasAntecedentes(v)||cleanSpaces(v);
+});
 document.getElementById('f_bandeja')?.addEventListener('change',updateBandejaHint);
 document.getElementById('f_especialidad')?.addEventListener('change',()=>suggestAreaFromEspecialidad(true));
 
@@ -6400,7 +7097,11 @@ function previewRefCarta(id){
   document.getElementById('prev_bandeja').textContent=bandejaLabel(c.bandeja);
   document.getElementById('prev_destinatario').textContent=c.dirigido_a||c.receptor||'—';
   document.getElementById('prev_asunto').textContent=c.asunto||'Sin asunto registrado';
-  document.getElementById('prev_referencias').textContent=formatReferenciasAntecedentes(c.referencias)||'Ninguna';
+  
+  const prevRefEl = document.getElementById('prev_referencias');
+  if(prevRefEl){
+    prevRefEl.innerHTML = renderReferenciasPreviewHtml(c.referencias);
+  }
 
   const btnOpen=document.getElementById('btnPrevOpenEdit');
   if(btnOpen){
@@ -6416,53 +7117,249 @@ function closeRefPreview(){
   document.getElementById('refPreviewOverlay')?.classList.remove('active');
 }
 
-let refTraceTimer=null;
-let refAntecedentesList=[];
+function setCategoriaCartaMode(mode, info = {}){
+  const interactiveWrap = document.getElementById('reqCheckInteractiveWrap');
+  const lockedWrap = document.getElementById('reqCheckLockedWrap');
+  const reqCheck = document.getElementById('f_requiere_respuesta');
+  const iconEl = document.getElementById('reqLockIcon');
+  const titleEl = document.getElementById('reqLockTitle');
+  const subEl = document.getElementById('reqLockSubtitle');
+  const badgeEl = document.getElementById('reqLockBadge');
+  
+  if(mode === 'successors'){
+    if(reqCheck) reqCheck.checked = true;
+    if(interactiveWrap) interactiveWrap.style.display = 'none';
+    if(lockedWrap) {
+      lockedWrap.style.display = 'flex';
+      lockedWrap.style.background = '#F0F5FA';
+      lockedWrap.style.borderColor = '#B8D3EE';
+    }
+    if(iconEl) { iconEl.className = 'ri-lock-2-line'; iconEl.style.color = '#185A9D'; }
+    if(titleEl) titleEl.textContent = 'Vinculación y Categoría Protegidas';
+    if(subEl) subEl.textContent = `Esta carta ya cuenta con ${info.numSuccessors || 1} respuesta(s) registrada(s) en el expediente.`;
+    if(badgeEl) {
+      badgeEl.style.background = '#E1EDF7';
+      badgeEl.style.color = '#185A9D';
+      badgeEl.textContent = `🔒 BLOQUEADO (${info.numSuccessors || 1} derivaciones)`;
+    }
+  } else if(mode === 'closed'){
+    if(reqCheck) reqCheck.checked = false;
+    if(interactiveWrap) interactiveWrap.style.display = 'none';
+    if(lockedWrap) {
+      lockedWrap.style.display = 'flex';
+      lockedWrap.style.background = '#F4F9F5';
+      lockedWrap.style.borderColor = '#B7E4C7';
+    }
+    if(iconEl) { iconEl.className = 'ri-checkbox-circle-line'; iconEl.style.color = '#1B663E'; }
+    if(titleEl) titleEl.textContent = 'Trámite Concluido';
+    if(subEl) subEl.textContent = `El documento figura como ${info.estado || 'CERRADO'}. Para reabrirlo, cambia el Estado a EN TRÁMITE.`;
+    if(badgeEl) {
+      badgeEl.style.background = '#D8F3DC';
+      badgeEl.style.color = '#1B663E';
+      badgeEl.textContent = `✓ CONCLUIDO / ${info.estado || 'CERRADO'}`;
+    }
+  } else {
+    if(interactiveWrap) interactiveWrap.style.display = 'flex';
+    if(lockedWrap) lockedWrap.style.display = 'none';
+    if(reqCheck) reqCheck.disabled = false;
+  }
+}
 
-const REF_ANT_DOC_RE=/(?:CARTA|INFORME|OFICIO|ASIENTO|CONTRATO)(?:\s+DE\s+(?:[^N°]+?))?\s*N[°º.]?\s*[A-Z0-9\-/.()]+(?:\s*\([^)]*\))?/gi;
+function addRefListItem(val = ''){
+  const container = document.getElementById('referenciasListContainer');
+  if(!container) return;
+  
+  const placeholder = container.querySelector('.ref-empty-hint');
+  if(placeholder) placeholder.remove();
+  
+  const rowId = 'ref_item_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  const row = document.createElement('div');
+  row.className = 'ref-dynamic-item';
+  row.id = rowId;
+  row.style.display = 'flex';
+  row.style.alignItems = 'center';
+  row.style.gap = '8px';
+  row.style.background = '#FFFFFF';
+  row.style.padding = '6px 10px';
+  row.style.border = '1px solid var(--border)';
+  row.style.borderRadius = '6px';
+  row.style.boxShadow = '0 1px 2px rgba(0,0,0,0.03)';
+  
+  row.innerHTML = `
+    <i class="ri-file-text-line ref-item-icon" style="color:var(--text-muted);font-size:15px;flex-shrink:0"></i>
+    <input type="text" class="ref-item-input" placeholder="Escribe el documento citado o pega un link (Google Drive, OneDrive, etc.)" value="${escapeHtml(val)}" style="flex:1;font-size:12.5px;padding:5px 8px;border:1px solid #E0DFDB;border-radius:4px" oninput="handleRefInputLive(this)">
+    <a href="#" target="_blank" rel="noopener noreferrer" class="ref-item-open-btn" style="display:none;align-items:center;gap:4px;padding:4px 10px;font-size:11.5px;font-weight:600;background:#EBF3FA;color:#185A9D;border:1px solid #B8D3EE;border-radius:4px;text-decoration:none;flex-shrink:0" title="Abrir en nueva pestaña">
+      <i class="ri-external-link-line"></i> Abrir
+    </a>
+    <button type="button" class="btn-cancel" onclick="removeRefListItem('${rowId}')" style="padding:4px 6px;font-size:13px;color:var(--rose);border:none;background:transparent;cursor:pointer;flex-shrink:0" title="Eliminar ítem">
+      <i class="ri-delete-bin-line"></i>
+    </button>
+  `;
+  
+  container.appendChild(row);
+  const inputEl = row.querySelector('.ref-item-input');
+  if(inputEl){
+    handleRefInputLive(inputEl);
+    if(!val) inputEl.focus();
+  }
+}
+
+function handleRefInputLive(inputEl){
+  const row = inputEl.closest('.ref-dynamic-item');
+  if(!row) return;
+  const val = String(inputEl.value || '').trim();
+  const openBtn = row.querySelector('.ref-item-open-btn');
+  const iconEl = row.querySelector('.ref-item-icon');
+  
+  const isUrl = /^https?:\/\//i.test(val) || /^(drive\.google|docs\.google|onedrive|sharepoint)/i.test(val);
+  const urlMatch = val.match(/https?:\/\/[^\s]+/i);
+  
+  if(isUrl || urlMatch){
+    let url = urlMatch ? urlMatch[0] : val;
+    if(!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+    
+    if(openBtn){
+      openBtn.href = url;
+      openBtn.style.display = 'inline-flex';
+      if(url.includes('drive.google') || url.includes('docs.google')){
+        openBtn.innerHTML = '<i class="ri-google-drive-fill"></i> Abrir Drive';
+      } else if(url.includes('onedrive') || url.includes('sharepoint')){
+        openBtn.innerHTML = '<i class="ri-microsoft-fill"></i> Abrir OneDrive';
+      } else {
+        openBtn.innerHTML = '<i class="ri-external-link-line"></i> Abrir link';
+      }
+    }
+    if(iconEl){
+      iconEl.className = (url.includes('drive.google') ? 'ri-google-drive-fill' : 'ri-link') + ' ref-item-icon';
+      iconEl.style.color = '#1A73E8';
+    }
+  } else {
+    if(openBtn) openBtn.style.display = 'none';
+    if(iconEl){
+      iconEl.className = 'ri-file-text-line ref-item-icon';
+      iconEl.style.color = 'var(--text-muted)';
+    }
+  }
+  syncRefListToHiddenField();
+}
+
+function removeRefListItem(rowId){
+  const el = document.getElementById(rowId);
+  if(el) el.remove();
+  const container = document.getElementById('referenciasListContainer');
+  if(container && !container.children.length){
+    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>+ Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+  }
+  syncRefListToHiddenField();
+}
+
+function syncRefListToHiddenField(){
+  const container = document.getElementById('referenciasListContainer');
+  if(!container) return;
+  const rows = container.querySelectorAll('.ref-dynamic-item');
+  const items = [];
+  rows.forEach(r => {
+    const val = r.querySelector('.ref-item-input')?.value?.trim() || '';
+    if(val) items.push(val);
+  });
+  const hiddenInput = document.getElementById('f_referencias');
+  if(hiddenInput) hiddenInput.value = items.join('\n');
+}
+
+const REF_ANT_DOC_RE=/(?:CARTA|INFORME|OFICIO|ASIENTO|CONTRATO|MEMO|NOTARIAL|RESOLUCION|ACTA)(?:\s+DE\s+(?:[^N°\n\r]+?))?\s*N[°º.]?\s*[A-Z0-9\-/.()]+(?:\s*\([^)]*\))?/gi;
 
 function parseReferenciasAntecedentes(raw){
-  const s=String(raw||'').replace(/\t/g,' ').trim();
-  if(!s)return [];
-  const seen=new Set();
-  const out=[];
-  const push=t=>{
-    const x=String(t).replace(/\s+/g,' ').trim();
-    if(x.length<3)return;
-    const k=x.toLowerCase();
-    if(seen.has(k))return;
+  const s = String(raw || '').replace(/\t/g, ' ').trim();
+  if(!s) return [];
+  
+  if(s.includes('\n')){
+    return s.split('\n').map(x => cleanSpaces(x).trim()).filter(Boolean);
+  }
+  
+  if(/\s{3,}/.test(s)){
+    return s.split(/\s{3,}/).map(x => cleanSpaces(x).trim()).filter(Boolean);
+  }
+  
+  const seen = new Set();
+  const out = [];
+  const push = t => {
+    const x = String(t).replace(/\s+/g, ' ').trim();
+    if(x.length < 3) return;
+    const k = x.toLowerCase();
+    if(seen.has(k)) return;
     seen.add(k);
     out.push(x);
   };
-  REF_ANT_DOC_RE.lastIndex=0;
+  
+  REF_ANT_DOC_RE.lastIndex = 0;
   let m;
-  while((m=REF_ANT_DOC_RE.exec(s))!==null)push(m[0]);
+  while((m = REF_ANT_DOC_RE.exec(s)) !== null){
+    push(m[0]);
+  }
+  
   if(!out.length){
-    s.split(/[,;\n\r]+|\s+Y\s+/i).forEach(part=>{
+    s.split(/[,;\t]+|\s+Y\s+/i).forEach(part => {
       part.split(/\s{2,}/).forEach(push);
-      if(part.trim())push(part);
+      if(part.trim()) push(part);
     });
   }
-  if(!out.length&&s)push(s);
+  
+  if(!out.length && s) push(cleanSpaces(s));
   return out;
 }
 
-function serializeReferenciasAntecedentes(parts){
-  return parts.map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean).join(', ');
+function populateRefList(rawRefs){
+  const container = document.getElementById('referenciasListContainer');
+  if(!container) return;
+  container.innerHTML = '';
+  
+  if(!rawRefs || !String(rawRefs).trim()){
+    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>+ Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+    syncRefListToHiddenField();
+    return;
+  }
+  
+  const parts = parseReferenciasAntecedentes(rawRefs);
+  if(!parts.length){
+    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>+ Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+  } else {
+    parts.forEach(p => addRefListItem(cleanSpaces(p)));
+  }
+  syncRefListToHiddenField();
 }
 
-function formatReferenciasAntecedentes(raw){
-  return serializeReferenciasAntecedentes(parseReferenciasAntecedentes(raw));
-}
-
-function formatReferenciasAntecedentesListHtml(raw){
-  const parts=parseReferenciasAntecedentes(raw);
-  if(!parts.length)return '';
-  const max=3;
-  const shown=parts.slice(0,max);
-  let html=shown.map(p=>`<span>↳ ${escapeHtml(p)}</span>`).join('');
-  if(parts.length>max)html+=`<span>↳ +${parts.length-max} más…</span>`;
-  return html;
+function renderReferenciasPreviewHtml(rawRefs){
+  const s = String(rawRefs || '').trim();
+  if(!s) return '<span style="color:var(--text-muted)">Ninguna</span>';
+  
+  const rawList = s.includes('\n') ? s.split('\n') : (typeof parseReferenciasAntecedentes === 'function' ? parseReferenciasAntecedentes(s) : [s]);
+  const parts = rawList.map(p => p.trim()).filter(Boolean);
+  if(!parts.length) return '<span style="color:var(--text-muted)">Ninguna</span>';
+  
+  return `<div style="display:flex;flex-direction:column;gap:5px">` + parts.map(item => {
+    const isUrl = /^https?:\/\//i.test(item) || /^(drive\.google|docs\.google|onedrive|sharepoint)/i.test(item);
+    if(isUrl){
+      let url = item;
+      if(!url.startsWith('http')) url = 'https://' + url;
+      const isDrive = url.includes('drive.google') || url.includes('docs.google');
+      const isOneDrive = url.includes('onedrive') || url.includes('sharepoint');
+      const icon = isDrive ? 'ri-google-drive-fill' : (isOneDrive ? 'ri-microsoft-fill' : 'ri-external-link-line');
+      const label = isDrive ? 'Abrir Google Drive' : (isOneDrive ? 'Abrir OneDrive' : 'Abrir Enlace Web');
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed var(--border)">
+        <span style="font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:350px"><i class="${icon}" style="color:#1A73E8;margin-right:4px"></i> ${escapeHtml(item)}</span>
+        <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="ref-link-chip" style="font-size:11.5px;font-weight:700;padding:3px 10px;background:#EBF3FA;color:#185A9D;border:1px solid #B8D3EE;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" title="${escapeHtml(url)}">
+          <i class="${icon}"></i> ${label} <i class="ri-external-link-line" style="font-size:10px;opacity:0.7"></i>
+        </a>
+      </div>`;
+    }
+    
+    const cleanP = escapeHtml(cleanSpaces(item));
+    const isKnown = (ALL_CARTAS || []).some(x => normalize_doc_key(x.n_documento) === normalize_doc_key(item));
+    if(isKnown){
+      return `<div style="padding:3px 0;border-bottom:1px dashed var(--border)"><a href="javascript:void(0)" class="ref-link-chip" onclick="previewRefCartaDoc('${escapeHtml(item)}', event)" title="Ver carta citada: ${cleanP}"><i class="ri-git-commit-line"></i> <strong>${cleanP}</strong></a></div>`;
+    }
+    return `<div style="padding:3px 0;border-bottom:1px dashed var(--border);font-size:12.5px"><i class="ri-file-text-line" style="color:var(--text-muted);margin-right:4px"></i> ${cleanP}</div>`;
+  }).join('') + `</div>`;
 }
 
 function syncRefAntecedentesField(){
