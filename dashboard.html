@@ -3898,11 +3898,18 @@ function renderPendOperTable(){
   }
   items.forEach((row,idx)=>{
     const{c,plazo,cl}=row;
+    const act=getCartaActionInfo(c);
     const tr=document.createElement('tr');
     tr.className='row-rendered';
     tr.style.animationDelay=`${Math.min(idx*10,160)}ms`;
     const limiteFmt=plazo.fecha_limite?fmtDate(plazo.fecha_limite):'—';
     const asunto=String(c.asunto||'').slice(0,120)+(String(c.asunto||'').length>120?'…':'');
+    
+    let actionBtnHtml='';
+    if(CURRENT_USER&&CURRENT_USER.can_create_cartas&&act.canAction){
+      actionBtnHtml=`<button type="button" class="btn-act ${act.btnClass}" title="${escapeHtml(act.title)}" onclick="openResponderModal(${c.id})"><i class="${act.icon}"></i></button>`;
+    }
+
     if(pendMode==='me_deben'){
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
@@ -3918,7 +3925,7 @@ function renderPendOperTable(){
         <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
         <td class="col-acc">
           <div class="actions-group">
-            ${(CURRENT_USER&&CURRENT_USER.can_create_cartas&&canRespondCarta(c))?`<button type="button" class="btn-act btn-act-reply" title="Responder a este trámite" onclick="openResponderModal(${c.id})"><i class="ri-reply-line"></i></button>`:''}
+            ${actionBtnHtml}
             <button type="button" class="btn-act btn-act-edit" title="Ver detalle de la carta" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button>
           </div>
         </td>`;
@@ -3938,7 +3945,7 @@ function renderPendOperTable(){
         <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
         <td class="col-acc">
           <div class="actions-group">
-            ${(CURRENT_USER&&CURRENT_USER.can_create_cartas&&canRespondCarta(c))?`<button type="button" class="btn-act btn-act-reply" title="Responder a este trámite" onclick="openResponderModal(${c.id})"><i class="ri-reply-line"></i></button>`:''}
+            ${actionBtnHtml}
             <button type="button" class="btn-act btn-act-edit" title="Ver detalle de la carta" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button>
           </div>
         </td>`;
