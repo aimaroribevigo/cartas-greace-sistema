@@ -204,20 +204,24 @@ function updateTable(){
   const countEl=document.getElementById('tableCountInline');
   if(countEl)countEl.textContent=filtered.length;
   const tbody=document.getElementById('tableBody');
-  tbody.innerHTML='';
+  if(!tbody)return;
   const start=(currentPage-1)*PAGE_SIZE;
   const rows=filtered.slice(start,start+PAGE_SIZE);
-  if(!rows.length){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';updatePagination(start,0);return;}
-  rows.forEach((c,idx)=>{
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';
+    updatePagination(start,0);
+    return;
+  }
+  const canCreate = !!(CURRENT_USER && CURRENT_USER.can_create_cartas);
+  const canEdit = !!(CURRENT_USER && CURRENT_USER.can_edit_cartas);
+  const canDelete = !!(CURRENT_USER && CURRENT_USER.can_delete_cartas);
+
+  const htmlBuffer = rows.map((c,idx)=>{
     const st=deadlineStatus(c);
     const sem=analyzeSemanticIntent(c);
     const act=getCartaActionInfo(c);
-    const tr=document.createElement('tr');
-    tr.className='row-rendered';
-    tr.style.animationDelay=`${Math.min(idx*12,180)}ms`;
-    if(st.kind==='vencida')tr.classList.add('row-vencida');
-    if(st.kind==='por_vencer')tr.classList.add('row-por-vencer');
     const pb=st.kind==='por_vencer'?'por-vencer':st.kind.replace('_','-');
+    const rowClass = 'row-rendered' + (st.kind==='vencida' ? ' row-vencida' : '') + (st.kind==='por_vencer' ? ' row-por-vencer' : '');
     const itemNumber=start+idx+1;
 
     const dotHtml = st.kind==='vencida' ? '<span class="row-dot vencida" title="Vencida"></span>' : (st.kind==='por_vencer' ? '<span class="row-dot por-vencer" title="Por vencer"></span>' : '');
@@ -231,33 +235,36 @@ function updateTable(){
     const refHtml = formatCartaReferenciaTableHtml(c);
 
     let actionBtnHtml='';
-    if(CURRENT_USER&&CURRENT_USER.can_create_cartas&&act.canAction){
+    if(canCreate && act.canAction){
       actionBtnHtml=`<button type="button" class="btn-act ${act.btnClass}" title="${escapeHtml(act.title)}" onclick="openResponderModal(${c.id})"><i class="${act.icon}"></i></button>`;
     }
 
-    tr.innerHTML=`
-      <td><div class="row-num-cell">${itemNumber}${dotHtml}</div></td>
-      <td class="cell-wrap"><div class="doc-num-wrap"><span class="doc-num-text">${docNum}</span>${copyBtn}</div></td>
-      <td style="white-space:nowrap;font-weight:500;color:var(--text-secondary)">${escapeHtml(fmtDate(c.fecha)||'—')}</td>
-      <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(cleanSpaces(getTipoDocumentoDisplay(c)))}</td>
-      <td class="cell-wrap">${formatEspecialidadBadge(c)}</td>
-      <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienEnviaLabel(c)))}</td>
-      <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienRecibeLabel(c)))}</td>
-      <td class="cell-wrap" style="line-height:1.4">${escapeHtml(cleanSpaces(c.asunto||'—'))}${semBadge}</td>
-      <td class="cell-wrap">${refHtml}</td>
-      <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
-      <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
-      <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(cleanSpaces(c.estado_norm||c.estado||'—'))}</span></td>
-      <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(cleanSpaces(c.observacion||''))}">${escapeHtml(cleanSpaces(c.observacion||'—'))}</td>
-      <td class="col-acc">
-        <div class="actions-group">
-          ${actionBtnHtml}
-          <button type="button" class="btn-act btn-act-edit" title="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'Editar carta':'Ver carta (solo lectura)'}" onclick="openEditModal(${c.id})"><i class="${(CURRENT_USER&&CURRENT_USER.can_edit_cartas)?'ri-edit-line':'ri-eye-line'}"></i></button>
-          ${(CURRENT_USER&&CURRENT_USER.can_delete_cartas)?`<button type="button" class="btn-act btn-act-del" title="Eliminar carta" onclick="confirmDelete(${c.id})"><i class="ri-delete-bin-line"></i></button>`:''}
-        </div>
-      </td>`;
-    tbody.appendChild(tr);
-  });
+    return `
+      <tr class="${rowClass}" style="animation-delay:${Math.min(idx*10,120)}ms">
+        <td><div class="row-num-cell">${itemNumber}${dotHtml}</div></td>
+        <td class="cell-wrap"><div class="doc-num-wrap"><span class="doc-num-text">${docNum}</span>${copyBtn}</div></td>
+        <td style="white-space:nowrap;font-weight:500;color:var(--text-secondary)">${escapeHtml(fmtDate(c.fecha)||'—')}</td>
+        <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(cleanSpaces(getTipoDocumentoDisplay(c)))}</td>
+        <td class="cell-wrap">${formatEspecialidadBadge(c)}</td>
+        <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienEnviaLabel(c)))}</td>
+        <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienRecibeLabel(c)))}</td>
+        <td class="cell-wrap" style="line-height:1.4">${escapeHtml(cleanSpaces(c.asunto||'—'))}${semBadge}</td>
+        <td class="cell-wrap">${refHtml}</td>
+        <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
+        <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
+        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(cleanSpaces(c.estado_norm||c.estado||'—'))}</span></td>
+        <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(cleanSpaces(c.observacion||''))}">${escapeHtml(cleanSpaces(c.observacion||'—'))}</td>
+        <td class="col-acc">
+          <div class="actions-group">
+            ${actionBtnHtml}
+            <button type="button" class="btn-act btn-act-edit" title="${canEdit?'Editar carta':'Ver carta (solo lectura)'}" onclick="openEditModal(${c.id})"><i class="${canEdit?'ri-edit-line':'ri-eye-line'}"></i></button>
+            ${canDelete?`<button type="button" class="btn-act btn-act-del" title="Eliminar carta" onclick="confirmDelete(${c.id})"><i class="ri-delete-bin-line"></i></button>`:''}
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  tbody.innerHTML = htmlBuffer;
   updatePagination(start,rows.length);
 }
 

@@ -1649,7 +1649,7 @@ async function handleSave(){
       } else {
         ALL_CARTAS.unshift(saved);
       }
-      applyFilters();
+      applyFilters(true);
     }
     refreshData(true);
   }
@@ -1715,7 +1715,7 @@ async function executeDelete(){
   try{
     // 1. Cierre inmediato del modal y eliminación optimista en memoria
     ALL_CARTAS = ALL_CARTAS.filter(x => x.id !== targetId);
-    applyFilters();
+    applyFilters(true);
     closeConfirm();
     showToast('Carta eliminada correctamente', 'success');
 

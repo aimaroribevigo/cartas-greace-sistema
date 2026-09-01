@@ -688,5 +688,12 @@ function applyPendienteToFilters(mode,actor,esp,opts){
   goToCartasWithFilters(filtered.length?`${filtered.length} carta${filtered.length===1?'':'s'} — ${esp&&esp!=='all'?esp+' · ':''}${cpLabel}`:null);
 }
 
-function updateAll(){updateKPIs();updateDeadlineAlerts();updateCharts();updateTable();if(currentView==='pendientes')renderPendientes();if(currentView==='saldos')renderSaldos();}
+function updateAll(){
+  updateKPIs();
+  updateDeadlineAlerts();
+  if(currentView==='reportes')updateCharts();
+  updateTable();
+  if(currentView==='pendientes')renderPendientes();
+  if(currentView==='saldos')renderSaldos();
+}
 

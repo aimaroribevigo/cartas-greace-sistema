@@ -945,7 +945,12 @@ function applyFilters(){
   const has=!!activeHiloFilter||estado!=='all'||esp!=='all'||semantica!=='all'||flujo!=='all'||q||plazo!=='all'||bandeja!=='all'||deuda!=='all'||contraparte!=='all'||naturaleza!=='all';
   document.getElementById('btnReset')?.classList.toggle('visible',has);
   document.getElementById('filterActiveTag')?.classList.toggle('visible',has);
-  currentPage=1;updateAll();
+  if(!keepPage){
+    currentPage=1;
+  } else {
+    currentPage = Math.min(Math.max(1, currentPage), totalPages());
+  }
+  updateAll();
   syncCartasSearchUI();
   if(!filtered.length&&has&&ALL_CARTAS.length){
     const hint=document.getElementById('cartasSearchHint');
