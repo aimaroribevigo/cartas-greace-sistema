@@ -26,22 +26,27 @@ function updateKPIs(){
   const abiertas=counts.abiertas;
   const cerradas=total-abiertas;
   const alertas=counts.vencida+counts.por_vencer;
-  document.getElementById('kpiTotal').textContent=total;
-  document.getElementById('kpiTotalSub').innerHTML=`<i class="ri-arrow-right-s-line"></i>${activeBandeja==='all'?'Todas las bandejas':bandejaLabel(activeBandeja)}`;
-  document.getElementById('kpiCerradas').textContent=cerradas;
-  document.getElementById('kpiCerradasSub').textContent=total?Math.round(cerradas/total*100)+'% del filtro':'0%';
-  document.getElementById('kpiAbiertas').textContent=abiertas;
-  document.getElementById('kpiAbiertasSub').textContent=total?Math.round(abiertas/total*100)+'% del filtro':'0%';
-  document.getElementById('kpiAlertas').textContent=alertas;
-  document.getElementById('kpiAlertasSub').textContent=alertas?`${counts.vencida} venc. · ${counts.por_vencer} en riesgo`:'Sin alertas en el filtro';
-  document.getElementById('jumpCount').textContent=total;
-  document.getElementById('tableCountInline').textContent=total;
-  document.querySelectorAll('#view-reportes .kpi-card').forEach((card,idx)=>{
-    card.classList.remove('kpi-rendered');
-    void card.offsetWidth;
-    card.classList.add('kpi-rendered');
-    card.style.animationDelay=`${idx*20}ms`;
-  });
+  const elTotal = document.getElementById('kpiTotal');
+  if(elTotal) elTotal.textContent=total;
+  const elTotalSub = document.getElementById('kpiTotalSub');
+  if(elTotalSub) elTotalSub.innerHTML=`<i class="ri-arrow-right-s-line"></i>${activeBandeja==='all'?'Todas las bandejas':bandejaLabel(activeBandeja)}`;
+  const elCerradas = document.getElementById('kpiCerradas');
+  if(elCerradas) elCerradas.textContent=cerradas;
+  const elCerradasSub = document.getElementById('kpiCerradasSub');
+  if(elCerradasSub) elCerradasSub.textContent=total?Math.round(cerradas/total*100)+'% del filtro':'0%';
+  const elAbiertas = document.getElementById('kpiAbiertas');
+  if(elAbiertas) elAbiertas.textContent=abiertas;
+  const elAbiertasSub = document.getElementById('kpiAbiertasSub');
+  if(elAbiertasSub) elAbiertasSub.textContent=total?Math.round(abiertas/total*100)+'% del filtro':'0%';
+  const elAlertas = document.getElementById('kpiAlertas');
+  if(elAlertas) elAlertas.textContent=alertas;
+  const elAlertasSub = document.getElementById('kpiAlertasSub');
+  if(elAlertasSub) elAlertasSub.textContent=alertas?`${counts.vencida} venc. · ${counts.por_vencer} en riesgo`:'Sin alertas en el filtro';
+  const elJump = document.getElementById('jumpCount');
+  if(elJump) elJump.textContent=total;
+  const elInline = document.getElementById('tableCountInline');
+  if(elInline) elInline.textContent=total;
+  if(typeof updateTodayTasksCounts === 'function') updateTodayTasksCounts();
 }
 
 function chartOptBase(){return{tooltip:{backgroundColor:'#fff',borderColor:'transparent',shadowBlur:8,textStyle:{color:'#1A1A1A',fontSize:12,fontFamily:'DM Sans'}},animationDuration:600};}
