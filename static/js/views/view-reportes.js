@@ -47,6 +47,7 @@ function updateKPIs(){
 function chartOptBase(){return{tooltip:{backgroundColor:'#fff',borderColor:'transparent',shadowBlur:8,textStyle:{color:'#1A1A1A',fontSize:12,fontFamily:'DM Sans'}},animationDuration:600};}
 
 function updateCharts(){
+  if(typeof echarts === 'undefined') return;
   updateBandejaChart();updateEstadoChart();updateEspChart();updateMonthChart();
   setupChartClickHandlers();
 }
