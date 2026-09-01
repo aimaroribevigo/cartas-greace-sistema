@@ -15,5 +15,16 @@ const FORM_FIELDS=['n_documento','tipo_documento','fecha','emisor','destinatario
 const ESTADO_OPTS=['ABSUELTA POR SUPERVISOR','ABSUELTA POR ENTIDAD','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PARA RESPUESTA','EN PROCESO','C. OBSERVADA','SIN RESPUESTA','REINGRESO','CERRADO','PARA CONOCIMIENTO','ANULADA'];
 const BANDEJA_IDS=['residente','rl','recibida_sup','recibida_pronis','recibida_mpsc','recibida_otros'];
 const PALETTE=['#C45B3E','#4A7C7E','#7A8B6F','#7B6E8A','#C49A3E','#A0525C','#5C6370','#6E9EAF','#8B9E6F','#B87045'];
+const PEND_CONTRAPARTES=['supervisor','entidad','municipalidad','jrd'];
+const ACTOR_ORDER=['supervisor','entidad','municipalidad','jrd','otro','rl','residente'];
+const ACTOR_LABELS={
+  supervisor:'Supervisión',
+  entidad:'PRONIS',
+  municipalidad:'Municipalidad',
+  jrd:'Junta Resol. Disputas',
+  rl:'Representante Legal',
+  residente:'Residente',
+  otro:'Otro'
+};
 let ALL_CARTAS=[],STATS={},PENDIENTES={},SALDOS={},STATUS_SUP={},HILOS={hilos:[],counts:{}},filtered=[],charts={},editingId=null,deleteId=null,confirmAction=null,switchEditTargetId=null,cartaFormSnapshot=null,currentView='reportes',currentPage=1,pendOperPage=1,PEND_OPER_PAGE_SIZE=20,usersPage=1,USERS_PAGE_SIZE=20,activeBandeja='all',BANDEJAS_META={},ACTORES_META={},modalClosing=false,qTimer=null,pendMode='debo',pendActor='all',hiloExpanded=null,hiloFoco='operativo',hilosLoadToken=0,cartasSearchObserver=null,CURRENT_USER=null,AUTH_REQUIRED=true,USERS_ADMIN=[],editingUserId=null,userModalClosing=false,pendientesLoaded=false,saldosLoaded=false,reportesLoaded=false;
 
