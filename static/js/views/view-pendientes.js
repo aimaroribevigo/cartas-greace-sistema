@@ -46,19 +46,24 @@ function syncPendChipStates(){
 
 function updatePendDetailMeta(){
   const items=pendItemsForMode();
-  document.getElementById('pendJumpCount').textContent=items.length;
+  const jumpEl = document.getElementById('pendJumpCount');
+  if(jumpEl) jumpEl.textContent=items.length;
   const titles={
-    debo:'Yo debo responder — especialidad × contraparte',
-    me_deben:'Me deben respuesta — especialidad × contraparte',
-    respondidos:'Respondidos / cerrados — ya no pendientes',
-    comunicacion:'Traslados / comunicación — especialidad × contraparte'
+    debo:'🔴 Nosotros debemos responder — por especialidad y contraparte',
+    me_deben:'🟡 Esperando a contraparte — por especialidad y contraparte',
+    respondidos:'🟢 Trámites atendidos / resueltos',
+    comunicacion:'ℹ️ Traslados / comunicación informativa'
   };
-  document.getElementById('pendMatrixTitle').textContent=titles[pendMode]||titles.debo;
-  document.getElementById('pendMatrixSub').textContent=pendMode==='respondidos'
-    ?'Historial de cartas cerradas que antes eran Yo debo o Me deben (últimos 120 registros visibles)'
-    :(pendActor==='all'
-      ?'Clic en un número para filtrar Cartas por esa especialidad y contraparte'
-      :`Filtrado a contraparte: ${ACTOR_LABELS[pendActor]||pendActor}`);
+  const titleEl = document.getElementById('pendMatrixTitle');
+  if(titleEl) titleEl.textContent=titles[pendMode]||titles.debo;
+  const subEl = document.getElementById('pendMatrixSub');
+  if(subEl){
+    subEl.textContent=pendMode==='respondidos'
+      ?'Historial de trámites atendidos y resueltos.'
+      :(pendActor==='all'
+        ?'Haz clic en cualquier número para ver las cartas correspondientes'
+        :`Filtrado a contraparte: ${ACTOR_LABELS[pendActor]||pendActor}`);
+  }
   const hilosBlock=document.getElementById('pendHilosBlock');
   const operBlock=document.getElementById('pendOperBlock');
   const matrixCard=document.getElementById('pendMatrixBlock');
