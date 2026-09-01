@@ -44,15 +44,6 @@
   </div>
 </div>
 
-<!-- View Loading Overlay (Centrado en pantalla, sin lag) -->
-<div class="view-loading-overlay hidden" id="viewLoadingOverlay" aria-live="polite">
-  <div class="view-loading-card">
-    <div class="view-loading-spinner"></div>
-    <div class="view-loading-title" id="viewLoadingTitle">Cargando datos…</div>
-    <div class="view-loading-sub" id="viewLoadingSub">Sincronizando información en tiempo real</div>
-  </div>
-</div>
-
 <script>
 (function(){
   try {
@@ -242,6 +233,15 @@
 
   <!-- Right Main Content Area -->
   <main class="app-main" id="appMain">
+    <!-- View Loading Overlay (Cubre y centra exclusivamente sobre el contenedor derecho) -->
+    <div class="view-loading-overlay hidden" id="viewLoadingOverlay" aria-live="polite">
+      <div class="view-loading-card">
+        <div class="view-loading-spinner"></div>
+        <div class="view-loading-title" id="viewLoadingTitle">Cargando datos…</div>
+        <div class="view-loading-sub" id="viewLoadingSub">Sincronizando información en tiempo real</div>
+      </div>
+    </div>
+
     <!-- Top Content Header -->
     <header class="app-header">
       <div class="app-header-left">
