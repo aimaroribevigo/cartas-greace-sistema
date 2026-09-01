@@ -267,6 +267,29 @@ function updatePendOperPagination(start,shown,total){
   }
 }
 
+function humanFlujoBadge(c){
+  const cl = classif(c);
+  let emisor = 'Supervisión';
+  let dest = 'Residente';
+  
+  if (c.sentido === 'emitida' || String(c.bandeja||'').startsWith('emitida') || c.bandeja === 'residente' || c.bandeja === 'rl') {
+    emisor = c.bandeja === 'rl' ? 'Rep. Legal' : 'Residente';
+    dest = cl.contraparte_label || (cl.dest_code === 'SUP' ? 'Supervisión' : (cl.dest_code === 'PRONIS' ? 'PRONIS' : (cl.dest_code === 'MUNI' ? 'Municipalidad' : 'Entidad')));
+  } else {
+    emisor = cl.contraparte_label || (cl.emisor_code === 'PRONIS' ? 'PRONIS' : (cl.emisor_code === 'MUNI' ? 'Municipalidad' : 'Supervisión'));
+    dest = 'Residente';
+  }
+  
+  const isOut = c.sentido === 'emitida' || String(c.bandeja||'').startsWith('emitida');
+  const tagCls = isOut ? 'flujo-out' : 'flujo-in';
+  
+  return `<span class="flujo-badge ${tagCls}" style="padding:4px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:6px" title="${emisor} envió este documento a ${dest}">
+    <span>${escapeHtml(emisor)}</span>
+    <i class="ri-arrow-right-line" style="font-size:11px;opacity:0.85;color:var(--text-primary)"></i>
+    <span>${escapeHtml(dest)}</span>
+  </span>`;
+}
+
 function renderPendOperTable(){
   const tbody=document.getElementById('pendOperBody');
   const thead=document.getElementById('pendOperHead');
@@ -345,9 +368,9 @@ function renderPendOperTable(){
       :'Cartas recibidas: tipo de documento, especialidad, contraparte emisora, especialista interno asignado (área), plazo contractual y atraso.';
   }
   if(pendMode==='me_deben'){
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha envío</th><th>Esperando respuesta de</th><th>Emitida por</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha envío</th><th>Flujo (Emisor ➔ Destino)</th><th>Entidad que debe responder</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }else{
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha doc.</th><th>Enviada por</th><th>Área interna asignada</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha doc.</th><th>Flujo (Emisor ➔ Destino)</th><th>Área interna que atiende</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }
   tbody.innerHTML='';
   const total=allItems.length;
@@ -381,8 +404,8 @@ function renderPendOperTable(){
         <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
         <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
-        <td><span class="actor-pill out" title="Estamos esperando respuesta oficial de esta entidad"><i class="ri-time-line"></i> ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</span></td>
-        <td><strong>${escapeHtml(emitidorCartaLabel(c))}</strong><br><span style="font-size:10px;color:var(--text-muted)">${escapeHtml(plazo.regla_label||'')}</span></td>
+        <td>${humanFlujoBadge(c)}</td>
+        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">🏛️ ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</strong></div><div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;">⏱️ Plazo: ${escapeHtml(plazo.regla_label||'15 días calendario')}</div></td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
         <td style="white-space:nowrap">${limiteFmt}</td>
         <td>${pendPlazoBadgeHtml(plazo)}</td>
@@ -395,13 +418,18 @@ function renderPendOperTable(){
         </td>`;
     }else{
       const respLabel=yoDeboResponderLabel(c);
+      const isAssigned = respLabel !== 'Sin asignar';
+      const areaHtml = isAssigned
+        ? `<div><strong style="color:var(--text-primary);font-size:12.5px;">👷 ${escapeHtml(respLabel)}</strong></div><div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;">⏱️ Plazo: ${escapeHtml(plazo.regla_label||'5 días hábiles')}</div>`
+        : `<div><span style="color:var(--rose);font-weight:700;font-size:11.5px;"><i class="ri-alert-line"></i> Sin especialista asignado</span></div><div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;">⏱️ Plazo: ${escapeHtml(plazo.regla_label||'5 días hábiles')}</div>`;
+
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
         <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
         <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
-        <td><span class="actor-pill in" title="Carta enviada por esta entidad"><i class="ri-inbox-archive-line"></i> ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</span></td>
-        <td><strong>${escapeHtml(respLabel)}</strong>${respLabel==='Sin asignar'?'<br><span style="font-size:10px;color:var(--rose)">Asigne área en la carta</span>':''}<br><span style="font-size:10px;color:var(--text-muted)">${escapeHtml(plazo.regla_label||'')}</span></td>
+        <td>${humanFlujoBadge(c)}</td>
+        <td>${areaHtml}</td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
         <td style="white-space:nowrap">${limiteFmt}</td>
         <td>${pendPlazoBadgeHtml(plazo)}</td>
