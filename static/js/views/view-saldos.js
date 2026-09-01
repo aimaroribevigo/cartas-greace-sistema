@@ -52,16 +52,47 @@ function renderSaldos(){
   const s=SALDOS||{}, st=STATUS_SUP||{};
   const c=s.counts||{le_deben:0,cggc_debe:0,saldo_neto:0};
   const tgt=s.excel_target||{};
-  document.getElementById('saldosSub').textContent=s.vista_parcial
-    ? (s.nota||'Vista parcial por especialidad — no compares con Excel global.')
-    : `Saldo = Le deben − CGGC debe. Riesgo alto si la deuda propia domina (≥66%) o el saldo es muy negativo.`;
-  const parityOk=!s.vista_parcial&&c.le_deben===tgt.le_deben&&c.cggc_debe===tgt.cggc_debe;
-  document.getElementById('saldosKpis').innerHTML=`
-    <div class="kpi-card kpi-rendered"><div class="kpi-icon" style="background:var(--amber-light);color:#8A6A20"><i class="ri-arrow-left-down-line"></i></div><div class="kpi-value">${c.le_deben||0}</div><div class="kpi-label">Le Deben al CGGC</div><div class="kpi-sub">${s.vista_parcial?'Tu alcance':('Excel meta: '+(tgt.le_deben??'—'))}</div></div>
-    <div class="kpi-card kpi-rendered"><div class="kpi-icon" style="background:var(--rose-light);color:var(--rose)"><i class="ri-arrow-right-up-line"></i></div><div class="kpi-value">${c.cggc_debe||0}</div><div class="kpi-label">El CGGC Le Debe</div><div class="kpi-sub">${s.vista_parcial?'Tu alcance':('Excel meta: '+(tgt.cggc_debe??'—'))}</div></div>
-    <div class="kpi-card kpi-rendered"><div class="kpi-icon" style="background:var(--teal-light);color:var(--teal)"><i class="ri-scales-3-line"></i></div><div class="kpi-value">${c.saldo_neto||0}</div><div class="kpi-label">Saldo neto</div><div class="kpi-sub">${s.vista_parcial?'Parcial':('Excel meta: '+(tgt.saldo_neto??'—'))}</div></div>
-    <div class="kpi-card kpi-rendered"><div class="kpi-icon" style="background:var(--sage-light);color:var(--sage)"><i class="ri-checkbox-circle-line"></i></div><div class="kpi-value">${s.vista_parcial?'ESP':(parityOk?'OK':'Δ')}</div><div class="kpi-label">${s.vista_parcial?'Vista ingeniero':'Paridad Excel'}</div><div class="kpi-sub">${s.vista_parcial?((CURRENT_USER&&CURRENT_USER.especialidades||[]).join(', ')||'—'):('Δ le='+((c.le_deben||0)-(tgt.le_deben||0))+' · Δ debe='+((c.cggc_debe||0)-(tgt.cggc_debe||0)))}</div></div>`;
+  const subEl = document.getElementById('saldosSub');
+  if(subEl){
+    subEl.textContent = s.vista_parcial
+      ? (s.nota||'Vista filtrada por tus especialidades asignadas.')
+      : 'Haz clic en cualquier número para ver directamente las cartas de esa especialidad.';
+  }
+
+  const kpisEl = document.getElementById('saldosKpis');
+  if(kpisEl){
+    const totalTramites = (c.le_deben||0) + (c.cggc_debe||0);
+    const pctPropio = totalTramites ? Math.round((c.cggc_debe||0) / totalTramites * 100) : 0;
+    const saldoNeto = c.saldo_neto||0;
+    kpisEl.innerHTML=`
+      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--amber)">
+        <div class="kpi-icon" style="background:var(--amber-light);color:#8A6A20"><i class="ri-mail-send-line"></i></div>
+        <div class="kpi-value">${c.le_deben||0}</div>
+        <div class="kpi-label">🟡 Esperando a Contraparte</div>
+        <div class="kpi-sub">Cartas emitidas pendientes de respuesta</div>
+      </div>
+      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--rose)">
+        <div class="kpi-icon" style="background:var(--rose-light);color:var(--rose)"><i class="ri-inbox-unarchive-line"></i></div>
+        <div class="kpi-value">${c.cggc_debe||0}</div>
+        <div class="kpi-label">🔴 Pendientes de Responder</div>
+        <div class="kpi-sub">Cartas recibidas por contestar</div>
+      </div>
+      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--teal)">
+        <div class="kpi-icon" style="background:var(--teal-light);color:var(--teal)"><i class="ri-scales-3-line"></i></div>
+        <div class="kpi-value" style="color:${saldoNeto>=0?'var(--teal)':'var(--rose)'}">${saldoNeto>0?'+':''}${saldoNeto}</div>
+        <div class="kpi-label">⚖️ Balance Neto</div>
+        <div class="kpi-sub">${saldoNeto>=0?'Mayor volumen a favor de obra':'Mayor carga por responder'}</div>
+      </div>
+      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--sage)">
+        <div class="kpi-icon" style="background:var(--sage-light);color:var(--sage)"><i class="ri-pie-chart-line"></i></div>
+        <div class="kpi-value">${pctPropio}%</div>
+        <div class="kpi-label">📊 % Carga Operativa Propia</div>
+        <div class="kpi-sub">Proporción que depende de nosotros</div>
+      </div>`;
+  }
+
   const tb=document.querySelector('#saldosTable tbody');
+  if(!tb) return;
   tb.innerHTML='';
   let sumLe=0, sumDeb=0, sumNet=0;
   (s.by_especialidad||[]).forEach((r,idx)=>{
@@ -70,14 +101,18 @@ function renderSaldos(){
     tr.className='row-rendered';
     tr.style.animationDelay=`${Math.min(idx*15,200)}ms`;
     const risk=r.nivel_riesgo||'BAJO';
-    const riskColor=risk==='ALTO'?'var(--rose)':risk==='MEDIO'?'#8A6A20':'var(--sage)';
+    const riskBadge = risk==='ALTO'
+      ? '<span style="color:var(--rose);font-weight:700">🔴 ALTA</span>'
+      : risk==='MEDIO'
+      ? '<span style="color:#8A6A20;font-weight:700">🟡 MEDIA</span>'
+      : '<span style="color:var(--sage);font-weight:700">🟢 NORMAL</span>';
     tr.innerHTML=`
       <td><strong>${escapeHtml(r.especialidad)}</strong></td>
-      <td class="num" data-esp="${escapeHtml(r.especialidad)}" data-deuda="me_deben" style="cursor:pointer" title="Ver cartas: Me deben en ${escapeHtml(r.especialidad)}">${r.le_deben}</td>
-      <td class="num" data-esp="${escapeHtml(r.especialidad)}" data-deuda="debo" style="cursor:pointer" title="Ver cartas: Yo debo en ${escapeHtml(r.especialidad)}">${r.cggc_debe}</td>
-      <td class="num"><strong>${r.saldo_neto}</strong></td>
+      <td class="num" data-esp="${escapeHtml(r.especialidad)}" data-deuda="me_deben" style="cursor:pointer;color:#8A6A20;font-weight:600" title="Ver cartas: Esperando a contraparte en ${escapeHtml(r.especialidad)}">${r.le_deben}</td>
+      <td class="num" data-esp="${escapeHtml(r.especialidad)}" data-deuda="debo" style="cursor:pointer;color:var(--rose);font-weight:600" title="Ver cartas: Pendientes de responder en ${escapeHtml(r.especialidad)}">${r.cggc_debe}</td>
+      <td class="num"><strong style="color:${r.saldo_neto>=0?'var(--teal)':'var(--rose)'}">${r.saldo_neto>0?'+':''}${r.saldo_neto}</strong></td>
       <td class="num">${Math.round((r.pct_deuda_propia||0)*100)}%</td>
-      <td style="color:${riskColor};font-weight:700">${risk}</td>`;
+      <td>${riskBadge}</td>`;
     tb.appendChild(tr);
   });
   if((s.by_especialidad||[]).length){
@@ -88,9 +123,9 @@ function renderSaldos(){
     const pctTot=(sumLe+sumDeb)?Math.round(sumDeb/(sumLe+sumDeb)*100):0;
     trTot.innerHTML=`
       <td>TOTALES</td>
-      <td class="num" data-esp="all" data-deuda="me_deben" style="cursor:pointer" title="Ver todas las cartas: Me deben (${sumLe})">${sumLe}</td>
-      <td class="num" data-esp="all" data-deuda="debo" style="cursor:pointer" title="Ver todas las cartas: Yo debo (${sumDeb})">${sumDeb}</td>
-      <td class="num"><strong>${sumNet}</strong></td>
+      <td class="num" data-esp="all" data-deuda="me_deben" style="cursor:pointer;color:#8A6A20;font-weight:700" title="Ver todas las cartas: Esperando a contraparte (${sumLe})">${sumLe}</td>
+      <td class="num" data-esp="all" data-deuda="debo" style="cursor:pointer;color:var(--rose);font-weight:700" title="Ver todas las cartas: Pendientes de responder (${sumDeb})">${sumDeb}</td>
+      <td class="num"><strong style="color:${sumNet>=0?'var(--teal)':'var(--rose)'}">${sumNet>0?'+':''}${sumNet}</strong></td>
       <td class="num">${pctTot}%</td>
       <td>—</td>`;
     tb.appendChild(trTot);
