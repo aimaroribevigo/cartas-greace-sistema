@@ -565,9 +565,14 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
         if count > 0 and not force:
             return {"ok": True, "skipped": True, "existing": count}
 
-        # Borrar y reimportar
+        # Borrar y reimportar de manera limpia y rápida
+        cur.execute("SET FOREIGN_KEY_CHECKS=0")
         if force and count > 0:
+            cur.execute("UPDATE cartas SET hilo_id=NULL")
             cur.execute("DELETE FROM cartas")
+            cur.execute("DELETE FROM hilos")
+            cur.execute("ALTER TABLE cartas AUTO_INCREMENT=1")
+            cur.execute("ALTER TABLE hilos AUTO_INCREMENT=1")
 
         inserted = 0
         by_bandeja_summary = {}
@@ -580,6 +585,8 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
                 inserted += len(chunk)
             by_bandeja_summary[ban_key] = {"inserted": len(batch)}
             print(f"[import] {ban_key}: {len(batch)} filas", flush=True)
+
+        cur.execute("SET FOREIGN_KEY_CHECKS=1")
 
     conn.commit()
     return {

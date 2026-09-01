@@ -528,11 +528,11 @@ def normalize_referencias_antecedentes(raw) -> str | None:
 
 
 def refresh_normalized_fields(conn) -> dict:
-    """Recalcula estado_norm / especialidad_norm sobre filas ya importadas."""
+    """Recalcula estado_norm / especialidad_norm sobre filas ya importadas en lotes rápidos."""
     with conn.cursor() as cur:
-        cur.execute("SELECT id, estado, especialidad, asunto, n_documento, bandeja FROM cartas")
+        cur.execute("SELECT id, estado, especialidad, asunto, n_documento, bandeja, estado_norm, especialidad_norm FROM cartas")
         rows = cur.fetchall()
-        updated = 0
+        updates = []
         for r in rows:
             raw_est = r.get("estado")
             asunto = r.get("asunto") or ""
@@ -541,16 +541,22 @@ def refresh_normalized_fields(conn) -> dict:
             
             en = infer_estado_from_row(raw_est, asunto, doc, ban)
             esp = normalize_especialidad(r.get("especialidad"))
-            cur.execute(
-                """
-                UPDATE cartas
-                SET estado_norm=%s, especialidad_norm=%s
-                WHERE id=%s
-                  AND (IFNULL(estado_norm,'') <> %s OR IFNULL(especialidad_norm,'') <> %s)
-                """,
-                (en, esp, r["id"], en, esp),
-            )
-            updated += cur.rowcount
+            if (r.get("estado_norm") or "") != en or (r.get("especialidad_norm") or "") != esp:
+                updates.append((en, esp, r["id"]))
+
+        updated = 0
+        if updates:
+            for i in range(0, len(updates), 500):
+                batch = updates[i:i + 500]
+                cur.executemany(
+                    """
+                    UPDATE cartas
+                    SET estado_norm=%s, especialidad_norm=%s
+                    WHERE id=%s
+                    """,
+                    batch,
+                )
+                updated += len(batch)
     conn.commit()
     return {"ok": True, "checked": len(rows), "updated": updated}
 
