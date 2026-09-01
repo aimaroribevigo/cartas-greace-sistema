@@ -1,3 +1,21 @@
+function showViewLoading(show, title, sub){
+  const overlay = document.getElementById('viewLoadingOverlay');
+  if(!overlay) return;
+  if(show){
+    if(title) {
+      const tEl = document.getElementById('viewLoadingTitle');
+      if(tEl) tEl.textContent = title;
+    }
+    if(sub) {
+      const sEl = document.getElementById('viewLoadingSub');
+      if(sEl) sEl.textContent = sub;
+    }
+    overlay.classList.remove('hidden');
+  } else {
+    overlay.classList.add('hidden');
+  }
+}
+
 function isPendContraparte(cl){
   return PEND_CONTRAPARTES.includes(cl&&cl.contraparte);
 }

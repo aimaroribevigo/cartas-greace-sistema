@@ -425,7 +425,7 @@ if(usersTableQClear){
 
 async function loadUsersAdmin(){
   if(!(CURRENT_USER&&CURRENT_USER.can_manage_users))return;
-  renderUsersSkeleton(6);
+  if(typeof showViewLoading==='function') showViewLoading(true, 'Cargando Gestión de Usuarios…', 'Consultando cuentas registradas');
   try{
     const r=await apiFetch('/api/auth/users');
     const d=await r.json();
@@ -436,6 +436,8 @@ async function loadUsersAdmin(){
   }catch(e){
     showUsersLoading(false);
     showToast('Usuarios: '+e.message,'error');
+  }finally{
+    if(typeof showViewLoading==='function') showViewLoading(false);
   }
 }
 

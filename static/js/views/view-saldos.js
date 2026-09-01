@@ -158,7 +158,7 @@ async function ensureSaldosLoaded(force = false){
     renderSaldos();
     return;
   }
-  renderSaldosSkeleton();
+  if(typeof showViewLoading==='function') showViewLoading(true, 'Cargando Resumen de Saldos…', 'Consolidando balance de cartas');
   try{
     const [saldos, status] = await Promise.all([
       apiFetch('/api/saldos').then(r=>r.ok?r.json():{}).catch(()=>({})),
@@ -170,6 +170,8 @@ async function ensureSaldosLoaded(force = false){
     renderSaldos();
   }catch(e){
     console.error('Error al cargar saldos:', e);
+  }finally{
+    if(typeof showViewLoading==='function') showViewLoading(false);
   }
 }
 
@@ -185,7 +187,7 @@ async function loadData(isBackground = false){
     const ok=await ensureSession();
     if(!ok)return;
     if(!isBackground && (!ALL_CARTAS || ALL_CARTAS.length === 0)){
-      renderTableSkeleton(8);
+      if(typeof showViewLoading==='function') showViewLoading(true, 'Cargando Control de Cartas…', 'Sincronizando información en tiempo real');
     }
     // Carga exclusiva e inmediata de cartas y stats (Control de Cartas)
     const [cartas, stats] = await Promise.all([
@@ -221,6 +223,11 @@ async function loadData(isBackground = false){
     console.error(e);
     if(String(e.message||'').includes('autenticado'))return;
     showToast('Error al cargar datos: '+e.message,'error');
+  }finally{
+    if(!isBackground && typeof showViewLoading==='function'){
+      // Si estamos en cartas o reportes, quitar overlay
+      if(['cartas','reportes'].includes(currentView)) showViewLoading(false);
+    }
   }
 }
 

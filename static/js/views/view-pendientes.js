@@ -3,7 +3,7 @@ async function ensurePendientesLoaded(force = false){
     renderPendientes();
     return;
   }
-  renderPendientesSkeleton();
+  if(typeof showViewLoading==='function') showViewLoading(true, 'Cargando Pendientes de Atención…', 'Calculando matriz y estado de expedientes');
   try{
     const [pend] = await Promise.all([
       apiFetch('/api/pendientes').then(r=>r.ok?r.json():{}).catch(()=>({})),
@@ -14,6 +14,8 @@ async function ensurePendientesLoaded(force = false){
     renderPendientes();
   }catch(e){
     console.error('Error al cargar pendientes:', e);
+  }finally{
+    if(typeof showViewLoading==='function') showViewLoading(false);
   }
 }
 

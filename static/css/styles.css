@@ -74,7 +74,16 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .btn-logout:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 
 /* Main Content Area */
-.app-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);transition:all .25s ease}
+.app-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);transition:all .25s ease;position:relative}
+
+/* Full View Loading Overlay with Backdrop Blur */
+.view-loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100%;background:rgba(247,246,243,0.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:150;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;transition:opacity .25s ease,visibility .25s ease;pointer-events:all}
+.view-loading-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.view-loading-card{background:var(--bg-card);border:1px solid var(--border);padding:24px 32px;border-radius:16px;box-shadow:0 16px 40px -10px rgba(0,0,0,0.12),0 4px 14px rgba(0,0,0,0.04);display:flex;flex-direction:column;align-items:center;text-align:center;max-width:320px;animation:modalZoomIn .28s cubic-bezier(0.16,1,0.3,1)}
+.view-loading-spinner{width:40px;height:40px;border:3.5px solid rgba(196,91,62,0.18);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite;margin-bottom:14px}
+.view-loading-title{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em}
+.view-loading-sub{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.35}
+
 .app-header{position:sticky;top:0;z-index:110;background:#FFFFFF;border-bottom:1px solid var(--border);padding:0 32px;height:var(--header-height);min-height:var(--header-height);box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 1px 2px rgba(0,0,0,0.02);transition:all .2s ease}
 .app-header-left{display:flex;align-items:center;gap:12px;min-width:0}
 .btn-sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;background:var(--bg-card);border:1px solid var(--border);font-size:18px;color:var(--text-secondary);cursor:pointer;padding:6px 9px;border-radius:8px;box-shadow:var(--shadow-sm);transition:all .15s ease}
