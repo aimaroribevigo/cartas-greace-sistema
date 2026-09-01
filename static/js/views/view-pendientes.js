@@ -345,7 +345,7 @@ function renderPendOperTable(){
       :'Cartas recibidas: tipo de documento, especialidad, contraparte emisora, especialista interno asignado (área), plazo contractual y atraso.';
   }
   if(pendMode==='me_deben'){
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha envío</th><th>Flujo</th><th>Debe responder</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
+    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha envío</th><th>Flujo</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }else{
     thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha doc.</th><th>Flujo</th><th>Especialista asignado</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
   }
@@ -357,7 +357,7 @@ function renderPendOperTable(){
   const start=(pendOperPage-1)*PEND_OPER_PAGE_SIZE;
   const items=allItems.slice(start,start+PEND_OPER_PAGE_SIZE);
   if(!total){
-    tbody.innerHTML='<tr><td colspan="11" style="color:var(--text-muted);padding:16px">Sin cartas en este modo'+(pendActor!=='all'?' y contraparte':'')+'</td></tr>';
+    tbody.innerHTML=`<tr><td colspan="${pendMode==='me_deben'?10:11}" style="color:var(--text-muted);padding:16px">Sin cartas en este modo${pendActor!=='all'?' y contraparte':''}</td></tr>`;
     updatePendOperPagination(0,0,0);
     return;
   }
@@ -382,7 +382,6 @@ function renderPendOperTable(){
         <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
         <td>${flujoBadge(c)}</td>
-        <td><strong>${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'—')}</strong><br><span style="font-size:10px;color:var(--text-muted)">${escapeHtml(plazo.regla_label||'')}</span></td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
         <td style="white-space:nowrap">${limiteFmt}</td>
         <td>${pendPlazoBadgeHtml(plazo)}</td>
