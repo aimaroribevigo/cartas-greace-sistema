@@ -183,14 +183,40 @@ async function ensureSession(){
   hidePwdGate();
   return true;
 }
-const PEND_CONTRAPARTES=['supervisor','entidad','municipalidad','jrd'];
-const ACTOR_ORDER=['supervisor','entidad','municipalidad','jrd','otro','rl','residente'];
-const ACTOR_LABELS={
-  supervisor:'Supervisión',
-  entidad:'PRONIS',
-  municipalidad:'Municipalidad',
-  jrd:'Junta Resol. Disputas',
-  rl:'Representante Legal',
-  residente:'Residente',
-  otro:'Otro'
-};
+function confirmLogout(){
+  confirmAction='logout';
+  deleteId=null;
+  toggleTargetUser=null;
+  const uname=CURRENT_USER?(CURRENT_USER.nombre||CURRENT_USER.username):'tu cuenta';
+  const titleEl=document.getElementById('confirmTitle');
+  const msgEl=document.getElementById('confirmMsg');
+  const okBtn=document.getElementById('btnConfirmOk');
+  const overlay=document.getElementById('confirmOverlay');
+  if(titleEl)titleEl.textContent='Cerrar sesión';
+  if(msgEl)msgEl.innerHTML=`¿Estás seguro de que deseas salir del sistema?<br/><span style="font-size:12.5px;color:var(--text-muted);display:inline-block;margin-top:6px">Se cerrará la sesión activa de <strong>@${typeof escapeHtml==='function'?escapeHtml(uname):uname}</strong>.</span>`;
+  if(okBtn){
+    okBtn.disabled=false;
+    okBtn.textContent='Cerrar sesión';
+    okBtn.style.background='var(--rose)';
+  }
+  if(overlay)overlay.classList.add('active');
+}
+
+async function executeLogout(){
+  const btn=document.getElementById('btnConfirmOk');
+  if(btn){btn.disabled=true;btn.textContent='Cerrando…';}
+  try{
+    await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
+  }catch(_){}
+  finally{
+    if(btn){btn.disabled=false;btn.textContent='Confirmar';}
+    if(typeof closeConfirm==='function')closeConfirm();
+    CURRENT_USER=null;
+    ALL_CARTAS=[];
+    filtered=[];
+    applyUserChrome(null);
+    hidePwdGate();
+    showLoginGate('');
+    if(typeof showToast==='function')showToast('Sesión cerrada correctamente','info');
+  }
+}

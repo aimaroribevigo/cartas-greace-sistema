@@ -34,39 +34,7 @@ async function executeToggleUser(){
   }catch(e){showToast('Error: '+e.message,'error');}
   finally{if(btn)btn.disabled=false;}
 }
-function confirmLogout(){
-  confirmAction='logout';
-  deleteId=null;
-  toggleTargetUser=null;
-  const uname=CURRENT_USER?(CURRENT_USER.nombre||CURRENT_USER.username):'tu cuenta';
-  document.getElementById('confirmTitle').textContent='Cerrar sesión';
-  document.getElementById('confirmMsg').innerHTML=`¿Estás seguro de que deseas salir del sistema?<br/><span style="font-size:12.5px;color:var(--text-muted);display:inline-block;margin-top:6px">Se cerrará la sesión activa de <strong>@${escapeHtml(uname)}</strong>.</span>`;
-  const okBtn=document.getElementById('btnConfirmOk');
-  if(okBtn){
-    okBtn.disabled=false;
-    okBtn.textContent='Cerrar sesión';
-    okBtn.style.background='var(--rose)';
-  }
-  document.getElementById('confirmOverlay').classList.add('active');
-}
-async function executeLogout(){
-  const btn=document.getElementById('btnConfirmOk');
-  if(btn){btn.disabled=true;btn.textContent='Cerrando…';}
-  try{
-    await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
-  }catch(_){}
-  finally{
-    if(btn){btn.disabled=false;btn.textContent='Confirmar';}
-    closeConfirm();
-    CURRENT_USER=null;
-    ALL_CARTAS=[];
-    filtered=[];
-    applyUserChrome(null);
-    hidePwdGate();
-    showLoginGate('');
-    showToast('Sesión cerrada correctamente','info');
-  }
-}
+
 async function executeSwitchCarta(){
   const id=switchEditTargetId;
   if(!id){closeConfirm();return;}
