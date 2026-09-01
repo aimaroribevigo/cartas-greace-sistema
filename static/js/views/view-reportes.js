@@ -214,7 +214,7 @@ function updateTable(){
   const start=(currentPage-1)*PAGE_SIZE;
   const rows=filtered.slice(start,start+PAGE_SIZE);
   if(!rows.length){
-    tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';
+    tbody.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--text-muted);padding:28px">Sin cartas con los filtros actuales</td></tr>';
     updatePagination(start,0);
     return;
   }
@@ -252,8 +252,7 @@ function updateTable(){
         <td style="white-space:nowrap;font-weight:500;color:var(--text-secondary)">${escapeHtml(fmtDate(c.fecha)||'—')}</td>
         <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(cleanSpaces(getTipoDocumentoDisplay(c)))}</td>
         <td class="cell-wrap">${formatEspecialidadBadge(c)}</td>
-        <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienEnviaLabel(c)))}</td>
-        <td class="cell-wrap">${formatActorBadge(cleanSpaces(quienRecibeLabel(c)))}</td>
+        <td class="cell-wrap">${humanFlujoBadge(c)}</td>
         <td class="cell-wrap" style="line-height:1.4">${escapeHtml(cleanSpaces(c.asunto||'—'))}${semBadge}</td>
         <td class="cell-wrap">${refHtml}</td>
         <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>

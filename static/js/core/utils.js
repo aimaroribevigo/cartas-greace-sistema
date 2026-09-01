@@ -520,6 +520,29 @@ function cartaMatchesFlujo(c,selected){
   if(sel==='PRONISRO'&&ban.startsWith('recibida_pronis'))return true;
   return false;
 }
+function humanFlujoBadge(c){
+  const cl = classif(c);
+  let emisor = 'Supervisión';
+  let dest = 'Residente';
+  
+  if (c.sentido === 'emitida' || String(c.bandeja||'').startsWith('emitida') || c.bandeja === 'residente' || c.bandeja === 'rl') {
+    emisor = c.bandeja === 'rl' ? 'Rep. Legal' : 'Residente';
+    dest = cl.contraparte_label || (cl.dest_code === 'SUP' ? 'Supervisión' : (cl.dest_code === 'PRONIS' ? 'PRONIS' : (cl.dest_code === 'MUNI' ? 'Municipalidad' : 'Entidad')));
+  } else {
+    emisor = cl.contraparte_label || (cl.emisor_code === 'PRONIS' ? 'PRONIS' : (cl.emisor_code === 'MUNI' ? 'Municipalidad' : 'Supervisión'));
+    dest = 'Residente';
+  }
+  
+  const isOut = c.sentido === 'emitida' || String(c.bandeja||'').startsWith('emitida');
+  const tagCls = isOut ? 'flujo-out' : 'flujo-in';
+  
+  return `<span class="flujo-badge ${tagCls}" style="padding:4px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:6px" title="${emisor} envió este documento a ${dest}">
+    <span>${escapeHtml(emisor)}</span>
+    <i class="ri-arrow-right-line" style="font-size:11px;opacity:0.85;color:var(--text-primary)"></i>
+    <span>${escapeHtml(dest)}</span>
+  </span>`;
+}
+
 function debtBadge(c){
   const cl=classif(c);
   if(cl.solo_comunicacion||cl.naturaleza==='comunicacion')return{cls:'comunicacion',label:'Traslado / comunicación'};

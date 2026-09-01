@@ -319,15 +319,14 @@ table.data-table tr:hover .btn-copy-doc{opacity:0.75;transform:scale(1)}
 #view-cartas table.data-table th:nth-child(3), #view-cartas table.data-table td:nth-child(3){min-width:85px;white-space:nowrap}
 #view-cartas table.data-table th:nth-child(4), #view-cartas table.data-table td:nth-child(4){min-width:120px;max-width:160px;font-weight:600}
 #view-cartas table.data-table th:nth-child(5), #view-cartas table.data-table td:nth-child(5){min-width:120px;max-width:170px}
-#view-cartas table.data-table th:nth-child(6), #view-cartas table.data-table td:nth-child(6){min-width:140px;max-width:190px}
-#view-cartas table.data-table th:nth-child(7), #view-cartas table.data-table td:nth-child(7){min-width:140px;max-width:190px}
-#view-cartas table.data-table th:nth-child(8), #view-cartas table.data-table td:nth-child(8){min-width:220px;max-width:340px}
-#view-cartas table.data-table th:nth-child(9), #view-cartas table.data-table td:nth-child(9){min-width:140px;max-width:220px}
-#view-cartas table.data-table th:nth-child(10), #view-cartas table.data-table td:nth-child(10){min-width:130px;max-width:170px}
-#view-cartas table.data-table th:nth-child(11), #view-cartas table.data-table td:nth-child(11){min-width:110px;white-space:nowrap}
-#view-cartas table.data-table th:nth-child(12), #view-cartas table.data-table td:nth-child(12){min-width:115px;max-width:160px}
-#view-cartas table.data-table th:nth-child(13), #view-cartas table.data-table td:nth-child(13){min-width:130px;max-width:240px}
-#view-cartas table.data-table th:nth-child(14), #view-cartas table.data-table td:nth-child(14){min-width:115px;width:125px;text-align:right}
+#view-cartas table.data-table th:nth-child(6), #view-cartas table.data-table td:nth-child(6){min-width:170px;max-width:240px}
+#view-cartas table.data-table th:nth-child(7), #view-cartas table.data-table td:nth-child(7){min-width:240px;max-width:380px}
+#view-cartas table.data-table th:nth-child(8), #view-cartas table.data-table td:nth-child(8){min-width:140px;max-width:230px}
+#view-cartas table.data-table th:nth-child(9), #view-cartas table.data-table td:nth-child(9){min-width:140px;max-width:180px}
+#view-cartas table.data-table th:nth-child(10), #view-cartas table.data-table td:nth-child(10){min-width:120px;white-space:nowrap}
+#view-cartas table.data-table th:nth-child(11), #view-cartas table.data-table td:nth-child(11){min-width:120px;max-width:160px}
+#view-cartas table.data-table th:nth-child(12), #view-cartas table.data-table td:nth-child(12){min-width:130px;max-width:240px}
+#view-cartas table.data-table th:nth-child(13), #view-cartas table.data-table td:nth-child(13){min-width:115px;width:125px;text-align:right}
 
 .status-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:14px;line-height:1.25;max-width:180px;letter-spacing:0.02em}
 .status-badge.abierto{background:#EEF2FA;color:#245899;border:1px solid #C7D8F2}
