@@ -1374,12 +1374,10 @@ def api_cartas_add():
         r = cur.fetchone()
     full = row_to_dict(r)
     close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
-    hilos_info = _rebuild_hilos(db)
     invalidate_cartas_cache()
     out = row_to_dict(r)
     out["_cierre_referencias"] = close_info
     out["_hilo_vinculo"] = hilo_link
-    out["_hilos"] = hilos_info
     return jsonify(out), 201
 
 
@@ -1403,7 +1401,6 @@ def api_cartas_edit(cid):
             return jsonify({"error": "Sin acceso a esta carta"}), 403
 
     u = current_user()
-    # Solo administrador puede editar cartas (ingeniero: solo lectura; residente: crea, no edita).
     merged = {**existing, **d}
 
     data, err = _validate_carta_payload(merged)
@@ -1437,12 +1434,10 @@ def api_cartas_edit(cid):
         r2 = cur.fetchone()
     full = row_to_dict(r2)
     close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
-    hilos_info = _rebuild_hilos(db)
     invalidate_cartas_cache()
     out = row_to_dict(r2)
     out["_cierre_referencias"] = close_info
     out["_hilo_vinculo"] = hilo_link
-    out["_hilos"] = hilos_info
     return jsonify(out)
 
 
@@ -1460,7 +1455,6 @@ def api_cartas_del(cid):
         cur.execute("DELETE FROM cartas WHERE id=%s", (cid,))
     db.commit()
     invalidate_cartas_cache()
-    _rebuild_hilos(db)
     return jsonify({"ok": True, "id": cid})
 
 

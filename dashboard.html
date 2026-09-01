@@ -5059,18 +5059,20 @@ function renderSaldos(){
   });
 }
 
-async function refreshData(){
-  return await loadData();
+async function refreshData(isBackground = true){
+  return await loadData(isBackground);
 }
 
-async function loadData(){
+async function loadData(isBackground = false){
   try{
     const ok=await ensureSession();
     if(!ok)return;
-    renderTableSkeleton(8);
-    renderSaldosSkeleton();
-    renderPendientesSkeleton();
-    renderReportesSkeleton();
+    if(!isBackground && (!ALL_CARTAS || ALL_CARTAS.length === 0)){
+      renderTableSkeleton(8);
+      renderSaldosSkeleton();
+      renderPendientesSkeleton();
+      renderReportesSkeleton();
+    }
     const[cartas,stats,pend,saldos,status]=await Promise.all([
       fetchCartas(),
       fetchStats(),
@@ -6927,7 +6929,19 @@ async function handleSave(){
     if (!wasEdit) clearDraft();
     closeModal({ fromSave: true });
     showToast(wasEdit ? 'Carta actualizada exitosamente' : 'Carta registrada exitosamente', 'success');
-    await refreshData();
+    
+    // Actualización optimista instantánea
+    if (saved && saved.id) {
+      if (wasEdit) {
+        const idx = ALL_CARTAS.findIndex(x => x.id === saved.id);
+        if (idx >= 0) ALL_CARTAS[idx] = { ...ALL_CARTAS[idx], ...saved };
+        else ALL_CARTAS.unshift(saved);
+      } else {
+        ALL_CARTAS.unshift(saved);
+      }
+      applyFilters();
+    }
+    refreshData(true);
   }
   catch (e) {
     showToast(e.message, 'error');
@@ -6982,17 +6996,30 @@ function closeConfirm(){
 }
 async function executeDelete(){
   if(!deleteId)return;
-  const btn=document.getElementById('btnConfirmOk');
-  if(btn)btn.disabled=true;
+  const targetId = deleteId;
+  const btn = document.getElementById('btnConfirmOk');
+  if(btn){
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span>Eliminando…';
+  }
   try{
-    await deleteCarta(deleteId);
+    // 1. Cierre inmediato del modal y eliminación optimista en memoria
+    ALL_CARTAS = ALL_CARTAS.filter(x => x.id !== targetId);
+    applyFilters();
     closeConfirm();
-    showToast('Carta eliminada','success');
-    await refreshData();
+    showToast('Carta eliminada correctamente', 'success');
+
+    // 2. Ejecución rápida en backend
+    await deleteCarta(targetId);
+    refreshData(true);
   }catch(e){
-    showToast('Error: '+e.message,'error');
+    showToast('Error al eliminar: '+e.message, 'error');
+    refreshData(true);
   }finally{
-    if(btn)btn.disabled=false;
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = 'Eliminar';
+    }
   }
 }
 
