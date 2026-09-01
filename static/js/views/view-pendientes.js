@@ -563,6 +563,7 @@ function semaforoHtml(sem){
 }
 
 function renderHilos(){
+  if(!document.getElementById('hilosSub')) return;
   const h=HILOS||{};
   const counts=h.counts||{};
   const plazo=h.plazo_dias||5;
