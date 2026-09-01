@@ -1532,6 +1532,87 @@ def api_stats():
     )
 
 
+_IMPORT_LOCK = threading.Lock()
+_IMPORT_STATUS = {
+    "running": False,
+    "step": "Inactivo",
+    "progress": 0,
+    "result": None,
+    "error": None,
+}
+
+
+def _async_import_worker(temp_path_str: str | None, force: bool):
+    global _IMPORT_STATUS
+    conn = None
+    try:
+        with _IMPORT_LOCK:
+            _IMPORT_STATUS = {
+                "running": True,
+                "step": "Leyendo archivo Excel y procesando registros...",
+                "progress": 15,
+                "result": None,
+                "error": None,
+            }
+        conn = connect_mysql()
+        excel_target = Path(temp_path_str) if temp_path_str else None
+
+        with _IMPORT_LOCK:
+            _IMPORT_STATUS["step"] = "Importando registros a la base de datos..."
+            _IMPORT_STATUS["progress"] = 35
+
+        result = import_excel_to_db(conn, excel_path=excel_target, force=force)
+
+        if result.get("ok") and not result.get("skipped"):
+            with _IMPORT_LOCK:
+                _IMPORT_STATUS["step"] = "Normalizando estados y especialidades..."
+                _IMPORT_STATUS["progress"] = 70
+            result["normalizados"] = refresh_normalized_fields(conn)
+
+            with _IMPORT_LOCK:
+                _IMPORT_STATUS["step"] = "Reconstruyendo hilos de conversación..."
+                _IMPORT_STATUS["progress"] = 85
+            result["hilos"] = _rebuild_hilos(conn)
+
+            invalidate_cartas_cache()
+
+        with _IMPORT_LOCK:
+            _IMPORT_STATUS = {
+                "running": False,
+                "step": "Completado",
+                "progress": 100,
+                "result": result,
+                "error": None if result.get("ok") else result.get("error"),
+            }
+    except Exception as exc:
+        logging.exception("Error en importación asíncrona de Excel: %s", exc)
+        with _IMPORT_LOCK:
+            _IMPORT_STATUS = {
+                "running": False,
+                "step": "Error",
+                "progress": 0,
+                "result": None,
+                "error": str(exc),
+            }
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        if temp_path_str and os.path.exists(temp_path_str):
+            try:
+                os.remove(temp_path_str)
+            except Exception:
+                pass
+
+
+@app.route("/api/import/status", methods=["GET"])
+def api_import_status():
+    with _IMPORT_LOCK:
+        return jsonify(dict(_IMPORT_STATUS))
+
+
 @app.route("/api/import/excel", methods=["POST"])
 @require_perm("can_import")
 def api_import_excel():
@@ -1555,6 +1636,14 @@ def api_import_excel():
             excel_target = Path(temp_path)
 
         force = True if uploaded_file else bool((request.get_json(silent=True) or {}).get("force", True))
+        is_async = request.args.get("async") in ("1", "true", "True") or (request.get_json(silent=True) or {}).get("async") is True
+
+        if is_async:
+            t = threading.Thread(target=_async_import_worker, args=(temp_path, force), daemon=True)
+            t.start()
+            return jsonify({"ok": True, "async": True, "message": "Importación iniciada en segundo plano"}), 200
+
+        # Modo síncrono
         db = get_db()
         result = import_excel_to_db(db, excel_path=excel_target, force=force)
         if result.get("ok") and not result.get("skipped"):
@@ -1571,7 +1660,7 @@ def api_import_excel():
         logging.exception("Error inesperado en importación Excel: %s", exc)
         return jsonify({"ok": False, "error": f"Error en el procesamiento del archivo: {exc}"}), 500
     finally:
-        if temp_path and os.path.exists(temp_path):
+        if not (request.args.get("async") in ("1", "true", "True")) and temp_path and os.path.exists(temp_path):
             try:
                 os.remove(temp_path)
             except Exception:

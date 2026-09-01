@@ -7012,7 +7012,7 @@ async function executeReimportFile(){
 
   const loadingOverlay = document.getElementById('importLoadingOverlay');
   const loadingMsg = document.getElementById('importLoadingMsg');
-  if(loadingMsg) loadingMsg.textContent = `Subiendo ${file.name}, leyendo hojas y reconstruyendo hilos de cartas. Por favor espera…`;
+  if(loadingMsg) loadingMsg.textContent = `Subiendo ${file.name}... Por favor espera…`;
   if(loadingOverlay) loadingOverlay.classList.add('active');
 
   const formData = new FormData();
@@ -7020,18 +7020,42 @@ async function executeReimportFile(){
   formData.append('force', 'true');
 
   try {
-    const res = await apiFetch('/api/import/excel', {
+    const res = await apiFetch('/api/import/excel?async=1', {
       method: 'POST',
       body: formData
     });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok || !data.ok || !data.inserted || data.inserted === 0){
+    let data = await res.json().catch(() => ({}));
+    if(!res.ok || (!data.ok && !data.async)){
+      throw new Error(data.error || `Error del servidor (${res.status}) al subir el archivo.`);
+    }
+
+    // Polling en tiempo real si se procesa en segundo plano
+    if(data.async){
+      let pollCount = 0;
+      const maxPolls = 180; // hasta 3 minutos
+      while(pollCount < maxPolls){
+        await new Promise(r => setTimeout(r, 1000));
+        pollCount++;
+        const sRes = await apiFetch('/api/import/status');
+        const sData = await sRes.json().catch(() => ({}));
+        if(sData.step && loadingMsg){
+          loadingMsg.textContent = `${sData.step} (${sData.progress || 0}%)`;
+        }
+        if(!sData.running){
+          if(sData.error){
+            throw new Error(sData.error);
+          }
+          data = sData.result || {};
+          break;
+        }
+      }
+    }
+
+    if(!data.ok || !data.inserted || data.inserted === 0){
       let errDetail = data.error;
       if (!errDetail) {
         if (data.sheets) {
           errDetail = `No se encontraron registros de cartas en las hojas [${data.sheets.join(', ')}].`;
-        } else if (!res.ok) {
-          errDetail = `Error del servidor (${res.status}): El procesamiento del archivo tardó más de lo esperado. Por favor reintenta.`;
         } else {
           errDetail = 'No se encontraron registros de cartas válidos en el archivo Excel.';
         }
