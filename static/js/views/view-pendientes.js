@@ -101,11 +101,15 @@ function renderPendMatrix(){
   });
   const thead=document.querySelector('#pendMatrix thead');
   const tbody=document.querySelector('#pendMatrix tbody');
-  thead.innerHTML='<tr><th>Especialidad</th>'+PEND_CONTRAPARTES.map(a=>`<th>${ACTOR_LABELS[a]}</th>`).join('')+'<th>Total</th></tr>';
+  thead.innerHTML='<tr><th style="text-align:left;min-width:170px">Especialidad Técnica</th>'+PEND_CONTRAPARTES.map(a=>`<th style="text-align:center">${ACTOR_LABELS[a]}</th>`).join('')+'<th style="text-align:center">Total</th></tr>';
   tbody.innerHTML='';
   if(!esps.length){
-    tbody.innerHTML=`<tr><td colspan="${PEND_CONTRAPARTES.length+2}" style="color:var(--text-muted);padding:16px">Sin cartas en este modo</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="${PEND_CONTRAPARTES.length+2}" style="color:var(--text-muted);padding:16px;text-align:center">Sin cartas en este modo</td></tr>`;
   }else{
+    const colSums = {};
+    PEND_CONTRAPARTES.forEach(a => { colSums[a] = 0; });
+    let grandTotal = 0;
+
     esps.forEach((esp,idx)=>{
       const tr=document.createElement('tr');
       tr.className='row-rendered';
@@ -114,13 +118,29 @@ function renderPendMatrix(){
       const cells=PEND_CONTRAPARTES.map(act=>{
         const n=(matrix[esp]||{})[act]||0;
         total+=n;
-        if(!n)return '<td class="num" style="color:var(--text-muted);cursor:default">0</td>';
-        return `<td class="num" data-esp="${escapeHtml(esp)}" data-act="${act}" title="Ver ${n} carta${n===1?'':'s'} en Cartas">${n}</td>`;
+        colSums[act] = (colSums[act] || 0) + n;
+        if(!n) return '<td class="col-center" style="color:#C5BFB5;cursor:default">—</td>';
+        return `<td class="col-center" data-esp="${escapeHtml(esp)}" data-act="${act}" style="cursor:pointer;color:var(--rose);font-weight:700;font-size:13.5px;" title="Ver ${n} carta${n===1?'':'s'} en Cartas">${n}</td>`;
       }).join('');
-      tr.innerHTML=`<td>${escapeHtml(esp)}</td>${cells}<td class="num" data-esp="${escapeHtml(esp)}" data-act="all"><strong>${total}</strong></td>`;
+      grandTotal += total;
+      tr.innerHTML=`<td><strong>${escapeHtml(esp)}</strong></td>${cells}<td class="col-center" data-esp="${escapeHtml(esp)}" data-act="all" style="cursor:pointer;font-weight:800;color:var(--rose);font-size:14px;"><strong>${total}</strong></td>`;
       tbody.appendChild(tr);
     });
-    tbody.querySelectorAll('td.num[data-esp]').forEach(td=>{
+
+    // Fila de totales
+    const trTot = document.createElement('tr');
+    trTot.style.background = 'var(--bg-card)';
+    trTot.style.fontWeight = '700';
+    trTot.style.borderTop = '2px solid var(--border)';
+    const cellsTot = PEND_CONTRAPARTES.map(act => {
+      const val = colSums[act] || 0;
+      if(!val) return '<td class="col-center" style="color:#C5BFB5;cursor:default">—</td>';
+      return `<td class="col-center" data-esp="all" data-act="${act}" style="cursor:pointer;color:var(--rose);font-weight:800;font-size:14px;" title="Ver cartas (${val})">${val}</td>`;
+    }).join('');
+    trTot.innerHTML = `<td><strong>TOTALES</strong></td>${cellsTot}<td class="col-center" style="font-weight:800;color:var(--rose);font-size:15px;">${grandTotal}</td>`;
+    tbody.appendChild(trTot);
+
+    tbody.querySelectorAll('td.col-center[data-esp]').forEach(td=>{
       td.addEventListener('click',()=>{
         const esp=td.dataset.esp;
         const act=td.dataset.act;
