@@ -858,7 +858,7 @@ function setCartasSearchQuery(value){
   qTimer = setTimeout(applyFilters, v.trim() ? 180 : 0);
 }
 
-function applyFilters(){
+function applyFilters(keepPage = false){
   const bandeja=document.getElementById('filterBandeja')?.value||activeBandeja||'all';
   activeBandeja=bandeja;
   const estado=document.getElementById('filterEstado')?.value||'all';
