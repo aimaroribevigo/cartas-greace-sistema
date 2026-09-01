@@ -75,20 +75,10 @@ services:
       # Copia el Excel a ./data/ si quieres reimportar (opcional; el clone trae seed MySQL).
       - ./data:/app/data:ro
       - ./static:/app/static:ro
-      - ./dashboard.html:/app/dashboard.html:ro
+      - ./templates:/app/templates:ro
+      - ./core:/app/core:ro
+      - ./services:/app/services:ro
       - ./app.py:/app/app.py:ro
-      - ./normalizers.py:/app/normalizers.py:ro
-      - ./hilos.py:/app/hilos.py:ro
-      - ./clasificacion.py:/app/clasificacion.py:ro
-      - ./auth.py:/app/auth.py:ro
-      - ./plazos.py:/app/plazos.py:ro
-      - ./plazos_respuesta.py:/app/plazos_respuesta.py:ro
-      - ./import_excel.py:/app/import_excel.py:ro
-      - ./export_excel.py:/app/export_excel.py:ro
-      - ./backfill_cartas.py:/app/backfill_cartas.py:ro
-      - ./generador_word.py:/app/generador_word.py:ro
-      - ./whatsapp_notify.py:/app/whatsapp_notify.py:ro
-      - ./cggc_banner.png:/app/cggc_banner.png:ro
     ports:
       - "${WEB_HOST_PORT:-5080}:5000"
     networks:

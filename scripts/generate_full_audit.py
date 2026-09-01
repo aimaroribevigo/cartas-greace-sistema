@@ -3,7 +3,7 @@
 import json
 import re
 from app import app, get_db
-from clasificacion import build_pendientes, enrich_carta
+from core.clasificacion import build_pendientes, enrich_carta
 
 with app.app_context():
     db = get_db()

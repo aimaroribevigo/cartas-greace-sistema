@@ -12,7 +12,7 @@ import re
 import unicodedata
 from typing import Any
 
-from normalizers import CLOSED_STATES, is_estado_abierto, normalize_estado
+from core.normalizers import CLOSED_STATES, is_estado_abierto, normalize_estado
 
 ACTORES = {
     "residente": "Residente",
@@ -463,7 +463,7 @@ def enrich_carta(c: dict) -> dict:
 
 def build_pendientes(rows: list[dict], include_items: bool = False) -> dict:
     """Resumen de pendientes por deuda × actor × especialidad."""
-    from plazos_respuesta import serialize_pendiente_item
+    from core.plazos_respuesta import serialize_pendiente_item
 
     debo, me_deben, comunicacion = [], [], []
     for raw in rows:
@@ -563,7 +563,7 @@ def build_whatsapp_debo_message(
     """Digest accionable: solo 'yo debo', top especialidades + cartas más antiguas."""
     from datetime import date
 
-    from plazos import deadline_status
+    from core.plazos import deadline_status
 
     pend = build_pendientes(rows, include_items=False)
     items = list(pend.get("_debo_items") or [])
@@ -663,7 +663,7 @@ def build_whatsapp_me_deben_summary(rows: list[dict], max_especialidades: int = 
 
 def public_pendientes(rows: list[dict]) -> dict:
     """Respuesta API sin payloads internos (_debo_items)."""
-    from plazos_respuesta import plazos_respuesta_config
+    from core.plazos_respuesta import plazos_respuesta_config
 
     pend = build_pendientes(rows)
     pend.pop("_debo_items", None)

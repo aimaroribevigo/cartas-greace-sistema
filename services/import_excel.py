@@ -8,9 +8,13 @@ from pathlib import Path
 
 import openpyxl
 
-from normalizers import infer_estado_from_row, normalize_especialidad, normalize_estado
+from core.normalizers import infer_estado_from_row, normalize_especialidad, normalize_estado
 
-DEFAULT_EXCEL = Path(__file__).resolve().parent / "Control_de_Cartas_2025_HLP_Mejorado.xlsx"
+BASE_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_EXCEL = BASE_DIR / "Control_de_Cartas_2025_HLP_Mejorado.xlsx"
+if not DEFAULT_EXCEL.exists():
+    DEFAULT_EXCEL = BASE_DIR / "data" / "Control_de_Cartas_2025_HLP_Mejorado.xlsx"
+
 BATCH_SIZE = 500
 EMPTY_STREAK_STOP = 80
 

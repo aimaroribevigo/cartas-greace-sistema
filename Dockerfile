@@ -12,7 +12,10 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py plazos.py plazos_respuesta.py whatsapp_notify.py normalizers.py import_excel.py export_excel.py generador_word.py clasificacion.py hilos.py auth.py backfill_cartas.py dashboard.html cggc_banner.png ./
+COPY app.py ./
+COPY core/ ./core/
+COPY services/ ./services/
+COPY templates/ ./templates/
 COPY static/ ./static/
 
 EXPOSE 5000

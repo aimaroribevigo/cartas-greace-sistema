@@ -16,12 +16,12 @@ import pymysql
 from flask import Flask, g, jsonify, request, send_file, send_from_directory, session
 from pymysql.cursors import DictCursor
 
-from backfill_cartas import backfill_cartas
-from import_excel import import_excel_to_db
-from plazos_respuesta import plazos_respuesta_config, set_plazos_config
-from plazos import build_whatsapp_message, classify_cartas, plazos_config, set_sla_config
-from normalizers import normalize_especialidad, normalize_estado, normalize_referencias_antecedentes, refresh_normalized_fields, carta_matches_especialidad, catalogo_payload
-from clasificacion import (
+from services.backfill_cartas import backfill_cartas
+from services.import_excel import import_excel_to_db
+from core.plazos_respuesta import plazos_respuesta_config, set_plazos_config
+from core.plazos import build_whatsapp_message, classify_cartas, plazos_config, set_sla_config
+from core.normalizers import normalize_especialidad, normalize_estado, normalize_referencias_antecedentes, refresh_normalized_fields, carta_matches_especialidad, catalogo_payload
+from core.clasificacion import (
     ACTORES,
     build_pendientes,
     build_saldos,
@@ -30,12 +30,12 @@ from clasificacion import (
     classify_carta,
     public_pendientes,
 )
-from whatsapp_notify import send_whatsapp, whatsapp_config
+from services.whatsapp_notify import send_whatsapp, whatsapp_config
 try:
-    from generador_word import generar_carta_docx
+    from services.generador_word import generar_carta_docx
 except ImportError:
     generar_carta_docx = None
-from hilos import (
+from core.hilos import (
     HILO_OPERATIVO_MAX_DIAS,
     assign_carta_hilo,
     build_whatsapp_hilos_urgentes,
@@ -45,7 +45,7 @@ from hilos import (
     set_hilo_plazo_config,
     try_close_referenced_cartas,
 )
-from auth import (
+from core.auth import (
     AUTH_REQUIRED,
     VALID_ROLES,
     admin_set_password,
@@ -140,8 +140,9 @@ BANDEJAS = {
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE, "static")
+TEMPLATES_DIR = os.path.join(BASE, "templates")
 
-app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static", template_folder=TEMPLATES_DIR)
 app.secret_key = SECRET_KEY
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -1668,7 +1669,7 @@ def api_import_excel():
 @require_perm("can_export")
 def api_backup_excel():
     from datetime import datetime
-    from export_excel import export_full_backup_excel
+    from services.export_excel import export_full_backup_excel
     db = get_db()
     excel_stream = export_full_backup_excel(db)
     filename = f"Backup_Control_Cartas_HLP_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
@@ -1961,12 +1962,12 @@ def start_whatsapp_scheduler():
 @app.route("/login")
 @app.route("/dashboard.html")
 def index():
-    return send_from_directory(BASE, "dashboard.html")
+    return send_from_directory(TEMPLATES_DIR, "dashboard.html")
 
 
 @app.route("/cggc_banner.png")
 def banner():
-    return send_from_directory(BASE, "cggc_banner.png")
+    return send_from_directory(os.path.join(STATIC_DIR, "img"), "cggc_banner.png")
 
 
 @app.route("/static/<path:filename>")

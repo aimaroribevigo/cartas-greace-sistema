@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 # -*- coding: utf-8 -*-
 """Suite de pruebas y auditoría de Configuración General, Plazos Contractuales y SLA Unificado."""
 import json
@@ -10,9 +13,9 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 from app import app, get_db, _apply_plazos_from_config
-from plazos_respuesta import build_plazo_reglas, regla_plazo_contraparte, fecha_limite_respuesta
-from plazos import deadline_status, plazos_config
-from hilos import list_hilos_api
+from core.plazos_respuesta import build_plazo_reglas, regla_plazo_contraparte, fecha_limite_respuesta
+from core.plazos import deadline_status, plazos_config
+from core.hilos import list_hilos_api
 
 print("======================================================================")
 print("     SUITE DE TESTING: CONFIGURACIÓN GENERAL Y SLA UNIFICADO          ")

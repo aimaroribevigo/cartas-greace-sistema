@@ -6,8 +6,8 @@ import os
 from datetime import date, datetime
 from typing import Any
 
-from normalizers import is_estado_abierto, normalize_estado
-from clasificacion import is_solo_comunicacion
+from core.normalizers import is_estado_abierto, normalize_estado
+from core.clasificacion import is_solo_comunicacion
 
 VENCIDA_DIAS = int(os.environ.get("CARTA_VENCIDA_DIAS", "15"))
 POR_VENCER_DIAS = int(os.environ.get("CARTA_POR_VENCER_DIAS", "10"))

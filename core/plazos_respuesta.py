@@ -206,7 +206,7 @@ def _yo_debo_responder_label(c: dict) -> str:
     ban = (c.get("bandeja") or "").strip()
     if ban.startswith("recibida"):
         try:
-            from backfill_cartas import resolve_canonical_area
+            from services.backfill_cartas import resolve_canonical_area
 
             inferred = resolve_canonical_area(c)
             if inferred:
@@ -229,7 +229,7 @@ def responsable_respuesta_label(c: dict, cl: dict, modo: str) -> str:
 
 
 def serialize_pendiente_item(c: dict, modo: str) -> dict:
-    from clasificacion import classify_carta
+    from core.clasificacion import classify_carta
 
     cl = c.get("clasificacion") or classify_carta(c)
     plazo = plazo_respuesta_operativo(c, cl)

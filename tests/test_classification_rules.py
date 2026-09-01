@@ -1,9 +1,12 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 # -*- coding: utf-8 -*-
 """Pruebas unitarias de las reglas de clasificación: Absolución (cerrado) y Comunicados de Ensayos (comunicación)."""
 import unittest
 from datetime import date
 
-from clasificacion import (
+from core.clasificacion import (
     classify_carta,
     is_absolucion,
     is_solo_comunicacion,
@@ -15,7 +18,7 @@ from clasificacion import (
     NATURALEZA_COMUNICACION,
     NATURALEZA_RESPUESTA,
 )
-from normalizers import (
+from core.normalizers import (
     normalize_estado,
     is_estado_abierto,
     infer_estado_from_row,

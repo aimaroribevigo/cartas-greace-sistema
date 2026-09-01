@@ -8,7 +8,7 @@ import re
 from functools import wraps
 
 from flask import g, jsonify, session
-from normalizers import split_especialidades, CATALOGO_ESPECIALIDADES, normalize_especialidad
+from core.normalizers import split_especialidades, CATALOGO_ESPECIALIDADES, normalize_especialidad
 from werkzeug.security import check_password_hash, generate_password_hash
 
 AUTH_REQUIRED = os.environ.get("AUTH_REQUIRED", "1") not in ("0", "false", "False", "no")

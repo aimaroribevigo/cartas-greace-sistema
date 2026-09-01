@@ -9,7 +9,7 @@ import unicodedata
 from collections import Counter
 from datetime import date, datetime
 
-from normalizers import is_estado_abierto, normalize_estado
+from core.normalizers import is_estado_abierto, normalize_estado
 
 HILO_PLAZO_DIAS = int(os.environ.get("HILO_PLAZO_DIAS", "5"))
 HILO_VERDE_HASTA = int(os.environ.get("HILO_VERDE_HASTA", "3"))
@@ -75,7 +75,7 @@ def normalize_doc_key(raw: str | None) -> str:
 def extract_cited_docs(text: str | None) -> list[str]:
     if not text:
         return []
-    from normalizers import parse_referencias_antecedentes
+    from core.normalizers import parse_referencias_antecedentes
     res = []
     for m in _DOC_RE.finditer(str(text)):
         res.append(normalize_doc_key(m.group(0)))
@@ -241,7 +241,7 @@ def _fecha_ancla_abiertas(
     abiertas: list[dict], deuda_prefer: str | None = None
 ) -> date | None:
     """Ancla tipo next-response: última carta abierta con deuda (no el inicio del hilo)."""
-    from clasificacion import classify_carta
+    from core.clasificacion import classify_carta
 
     con_deuda: list[date] = []
     otras: list[date] = []
@@ -880,7 +880,7 @@ def list_hilos_api(
     solo_urgentes: bool = False,
 ) -> dict:
     """Lista hilos enriquecidos con reloj anclado a la última carta abierta de deuda."""
-    from clasificacion import classify_carta
+    from core.clasificacion import classify_carta
 
     today = date.today()
     by_id = {c["id"]: c for c in cartas if c.get("id") is not None}

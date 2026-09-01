@@ -158,8 +158,10 @@ def generar_carta_docx(payload: dict, config: dict | None = None) -> io.BytesIO:
 
     if not banner_stream:
         banner_paths = [
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "img", "cggc_banner.png"),
             os.path.join(os.path.dirname(__file__), "cggc_banner.png"),
             "cggc_banner.png",
+            "/app/static/img/cggc_banner.png",
             "/app/cggc_banner.png"
         ]
         for bp in banner_paths:

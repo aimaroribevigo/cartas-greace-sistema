@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 # -*- coding: utf-8 -*-
 """Suite de Pruebas Intensivas via API HTTP — Creación y Respuesta de Cartas en todos los escenarios."""
 import json
@@ -5,8 +8,8 @@ import unittest
 from datetime import date
 
 from app import app, get_db
-from hilos import rebuild_hilos_fast
-from normalizers import normalize_estado, is_estado_abierto
+from core.hilos import rebuild_hilos_fast
+from core.normalizers import normalize_estado, is_estado_abierto
 
 
 def _login(client):

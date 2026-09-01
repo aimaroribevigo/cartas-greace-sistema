@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from normalizers import split_especialidades, ESP_TO_ESPECIALISTA
+from core.normalizers import split_especialidades, ESP_TO_ESPECIALISTA
 
 # Especialidad técnica → responsable interno canónico (equipo de Residencia)
 ESP_TO_AREA: dict[str, str] = ESP_TO_ESPECIALISTA

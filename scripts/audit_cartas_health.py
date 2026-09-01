@@ -8,9 +8,9 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 import app
-import clasificacion
-import hilos
-import normalizers
+import core.clasificacion as clasificacion
+import core.hilos as hilos
+import core.normalizers as normalizers
 
 def run_audit():
     conn = app.connect_mysql()

@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 # -*- coding: utf-8 -*-
 """Suite de Pruebas E2E y de Integración Completa para el Ciclo de Vida de Cartas y Trámites."""
 import os
@@ -7,8 +10,8 @@ import pymysql
 from datetime import date, timedelta
 
 from app import app, get_db
-from hilos import rebuild_hilos_fast, normalize_doc_key, try_close_referenced_cartas
-from normalizers import normalize_estado, infer_estado_from_row, is_estado_abierto
+from core.hilos import rebuild_hilos_fast, normalize_doc_key, try_close_referenced_cartas
+from core.normalizers import normalize_estado, infer_estado_from_row, is_estado_abierto
 
 
 class TestCartasLifecycleComprehensive(unittest.TestCase):
@@ -455,7 +458,7 @@ class TestCartasLifecycleComprehensive(unittest.TestCase):
     # -------------------------------------------------------------
     def test_09_docx_generation_for_response(self):
         print("\n--- Test 9: Generación de Borrador Word (.docx) ---")
-        from generador_word import generar_carta_docx
+        from services.generador_word import generar_carta_docx
         doc_stream = generar_carta_docx({
             "tipo_documento": "CARTA",
             "n_documento": "CARTA N°TEST-DOCX-001",

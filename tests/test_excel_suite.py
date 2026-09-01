@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 # -*- coding: utf-8 -*-
 """Suite de pruebas y auditoría exhaustiva de Importación, Exportación y Seguridad de Excel."""
 import io
@@ -12,8 +15,8 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 from app import app, get_db, import_excel_to_db, refresh_normalized_fields, _rebuild_hilos
-from backfill_cartas import backfill_cartas
-from export_excel import export_full_backup_excel
+from services.backfill_cartas import backfill_cartas
+from services.export_excel import export_full_backup_excel
 
 print("======================================================================")
 print("           SUITE DE AUDITORÍA Y TESTING EXHAUSTIVO DE EXCEL           ")
