@@ -1628,33 +1628,54 @@ async function handleSave(){
   const wasEdit = editingId != null;
   if (wasEdit) data.id = editingId;
 
+  // Snapshot previo para rollback en caso de fallo en backend
+  let prevSnapshot = null;
+  let prevIdx = -1;
+  if (wasEdit) {
+    prevIdx = ALL_CARTAS.findIndex(x => x.id === editingId);
+    if (prevIdx >= 0) {
+      prevSnapshot = { ...ALL_CARTAS[prevIdx] };
+      // Actualización optimista inmediata en memoria (0 ms)
+      ALL_CARTAS[prevIdx] = { ...ALL_CARTAS[prevIdx], ...data };
+      prepareCartasSearchCache(ALL_CARTAS);
+      applyFilters(true);
+    }
+    closeModal({ fromSave: true });
+    showToast('Carta actualizada exitosamente', 'success');
+  }
+
   const btn = document.getElementById('btnSaveForm');
   const cancelBtn = document.getElementById('btnCancelForm');
   const docxBtn = document.getElementById('btnGenerarDocxFromEdit');
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
   if (cancelBtn) { cancelBtn.disabled = true; cancelBtn.style.opacity = '0.5'; cancelBtn.style.pointerEvents = 'none'; }
   if (docxBtn) { docxBtn.disabled = true; docxBtn.style.opacity = '0.5'; docxBtn.style.pointerEvents = 'none'; }
+
   try {
     const saved = await saveCarta(data);
-    if (!wasEdit) clearDraft();
-    closeModal({ fromSave: true });
-    showToast(wasEdit ? 'Carta actualizada exitosamente' : 'Carta registrada exitosamente', 'success');
-    
-    // Actualización optimista instantánea
-    if (saved && saved.id) {
-      if (wasEdit) {
-        const idx = ALL_CARTAS.findIndex(x => x.id === saved.id);
-        if (idx >= 0) ALL_CARTAS[idx] = { ...ALL_CARTAS[idx], ...saved };
-        else ALL_CARTAS.unshift(saved);
-      } else {
+    if (!wasEdit) {
+      clearDraft();
+      closeModal({ fromSave: true });
+      showToast('Carta registrada exitosamente', 'success');
+      if (saved && saved.id) {
         ALL_CARTAS.unshift(saved);
+        prepareCartasSearchCache(ALL_CARTAS);
+        applyFilters(true);
       }
+    } else if (saved && saved.id && prevIdx >= 0) {
+      ALL_CARTAS[prevIdx] = { ...ALL_CARTAS[prevIdx], ...saved };
+      prepareCartasSearchCache(ALL_CARTAS);
       applyFilters(true);
     }
     refreshData(true);
   }
   catch (e) {
-    showToast(e.message, 'error');
+    if (wasEdit && prevSnapshot && prevIdx >= 0) {
+      ALL_CARTAS[prevIdx] = prevSnapshot;
+      prepareCartasSearchCache(ALL_CARTAS);
+      applyFilters(true);
+    }
+    showToast('Error al guardar: ' + e.message, 'error');
   }
   finally {
     if (btn) {
