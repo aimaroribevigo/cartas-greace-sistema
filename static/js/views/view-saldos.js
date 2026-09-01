@@ -95,42 +95,55 @@ function renderSaldos(){
   if(!tb) return;
   tb.innerHTML='';
   let sumLe=0, sumDeb=0, sumNet=0;
-  (s.by_especialidad||[]).forEach((r,idx)=>{
+
+  // Ordenar de mayor a menor urgencia: primero las que tienen más cartas por responder
+  const sortedList = [...(s.by_especialidad||[])].sort((a, b) => {
+    if ((b.cggc_debe||0) !== (a.cggc_debe||0)) {
+      return (b.cggc_debe||0) - (a.cggc_debe||0);
+    }
+    return (b.le_deben||0) - (a.le_deben||0);
+  });
+
+  sortedList.forEach((r,idx)=>{
     sumLe+=r.le_deben; sumDeb+=r.cggc_debe; sumNet+=r.saldo_neto;
     const tr=document.createElement('tr');
     tr.className='row-rendered';
     tr.style.animationDelay=`${Math.min(idx*15,200)}ms`;
-    const risk=r.nivel_riesgo||'BAJO';
-    const riskBadge = risk==='ALTO'
-      ? '<span style="color:var(--rose);font-weight:700">🔴 ALTA</span>'
-      : risk==='MEDIO'
-      ? '<span style="color:#8A6A20;font-weight:700">🟡 MEDIA</span>'
-      : '<span style="color:var(--sage);font-weight:700">🟢 NORMAL</span>';
+    
+    let riskBadge = '';
+    if ((r.cggc_debe||0) >= 10 || r.nivel_riesgo === 'ALTO') {
+      riskBadge = `<span class="saldos-badge-critico">🔴 Crítico (${r.cggc_debe} por responder)</span>`;
+    } else if ((r.cggc_debe||0) > 0) {
+      riskBadge = `<span class="saldos-badge-medio">🟡 Atención (${r.cggc_debe} pendientes)</span>`;
+    } else if ((r.le_deben||0) > 0) {
+      riskBadge = `<span class="saldos-badge-medio" style="background:#F4EFEB;color:#6E5C4F">⏳ Esperando respuesta</span>`;
+    } else {
+      riskBadge = `<span class="saldos-badge-ok">🟢 Al Día</span>`;
+    }
+
     tr.innerHTML=`
       <td><strong>${escapeHtml(r.especialidad)}</strong></td>
-      <td class="num" data-esp="${escapeHtml(r.especialidad)}" data-deuda="me_deben" style="cursor:pointer;color:#8A6A20;font-weight:600" title="Ver cartas: Esperando a contraparte en ${escapeHtml(r.especialidad)}">${r.le_deben}</td>
-      <td class="num" data-esp="${escapeHtml(r.especialidad)}" data-deuda="debo" style="cursor:pointer;color:var(--rose);font-weight:600" title="Ver cartas: Pendientes de responder en ${escapeHtml(r.especialidad)}">${r.cggc_debe}</td>
-      <td class="num"><strong style="color:${r.saldo_neto>=0?'var(--teal)':'var(--rose)'}">${r.saldo_neto>0?'+':''}${r.saldo_neto}</strong></td>
-      <td class="num">${Math.round((r.pct_deuda_propia||0)*100)}%</td>
-      <td>${riskBadge}</td>`;
+      <td class="col-center" data-esp="${escapeHtml(r.especialidad)}" data-deuda="debo" style="cursor:pointer;color:var(--rose);font-weight:700;font-size:14px;" title="Clic para ver cartas que debemos responder en ${escapeHtml(r.especialidad)}">${r.cggc_debe}</td>
+      <td class="col-center" data-esp="${escapeHtml(r.especialidad)}" data-deuda="me_deben" style="cursor:pointer;color:#8A6A20;font-weight:600;font-size:13px;" title="Clic para ver cartas esperando a contraparte en ${escapeHtml(r.especialidad)}">${r.le_deben}</td>
+      <td class="col-center"><strong style="font-size:13px;color:${r.saldo_neto>=0?'var(--teal)':'var(--rose)'}">${r.saldo_neto>0?'+':''}${r.saldo_neto}</strong></td>
+      <td class="col-center">${riskBadge}</td>`;
     tb.appendChild(tr);
   });
-  if((s.by_especialidad||[]).length){
+
+  if(sortedList.length){
     const trTot=document.createElement('tr');
     trTot.style.background='var(--bg-card)';
     trTot.style.fontWeight='700';
     trTot.style.borderTop='2px solid var(--border)';
-    const pctTot=(sumLe+sumDeb)?Math.round(sumDeb/(sumLe+sumDeb)*100):0;
     trTot.innerHTML=`
-      <td>TOTALES</td>
-      <td class="num" data-esp="all" data-deuda="me_deben" style="cursor:pointer;color:#8A6A20;font-weight:700" title="Ver todas las cartas: Esperando a contraparte (${sumLe})">${sumLe}</td>
-      <td class="num" data-esp="all" data-deuda="debo" style="cursor:pointer;color:var(--rose);font-weight:700" title="Ver todas las cartas: Pendientes de responder (${sumDeb})">${sumDeb}</td>
-      <td class="num"><strong style="color:${sumNet>=0?'var(--teal)':'var(--rose)'}">${sumNet>0?'+':''}${sumNet}</strong></td>
-      <td class="num">${pctTot}%</td>
-      <td>—</td>`;
+      <td><strong>TOTALES GENERALES</strong></td>
+      <td class="col-center" data-esp="all" data-deuda="debo" style="cursor:pointer;color:var(--rose);font-weight:800;font-size:15px;" title="Ver todas las cartas que debemos responder (${sumDeb})">${sumDeb}</td>
+      <td class="col-center" data-esp="all" data-deuda="me_deben" style="cursor:pointer;color:#8A6A20;font-weight:700;font-size:14px;" title="Ver todas las cartas esperando a contraparte (${sumLe})">${sumLe}</td>
+      <td class="col-center"><strong style="font-size:14px;color:${sumNet>=0?'var(--teal)':'var(--rose)'}">${sumNet>0?'+':''}${sumNet}</strong></td>
+      <td class="col-center" style="font-size:11.5px;color:var(--text-muted);font-weight:600">Total acumulado de obra</td>`;
     tb.appendChild(trTot);
   }
-  tb.querySelectorAll('td.num[data-esp]').forEach(td=>{
+  tb.querySelectorAll('td.col-center[data-esp]').forEach(td=>{
     td.addEventListener('click',()=>{
       const esp=td.dataset.esp, deuda=td.dataset.deuda;
       applyPendienteToFilters(deuda,'all',esp);

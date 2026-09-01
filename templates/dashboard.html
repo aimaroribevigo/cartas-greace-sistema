@@ -455,31 +455,36 @@
 
 <div class="view-panel" id="view-saldos">
   <!-- Guía Rápida Didáctica -->
-  <div class="saldos-guide-card" style="margin:18px 32px 6px;padding:16px 20px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
+  <div class="saldos-guide-card" style="margin:18px 32px 6px;padding:18px 22px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <div style="width:28px;height:28px;border-radius:6px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px"><i class="ri-information-line"></i></div>
-      <h3 style="font-family:var(--font-display);font-size:16px;margin:0;color:var(--text-primary)">¿Cómo interpretar el Balance de Cartas?</h3>
+      <div style="width:28px;height:28px;border-radius:6px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px"><i class="ri-alarm-warning-line"></i></div>
+      <h3 style="font-family:var(--font-display);font-size:17px;margin:0;color:var(--text-primary)">Semáforo de Atención y Cuellos de Botella por Especialidad</h3>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;font-size:12.5px;color:var(--text-secondary);line-height:1.4">
-      <div>🟡 <strong>Esperando a Contraparte</strong>: Cartas emitidas por nosotros donde estamos esperando respuesta oficial.</div>
-      <div>🔴 <strong>Pendientes de Responder</strong>: Cartas recibidas que nuestro equipo técnico debe contestar.</div>
-      <div>⚖️ <strong>Balance Neto</strong>: Diferencia entre cartas emitidas vs recibidas pendientes. (Positivo = mayor avance a favor de obra).</div>
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 10px 0;line-height:1.4">
+      Esta tabla te indica <strong>cuáles son las especialidades más críticas de la obra</strong> (donde tenemos más cartas pendientes de responder). Las áreas prioritarias aparecen primero en la lista:
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;font-size:12px;color:var(--text-secondary);">
+      <div>🔴 <strong>Atención Crítica</strong>: Especialidades con mayor número de cartas que nuestro equipo debe contestar con urgencia.</div>
+      <div>🟡 <strong>En Seguimiento</strong>: Trámites enviados a Supervisión/PRONIS donde estamos esperando su contestación oficial.</div>
+      <div>🟢 <strong>Al Día</strong>: Especialidades sin cartas pendientes de respuesta por parte de nuestro equipo.</div>
     </div>
   </div>
 
   <section class="kpi-row" id="saldosKpis"></section>
   <div style="max-width:100%;margin:0 auto;padding:0 32px 32px;display:flex;flex-direction:column;gap:24px">
     <div class="table-card">
-      <div class="chart-header"><div class="chart-title">⚖️ Balance Operativo por Especialidad</div><div class="chart-subtitle" id="saldosSub">Haz clic en cualquier número para ver directamente las cartas de esa especialidad.</div></div>
+      <div class="chart-header">
+        <div class="chart-title">🚨 Prioridad de Atención por Especialidad Técnica</div>
+        <div class="chart-subtitle" id="saldosSub">Ordenado de mayor a menor urgencia. Haz clic en cualquier número para ver sus cartas.</div>
+      </div>
       <div class="table-wrap">
-        <table class="pend-matrix" id="saldosTable"><thead>
+        <table class="pend-matrix saldos-clean-table" id="saldosTable"><thead>
           <tr>
-            <th>Especialidad Técnica</th>
-            <th style="color:#8A6A20">🟡 Esperando a Contraparte</th>
-            <th style="color:var(--rose)">🔴 Pendientes de Responder</th>
-            <th>⚖️ Balance Neto</th>
-            <th>% Carga Propia</th>
-            <th>Nivel de Atención</th>
+            <th style="text-align:left;min-width:170px">Especialidad Técnica</th>
+            <th style="text-align:center;color:var(--rose)">🔴 Debemos Responder</th>
+            <th style="text-align:center;color:#8A6A20">🟡 Esperando a Contraparte</th>
+            <th style="text-align:center">⚖️ Balance</th>
+            <th style="text-align:center;min-width:160px">Estado de Urgencia</th>
           </tr>
         </thead><tbody></tbody></table>
       </div>
