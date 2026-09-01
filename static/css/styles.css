@@ -308,6 +308,10 @@ table.data-table tr:hover .btn-copy-doc{opacity:0.75;transform:scale(1)}
 .saldos-badge-medio{display:inline-flex;align-items:center;gap:4px;background:#FDF8EC;color:#8A6A20;font-weight:700;font-size:11.5px;padding:4px 10px;border-radius:6px;border:1px solid #EEDBB2}
 .saldos-badge-ok{display:inline-flex;align-items:center;gap:4px;background:#EEF6F2;color:#2D7A58;font-weight:700;font-size:11.5px;padding:4px 10px;border-radius:6px;border:1px solid #C2E2D2}
 
+.actor-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.actor-pill.in{background:#FDF4E7;color:#946200;border:1px solid #F0D4A8}
+.actor-pill.out{background:#EEF6F2;color:#236B48;border:1px solid #BFE0D0}
+
 /* Cell Wrapping and Column Sizing for Cartas Table (13 Columns + Acciones) */
 .cell-wrap{word-break:break-word;overflow-wrap:anywhere}
 #view-cartas table.data-table th:nth-child(1), #view-cartas table.data-table td:nth-child(1){width:45px;min-width:45px;text-align:center}
