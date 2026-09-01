@@ -370,38 +370,18 @@
           <span class="today-card-tag">Urgente</span>
         </div>
         <div class="today-card-val" id="todayVencidasCount">0</div>
-        <div class="today-card-label">Cartas Vencidas</div>
+        <div class="today-card-label">Cartas Vencidas (Fuera de Plazo)</div>
         <div class="today-card-action"><span>Ver y Atender</span> <i class="ri-arrow-right-line"></i></div>
       </div>
 
-      <div class="today-card warning" id="cardTodayWarning" onclick="filterTodayTasks('por_vencer')" title="Clic para ver cartas por vencer">
+      <div class="today-card warning" id="cardTodayWarning" onclick="filterTodayTasks('por_vencer')" title="Clic para ver cartas a punto de vencer">
         <div class="today-card-top">
           <div class="today-card-icon"><i class="ri-time-line"></i></div>
           <span class="today-card-tag">Atención</span>
         </div>
         <div class="today-card-val" id="todayPorVencerCount">0</div>
-        <div class="today-card-label">Por Vencer (&le; 5 días)</div>
+        <div class="today-card-label">A Punto de Vencer (&le; 5 días)</div>
         <div class="today-card-action"><span>Revisar Plazos</span> <i class="ri-arrow-right-line"></i></div>
-      </div>
-
-      <div class="today-card info" id="cardTodayPending" onclick="showView('pendientes')" title="Clic para ver pendientes de respuesta">
-        <div class="today-card-top">
-          <div class="today-card-icon"><i class="ri-exchange-funds-line"></i></div>
-          <span class="today-card-tag">Seguimiento</span>
-        </div>
-        <div class="today-card-val" id="todayPendientesCount">0</div>
-        <div class="today-card-label">Pendientes de Respuesta</div>
-        <div class="today-card-action"><span>Ver Expedientes</span> <i class="ri-arrow-right-line"></i></div>
-      </div>
-
-      <div class="today-card success" id="cardTodayClosed" onclick="filterTodayTasks('cerradas')" title="Clic para ver cartas cerradas">
-        <div class="today-card-top">
-          <div class="today-card-icon"><i class="ri-checkbox-circle-line"></i></div>
-          <span class="today-card-tag">Al día</span>
-        </div>
-        <div class="today-card-val" id="todayCerradasCount">0</div>
-        <div class="today-card-label">Trámites Resueltos</div>
-        <div class="today-card-action"><span>Ver Historial</span> <i class="ri-arrow-right-line"></i></div>
       </div>
     </div>
   </div>

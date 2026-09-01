@@ -142,10 +142,9 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 .btn-today-new-carta{font-family:var(--font-body);font-size:13px;font-weight:700;color:#FFFFFF;background:linear-gradient(135deg,var(--accent),#D4694E);border:none;border-radius:8px;padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(196,91,62,0.3);transition:all .18s ease}
 .btn-today-new-carta:hover{background:linear-gradient(135deg,#B34F34,#C05B40);transform:translateY(-1px);box-shadow:0 5px 14px rgba(196,91,62,0.4)}
 .btn-today-new-carta:active{transform:scale(0.97)}
-.today-tasks-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media(max-width:960px){.today-tasks-cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.today-tasks-cards{grid-template-columns:1fr}}
-.today-card{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .2s ease;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.today-tasks-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:700px){.today-tasks-cards{grid-template-columns:1fr}}
+.today-card{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:18px 22px;cursor:pointer;transition:all .2s ease;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .today-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:#C5BFB5}
 .today-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .today-card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
