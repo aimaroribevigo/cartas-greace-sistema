@@ -13,14 +13,21 @@ def _fold(s: str) -> str:
 
 
 ESTADO_ALIASES = {
+    "ABIERTO": "ABIERTO",
+    "EN TRAMITE": "ABIERTO",
+    "EN TRÁMITE": "ABIERTO",
     "CERRADO": "CERRADO",
     "CERRADA": "CERRADO",
     "ABSUELTO SUPERVISION": "ABSUELTO SUPERVISION",
     "ABSUELTO SUPERVISIÓN": "ABSUELTO SUPERVISION",
+    "ABSUELTA POR SUPERVISOR": "ABSUELTA POR SUPERVISOR",
     "ABSUELTO ENTIDAD": "ABSUELTO ENTIDAD",
+    "ABSUELTA POR ENTIDAD": "ABSUELTA POR ENTIDAD",
     "PARA RESPUESTA": "PARA RESPUESTA",
     "PARA RESPUESTAA": "PARA RESPUESTA",
     "EN PROCESO": "EN PROCESO",
+    "EN REVISION": "EN REVISION",
+    "EN REVISIÓN": "EN REVISION",
     "C. OBSERVADA": "C. OBSERVADA",
     "C, OBSERVADA": "C. OBSERVADA",
     "C. OBERVADA": "C. OBSERVADA",
@@ -36,6 +43,10 @@ ESTADO_ALIASES = {
     "PENDIENTE SUPERVISOR": "PENDIENTE SUPERVISION",
     "PENDIENTE SUP./INSP.": "PENDIENTE SUPERVISION",
     "PENDIENTE CGGC": "PENDIENTE CGGC",
+    "PENDIENTE RO": "PENDIENTE RO",
+    "PENDIENTE JRD": "PENDIENTE JRD",
+    "SUBSANADO": "SUBSANADO",
+    "REITERADO": "REITERADO",
     "C. ANULADA": "ANULADA",
     "ANULADA": "ANULADA",
     "SIN RESPUESTA": "SIN RESPUESTA",
@@ -204,16 +215,40 @@ def suggest_especialista(especialidad_norm: str | None) -> str | None:
     return ESP_TO_ESPECIALISTA.get(key)
 
 
+CLOSED_STATES = {
+    "CERRADO",
+    "CERRADA",
+    "ABSUELTO SUPERVISION",
+    "ABSUELTO SUPERVISIÓN",
+    "ABSUELTA POR SUPERVISOR",
+    "ABSUELTO ENTIDAD",
+    "ABSUELTA POR ENTIDAD",
+    "SUBSANADO",
+    "PARA CONOCIMIENTO",
+    "ANULADA",
+    "C. ANULADA",
+}
+
 OPEN_STATES = {
+    "ABIERTO",
+    "EN TRAMITE",
+    "EN TRÁMITE",
     "PARA RESPUESTA",
     "EN PROCESO",
+    "EN REVISION",
+    "EN REVISIÓN",
     "C. OBSERVADA",
+    "OBSERVADO",
+    "OBSERVADA",
     "PENDIENTE ENTIDAD",
     "PENDIENTE MUNICIPALIDAD",
     "PENDIENTE SUPERVISION",
     "PENDIENTE CGGC",
+    "PENDIENTE RO",
+    "PENDIENTE JRD",
     "SIN RESPUESTA",
     "REINGRESO",
+    "REITERADO",
 }
 
 
@@ -229,6 +264,31 @@ def normalize_estado(raw) -> str:
         if key in s:
             return val
     return s[:100]
+
+
+def infer_estado_from_row(raw_estado, asunto: str = "", n_documento: str = "", bandeja: str = "") -> str:
+    if raw_estado is not None and str(raw_estado).strip() and str(raw_estado).strip() != "-":
+        norm = normalize_estado(raw_estado)
+        if norm and norm != "SIN ESTADO":
+            return norm
+            
+    asunto_upper = _fold(str(asunto or ""))
+    doc_upper = _fold(str(n_documento or ""))
+    bandeja_lower = str(bandeja or "").lower()
+    
+    if any(k in asunto_upper for k in ["NO HA SIDO EMITIDA", "NO SE EMITIO", "ANULADA"]):
+        return "ANULADA"
+        
+    if any(k in asunto_upper for k in ["CONOCIMIENTO", "INVITA A REUNION", "REUNION", "DONACION", "CONTRATO DE SUMINISTRO"]):
+        return "PARA CONOCIMIENTO"
+        
+    if any(k in asunto_upper or k in doc_upper for k in ["AUTORIZACI", "PERMISO", "CERTIFICADO", "LICENCIA", "CONFORMIDAD", "RESPUESTA"]):
+        return "CERRADO"
+        
+    if bandeja_lower in ("recibida_mpsc", "recibida_otros"):
+        return "PARA CONOCIMIENTO"
+        
+    return "ABIERTO"
 
 
 def _normalize_esp_token(key: str) -> str:
@@ -380,4 +440,11 @@ def refresh_normalized_fields(conn) -> dict:
 
 
 def is_estado_abierto(estado_norm: str) -> bool:
-    return (estado_norm or "").upper() in OPEN_STATES
+    if not estado_norm:
+        return False
+    s = _fold(str(estado_norm))
+    if not s or s == "SIN ESTADO":
+        return False
+    if s in CLOSED_STATES:
+        return False
+    return True

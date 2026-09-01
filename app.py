@@ -391,6 +391,7 @@ def init_db(conn=None):
                     caducidad VARCHAR(20) NULL,
                     fecha_respuesta DATE NULL,
                     carta_respuesta VARCHAR(255) NULL,
+                    link_drive TEXT NULL,
                     hilo_id INT NULL,
                     creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -411,6 +412,12 @@ def init_db(conn=None):
                 cur.execute(
                     "ALTER TABLE cartas ADD COLUMN hilo_id INT NULL, "
                     "ADD KEY idx_cartas_hilo (hilo_id)"
+                )
+            cur.execute("SHOW COLUMNS FROM cartas LIKE 'link_drive'")
+            if not cur.fetchone():
+                cur.execute(
+                    "ALTER TABLE cartas ADD COLUMN link_drive TEXT NULL "
+                    "AFTER carta_respuesta"
                 )
             cur.execute("SHOW COLUMNS FROM cartas LIKE 'tipo_documento'")
             if not cur.fetchone():
@@ -1368,6 +1375,7 @@ def api_cartas_add():
     full = row_to_dict(r)
     close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
     hilos_info = _rebuild_hilos(db)
+    invalidate_cartas_cache()
     out = row_to_dict(r)
     out["_cierre_referencias"] = close_info
     out["_hilo_vinculo"] = hilo_link
@@ -1422,7 +1430,6 @@ def api_cartas_edit(cid):
     except pymysql.err.DataError:
         return jsonify({"error": "Uno de los campos supera la capacidad de almacenamiento permitida"}), 400
 
-    invalidate_cartas_cache()
     full = row_to_dict(r2)
     hilo_link = assign_carta_hilo(db, cid, full)
     with db.cursor() as cur:
@@ -1431,6 +1438,7 @@ def api_cartas_edit(cid):
     full = row_to_dict(r2)
     close_info = try_close_referenced_cartas(db, full, cerrar=bool(cerrar_refs))
     hilos_info = _rebuild_hilos(db)
+    invalidate_cartas_cache()
     out = row_to_dict(r2)
     out["_cierre_referencias"] = close_info
     out["_hilo_vinculo"] = hilo_link

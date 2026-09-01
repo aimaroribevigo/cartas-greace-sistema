@@ -8,7 +8,7 @@ from pathlib import Path
 
 import openpyxl
 
-from normalizers import normalize_especialidad, normalize_estado
+from normalizers import infer_estado_from_row, normalize_especialidad, normalize_estado
 
 DEFAULT_EXCEL = Path(__file__).resolve().parent / "Control_de_Cartas_2025_HLP_Mejorado.xlsx"
 BATCH_SIZE = 500
@@ -86,26 +86,32 @@ INSERT_SQL = """
 """
 
 
-def infer_tipo_documento(doc_str: str | None) -> str:
-    if not doc_str:
+def infer_tipo_documento(doc_str: str | None, asunto: str | None = None) -> str:
+    blob = f"{doc_str or ''} {asunto or ''}".upper()
+    if not blob.strip():
         return "CARTA"
-    d = str(doc_str).upper()
-    if "INFORME" in d:
-        return "INFORME"
-    if "OFICIO" in d:
-        return "OFICIO"
-    if "ASIENTO" in d or "CUADERNO" in d:
-        return "ASIENTO DE CUADERNO"
-    if "MEMO" in d:
-        return "MEMORANDO"
-    if "NOTARIAL" in d:
-        return "CARTA NOTARIAL"
-    if "FICHA" in d:
+    if "FICHA" in blob or ("MATERIAL" in blob and any(k in blob for k in ("APROBAC", "PRESENTAC", "MUESTRA"))):
         return "FICHA TÉCNICA"
-    if "PLANO" in d:
-        return "PLANOS"
-    if "CONSULTA" in d:
+    if "CONSULTA" in blob or "RFI" in blob or "INCOMPATIBILIDAD" in blob or "ACLARAC" in blob:
         return "CONSULTA"
+    if "VALORIZAC" in blob:
+        return "VALORIZACIÓN"
+    if "PLANO" in blob:
+        return "PLANOS"
+    if "INFORME" in blob:
+        return "INFORME"
+    if "OFICIO" in blob:
+        return "OFICIO"
+    if "ASIENTO" in blob or "CUADERNO" in blob:
+        return "ASIENTO DE CUADERNO"
+    if "MEMO" in blob:
+        return "MEMORANDO"
+    if "NOTARIAL" in blob:
+        return "CARTA NOTARIAL"
+    if "ACTA" in blob:
+        return "ACTA"
+    if "SOLICITUD" in blob or ("AMPLIAC" in blob and "PLAZO" in blob):
+        return "SOLICITUD"
     return "CARTA"
 
 
@@ -400,21 +406,24 @@ def parse_cells_by_layout(layout: str, cells: tuple) -> dict | None:
     else:
         return None
 
-    base["estado_norm"] = normalize_estado(base["estado"])
+    base["estado_norm"] = infer_estado_from_row(base["estado"], base.get("asunto"), base.get("n_documento"), layout)
+    if not base.get("estado") or base["estado"] == "SIN ESTADO":
+        base["estado"] = base["estado_norm"]
     base["especialidad_norm"] = normalize_especialidad(base["especialidad"])
     return base
 
 
 def _row_tuple(ban: str, sentido: str, row: dict) -> tuple:
     doc = row.get("n_documento") or "S/N"
+    asunto = row.get("asunto")
     return (
         ban,
         sentido,
         row.get("n_orden"),
         row.get("fecha"),
         doc,
-        infer_tipo_documento(doc),
-        row.get("asunto"),
+        infer_tipo_documento(doc, asunto),
+        asunto,
         row.get("especialidad"),
         row.get("especialidad_norm"),
         row.get("estado"),

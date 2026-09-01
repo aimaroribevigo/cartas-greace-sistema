@@ -715,7 +715,21 @@ def rebuild_hilos_fast(conn) -> dict:
         cur.execute("ALTER TABLE hilos AUTO_INCREMENT = 1")
         summarized = []
         used_claves = set()
+        auto_closed_cids = []
         for root_id, items in groups_map.items():
+            if len(items) > 1:
+                # Ordenar cronológicamente para identificar la última carta vs intermedias
+                items.sort(key=lambda x: (x.get("fecha") is None, x.get("fecha") or date.min, x.get("id") or 0))
+                # Solo cerrar intermedias si la última carta del hilo tiene estado definitivo
+                last_est = normalize_estado(items[-1].get("estado_norm") or items[-1].get("estado"))
+                hilo_concluded = not is_estado_abierto(last_est)
+                if hilo_concluded:
+                    for c in items[:-1]:
+                        if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
+                            c["estado"] = "CERRADO"
+                            c["estado_norm"] = "CERRADO"
+                            auto_closed_cids.append(c["id"])
+
             g = _summarize_group(items, stable=True)
             base_clave = g["clave"][:200]
             clave = base_clave
@@ -770,6 +784,15 @@ def rebuild_hilos_fast(conn) -> dict:
             cases = " ".join(f"WHEN {cid} THEN {hid}" for hid, cid in chunk)
             cur.execute(f"UPDATE cartas SET hilo_id = CASE id {cases} END WHERE id IN ({','.join(cids)})")
 
+        if auto_closed_cids:
+            for i in range(0, len(auto_closed_cids), 500):
+                batch = auto_closed_cids[i:i+500]
+                placeholders = ", ".join(["%s"] * len(batch))
+                cur.execute(
+                    f"UPDATE cartas SET estado='CERRADO', estado_norm='CERRADO', actualizado_en=NOW() WHERE id IN ({placeholders})",
+                    batch,
+                )
+
         cur.execute("SET FOREIGN_KEY_CHECKS=1")
     conn.commit()
 
@@ -780,8 +803,55 @@ def rebuild_hilos_fast(conn) -> dict:
         "hilos": len(summarized),
         "abiertos": abiertos,
         "cerrados": cerrados,
+        "auto_closed_intermediate": len(auto_closed_cids),
         "mode": "fast_union_find",
     }
+
+
+def auto_close_intermediate_hilo_cartas(conn) -> dict:
+    """Cierra cartas intermedias de un hilo que hayan sido sucedidas por cartas posteriores."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, n_documento, fecha, estado, estado_norm, hilo_id 
+            FROM cartas 
+            WHERE hilo_id IS NOT NULL 
+            ORDER BY hilo_id ASC, fecha IS NULL, fecha ASC, id ASC
+            """
+        )
+        rows = cur.fetchall()
+
+    from collections import defaultdict
+    threads = defaultdict(list)
+    for r in rows:
+        threads[r["hilo_id"]].append(r)
+
+    cids_to_close = []
+    for hid, items in threads.items():
+        if len(items) <= 1:
+            continue
+        # Solo cerrar intermedias si la última carta tiene estado definitivo
+        last_est = normalize_estado(items[-1].get("estado_norm") or items[-1].get("estado"))
+        if is_estado_abierto(last_est):
+            continue  # Hilo aún activo, no cerrar intermedias
+        for c in items[:-1]:
+            if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
+                cids_to_close.append(c["id"])
+
+    updated = 0
+    if cids_to_close:
+        with conn.cursor() as cur:
+            for i in range(0, len(cids_to_close), 500):
+                batch = cids_to_close[i:i+500]
+                placeholders = ", ".join(["%s"] * len(batch))
+                cur.execute(
+                    f"UPDATE cartas SET estado='CERRADO', estado_norm='CERRADO', actualizado_en=NOW() WHERE id IN ({placeholders})",
+                    batch,
+                )
+                updated += cur.rowcount
+        conn.commit()
+
+    return {"ok": True, "closed_intermediate": updated}
 
 
 def persist_hilos(conn, cartas: list[dict]) -> dict:
@@ -1176,8 +1246,12 @@ def _close_hilo_on_cierre(conn, nueva: dict, cited: set[str]) -> dict:
     }
 
 
-def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
+def try_close_referenced_cartas(conn, nueva: dict | str, cerrar: bool = True) -> dict:
     """Cierra antecedentes citados; si es cierre de trámite, cierra todo el hilo vinculado."""
+    if isinstance(nueva, str):
+        nueva = {"referencia": nueva, "estado": "CERRADO", "estado_norm": "CERRADO"}
+    elif not isinstance(nueva, dict):
+        return {"ok": True, "closed": 0}
     has_ref = bool(nueva.get("referencia") or nueva.get("referencias"))
     if not cerrar and not has_ref:
         return {"ok": True, "closed": 0}
@@ -1241,5 +1315,8 @@ def try_close_referenced_cartas(conn, nueva: dict, cerrar: bool = True) -> dict:
         if cited_result.get("closed", 0) > 0:
             return cited_result
         return hilo_result if hilo_result.get("hilo_cartas", 0) >= 2 else cited_result
+
+    if not cerrar and not is_cierre:
+        return {"ok": True, "closed": 0, "reason": "cerrar_desactivado"}
 
     return _close_cited_open_cartas(conn, cited, skip_id=nueva.get("id"))

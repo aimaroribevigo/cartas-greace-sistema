@@ -1590,25 +1590,25 @@ body.app-locked .app-layout{visibility:hidden}
           
           <!-- 1. Tipo de Documento -->
           <div class="form-group">
-            <label>Tipo de Documento <span class="req">*</span></label>
+            <label><i class="ri-file-list-3-line" style="color:var(--accent);margin-right:5px"></i>Tipo de Documento <span class="req">*</span></label>
             <input type="text" id="f_tipo_documento" list="tipoDocList" required maxlength="80" placeholder="Ej: CARTA, INFORME, OFICIO…" autocomplete="off" style="font-weight:600" value="CARTA">
           </div>
 
           <!-- 2. Número de Carta / Documento -->
           <div class="form-group">
-            <label>Número de Carta / Documento <span class="req">*</span></label>
+            <label><i class="ri-hashtag" style="color:var(--accent);margin-right:5px"></i>Número de Carta / Documento <span class="req">*</span></label>
             <input type="text" id="f_n_documento" required maxlength="250" placeholder="Ej: CARTA N° 304-2026-CGGC-HLP-RO" autocomplete="off" style="font-weight:600">
           </div>
 
           <!-- 3. Fecha de Emisión / Recepción -->
           <div class="form-group">
-            <label>Fecha de Emisión / Recepción <span class="req">*</span></label>
+            <label><i class="ri-calendar-event-line" style="color:var(--accent);margin-right:5px"></i>Fecha de Emisión / Recepción <span class="req">*</span></label>
             <input type="date" id="f_fecha" required min="1990-01-01" max="2099-12-31">
           </div>
 
           <!-- 4. ¿Quién Envía? (Emisor) -->
           <div class="form-group">
-            <label>¿Quién Envía? (Emisor) <span class="req">*</span></label>
+            <label><i class="ri-user-shared-line" style="color:var(--accent);margin-right:5px"></i>¿Quién Envía? (Emisor) <span class="req">*</span></label>
             <select id="f_emisor" required style="font-weight:600">
               <option value="RO">Residente (RO)</option>
               <option value="RL">Representante Legal (RL)</option>
@@ -1621,7 +1621,7 @@ body.app-locked .app-layout{visibility:hidden}
 
           <!-- 5. ¿Quién Recibe? (Destinatario) -->
           <div class="form-group">
-            <label>¿Quién Recibe? (Destinatario) <span class="req">*</span></label>
+            <label><i class="ri-user-received-line" style="color:var(--accent);margin-right:5px"></i>¿Quién Recibe? (Destinatario) <span class="req">*</span></label>
             <select id="f_destinatario" required style="font-weight:600">
               <!-- Se puebla dinámicamente según emisor -->
             </select>
@@ -1629,7 +1629,7 @@ body.app-locked .app-layout{visibility:hidden}
 
           <!-- 6. Estado del Trámite / Carta -->
           <div class="form-group">
-            <label>Estado del Trámite / Carta <span class="req">*</span></label>
+            <label><i class="ri-flag-line" style="color:var(--accent);margin-right:5px"></i>Estado del Trámite / Carta <span class="req">*</span></label>
             <select id="f_estado" required style="font-weight:700">
               <option value="ABIERTO">⚡ EN TRÁMITE / ABIERTO</option>
               <option value="CERRADO">🔒 CERRADO / ATENDIDO</option>
@@ -1652,7 +1652,7 @@ body.app-locked .app-layout{visibility:hidden}
 
           <!-- 7. Plazo / Fecha de Atraso (días) -->
           <div class="form-group">
-            <label>Plazo / Fecha de Atraso (días) <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(cálculo de días para responder)</span></label>
+            <label><i class="ri-timer-line" style="color:var(--accent);margin-right:5px"></i>Plazo / Fecha de Atraso (días) <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(cálculo de días para responder)</span></label>
             <div style="display:flex;align-items:center;gap:8px">
               <input type="number" id="f_plazo_dias" min="0" max="180" placeholder="5" style="width:90px;font-weight:700">
               <span style="font-size:11.5px;color:var(--text-muted)" id="plazoHint">Días para responder</span>
@@ -1662,7 +1662,7 @@ body.app-locked .app-layout{visibility:hidden}
           <!-- 7. Especialidad(es) (Selección Múltiple) -->
           <div class="form-group full-width" style="grid-column:1/-1">
             <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-              <span>Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(en blanco si viene del Supervisor; clic para seleccionar una o varias)</span></span>
+              <span><i class="ri-tools-line" style="color:var(--accent);margin-right:5px"></i>Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(en blanco si viene del Supervisor; clic para seleccionar una o varias)</span></span>
               <span id="f_esp_count_badge" style="font-size:11.5px;font-weight:700;color:var(--accent)">0 seleccionadas</span>
             </label>
             <input type="hidden" id="f_especialidad">
@@ -1673,19 +1673,19 @@ body.app-locked .app-layout{visibility:hidden}
 
           <!-- 8. Asunto -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>Asunto <span class="req">*</span></label>
+            <label><i class="ri-chat-quote-line" style="color:var(--accent);margin-right:5px"></i>Asunto <span class="req">*</span></label>
             <textarea id="f_asunto" rows="2" required maxlength="5000" placeholder="Describe el objeto o tema principal de la carta…" style="resize:vertical;min-height:56px"></textarea>
           </div>
 
           <!-- 9. Observación (Texto libre) -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
+            <label><i class="ri-file-text-line" style="color:var(--accent);margin-right:5px"></i>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
             <textarea id="f_observacion" rows="2" maxlength="3000" placeholder="Ej: Notas o informe N° 34-2026 del Especialista de Estructuras adjunto…" style="resize:vertical;min-height:50px"></textarea>
           </div>
 
           <!-- 9. Carta Padre (Buscador interactivo del sistema) -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>Carta Padre <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(dejar en blanco si es la primera carta; si es respuesta o réplica, busca y selecciona la carta inicial)</span></label>
+            <label><i class="ri-git-branch-line" style="color:var(--accent);margin-right:5px"></i>Carta Padre <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(dejar en blanco si es la primera carta; si es respuesta o réplica, busca y selecciona la carta inicial)</span></label>
             
             <div class="carta-padre-widget">
               <!-- Vista cuando hay Carta Padre seleccionada -->
@@ -1723,7 +1723,7 @@ body.app-locked .app-layout{visibility:hidden}
                 <span>Referencias / Documentos Citados y Enlaces <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(agrega contratos, asientos o enlaces de Drive/OneDrive)</span></span>
               </label>
               <button type="button" class="btn-docx-outline" onclick="addRefListItem()" style="padding:3px 10px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:4px">
-                <i class="ri-add-line"></i> + Agregar Referencia o Link
+                <i class="ri-add-line"></i> Agregar Referencia o Link
               </button>
             </div>
             
@@ -1736,7 +1736,7 @@ body.app-locked .app-layout{visibility:hidden}
 
           <!-- 11. Categoría Carta (Requiere Respuesta vs Informativa) -->
           <div class="form-group" style="justify-content:center;grid-column:1/-1">
-            <label style="margin-bottom:6px">Categoría de la Carta</label>
+            <label style="margin-bottom:6px"><i class="ri-shield-check-line" style="color:var(--accent);margin-right:5px"></i>Categoría de la Carta</label>
             
             <!-- Vista interactiva cuando está activa y editable -->
             <label id="reqCheckInteractiveWrap" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-primary);background:#FAF9F6;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
@@ -1790,27 +1790,27 @@ body.app-locked .app-layout{visibility:hidden}
 
         <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           
-          <!-- 1. Tipo de Documento -->
+          <!-- Tipo de Documento -->
           <div class="form-group">
-            <label>Tipo de Documento <span class="req">*</span></label>
+            <label><i class="ri-file-list-3-line" style="color:var(--accent);margin-right:5px"></i>Tipo de Documento <span class="req">*</span></label>
             <input type="text" id="rf_tipo_documento" list="tipoDocList" required maxlength="80" placeholder="Ej: CARTA, INFORME, OFICIO…" autocomplete="off" style="font-weight:600" value="CARTA">
           </div>
 
-          <!-- 2. N° de Documento que llegó -->
+          <!-- N° de Documento que llegó -->
           <div class="form-group">
-            <label>N° de Documento que llegó <span class="req">*</span></label>
+            <label><i class="ri-hashtag" style="color:var(--accent);margin-right:5px"></i>N° de Documento que llegó <span class="req">*</span></label>
             <input type="text" id="rf_n_documento" required maxlength="250" placeholder="Ej: CARTA Nº 089-2026-SUPERVISIÓN o OFICIO Nº 012-PRONIS" autocomplete="off" style="font-weight:600">
           </div>
 
-          <!-- 3. Fecha de Recepción -->
+          <!-- Fecha de Recepción -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>Fecha de Recepción <span class="req">*</span></label>
+            <label><i class="ri-calendar-event-line" style="color:var(--accent);margin-right:5px"></i>Fecha de Recepción <span class="req">*</span></label>
             <input type="date" id="rf_fecha" required min="1990-01-01" max="2099-12-31">
           </div>
 
-          <!-- 3. Flujo -->
+          <!-- Flujo -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>3. Flujo <span class="req">*</span></label>
+            <label><i class="ri-arrow-left-right-line" style="color:var(--accent);margin-right:5px"></i>Flujo <span class="req">*</span></label>
             <select id="rf_flujo" required style="font-weight:600">
               <option value="SUP_TO_RO">Supervisión a RO</option>
               <option value="PRONIS_TO_RL">Pronis a RL</option>
@@ -1823,16 +1823,10 @@ body.app-locked .app-layout{visibility:hidden}
             </select>
           </div>
 
-          <!-- 4. Asunto / Texto corto -->
-          <div class="form-group full-width" style="grid-column:1/-1">
-            <label>4. Asunto / Texto corto <span class="req">*</span></label>
-            <textarea id="rf_asunto" rows="2" required maxlength="5000" placeholder="Escribe lo que dice el papel (ej: 'Se acepta el clavito' o 'Procedente el acero')…" style="resize:vertical;min-height:56px"></textarea>
-          </div>
-
-          <!-- 5. Especialidad(es) (Selección Múltiple) -->
+          <!-- Especialidad(es) (Selección Múltiple) -->
           <div class="form-group full-width" style="grid-column:1/-1">
             <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-              <span>5. Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(haz clic para seleccionar una o varias)</span></span>
+              <span><i class="ri-tools-line" style="color:var(--accent);margin-right:5px"></i>Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(haz clic para seleccionar una o varias)</span></span>
               <span id="rf_esp_count_badge" style="font-size:11.5px;font-weight:700;color:var(--accent)">0 seleccionadas</span>
             </label>
             <input type="hidden" id="rf_especialidad">
@@ -1841,15 +1835,21 @@ body.app-locked .app-layout{visibility:hidden}
             </div>
           </div>
 
-          <!-- 6. Observación (Texto libre) -->
+          <!-- Asunto / Texto corto -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>6. Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
+            <label><i class="ri-chat-quote-line" style="color:var(--accent);margin-right:5px"></i>Asunto / Texto corto <span class="req">*</span></label>
+            <textarea id="rf_asunto" rows="2" required maxlength="5000" placeholder="Escribe lo que dice el papel (ej: 'Se acepta el clavito' o 'Procedente el acero')…" style="resize:vertical;min-height:56px"></textarea>
+          </div>
+
+          <!-- Observación (Texto libre) -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <label><i class="ri-file-text-line" style="color:var(--accent);margin-right:5px"></i>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
             <textarea id="rf_observacion" rows="2" maxlength="3000" placeholder="Ej: Notas o informe N° 34-2026 del especialista, sustento de la respuesta…" style="resize:vertical;min-height:50px"></textarea>
           </div>
 
-          <!-- 7. Carta Padre (El buscador de amarre) -->
+          <!-- Carta Padre (El buscador de amarre) -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label>7. Carta Padre (Buscador de amarre al hilo) <span class="req">*</span></label>
+            <label><i class="ri-git-branch-line" style="color:var(--accent);margin-right:5px"></i>Carta Padre (Buscador de amarre al hilo) <span class="req">*</span></label>
             
             <div class="carta-padre-widget">
               <!-- Tarjeta de Carta Padre seleccionada -->
@@ -1881,9 +1881,28 @@ body.app-locked .app-layout{visibility:hidden}
             </div>
           </div>
 
+          <!-- Referencias / Documentos Citados y Enlaces Digitales -->
+          <div class="form-group full-width" style="grid-column:1/-1">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+              <label style="margin:0;display:flex;align-items:center;gap:6px">
+                <i class="ri-attachment-2" style="color:var(--accent);font-size:15px"></i>
+                <span>Referencias / Documentos Citados y Enlaces <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(agrega contratos, asientos o enlaces de Drive/OneDrive)</span></span>
+              </label>
+              <button type="button" class="btn-docx-outline" onclick="addRefListItem('', 'rf_referenciasListContainer', 'rf_referencias')" style="padding:3px 10px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:4px">
+                <i class="ri-add-line"></i> Agregar Referencia o Link
+              </button>
+            </div>
+            
+            <input type="hidden" id="rf_referencias">
+            
+            <div id="rf_referenciasListContainer" style="display:flex;flex-direction:column;gap:6px;padding:8px;background:#FAFAF8;border:1px solid var(--border);border-radius:8px;min-height:50px">
+              <!-- Filas dinámicas generadas con JS -->
+            </div>
+          </div>
+
           <!-- Efecto en el trámite (Cerrar vs Requerir más respuesta) -->
           <div class="form-group full-width" style="grid-column:1/-1;margin-top:4px">
-            <label style="margin-bottom:6px">8. ¿Qué efecto tiene esta respuesta en el trámite? <span class="req">*</span></label>
+            <label style="margin-bottom:6px"><i class="ri-scales-3-line" style="color:var(--accent);margin-right:5px"></i>¿Qué efecto tiene esta respuesta en el trámite? <span class="req">*</span></label>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <label class="doc-tramite-pill" id="rf_pill_cierre" style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--accent);border-radius:8px;cursor:pointer;background:#FFF9F7;transition:all .15s">
                 <input type="radio" name="rf_tramite_mode" id="rf_mode_cierre" value="cierre" checked style="width:16px;height:16px;margin-top:2px;cursor:pointer">
@@ -3048,48 +3067,97 @@ function getTipoDocumentoDisplay(c){
 function formatCartaReferenciaTableHtml(c){
   const currentDocNorm = normalize_doc_key(c.n_documento);
   const currentDt = parseDate(c.fecha)?.getTime() || 0;
+  const currentNumMatch = String(c.n_documento || '').match(/\d+/);
+  const currentDigits = currentNumMatch ? currentNumMatch[0] : '';
+  
   const ref = String(c.referencia || '').trim();
   const rawRefs = String(c.referencias || '').trim();
   const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(c) : [];
-  const parts = [];
   
-  if(ref && ref !== '—' && normalize_doc_key(ref) !== currentDocNorm) {
-    parts.push({ text: ref, isRef: true });
+  // Helper to detect if a text refers to the current carta itself (e.g. "Carta 176 de CALIDAD" on "CARTA N°176...")
+  const isSelfReference = (txt) => {
+    if(!txt) return true;
+    const n = normalize_doc_key(txt);
+    if(n === currentDocNorm) return true;
+    if(currentDigits && (n === `CARTA ${currentDigits}` || n.startsWith(`CARTA ${currentDigits} `))) {
+      return true;
+    }
+    return false;
+  };
+  
+  const rawParts = [];
+  
+  // 1. Direct parent carta in the thread (if any)
+  const parentCarta = typeof findParentCartaFor === 'function' ? findParentCartaFor(c) : null;
+  if(parentCarta && parentCarta.id !== c.id){
+    rawParts.push({
+      text: parentCarta.n_documento,
+      cartaId: parentCarta.id,
+      isParent: true,
+      isKnown: true
+    });
   }
   
+  // 2. Explicit referencia field
+  if(ref && ref !== '—' && !isSelfReference(ref)){
+    const normRef = normalize_doc_key(ref);
+    const otherCarta = (ALL_CARTAS || []).find(x => x.id !== c.id && normalize_doc_key(x.n_documento) === normRef);
+    if(!rawParts.some(p => normalize_doc_key(p.text) === normRef)){
+      rawParts.push({
+        text: otherCarta ? otherCarta.n_documento : ref,
+        cartaId: otherCarta ? otherCarta.id : null,
+        isKnown: !!otherCarta
+      });
+    }
+  }
+  
+  // 3. Parsed referencias antecedentes / links
   if(rawRefs && rawRefs !== '—'){
     const rawList = rawRefs.includes('\n') ? rawRefs.split('\n') : (typeof parseReferenciasAntecedentes === 'function' ? parseReferenciasAntecedentes(rawRefs) : [rawRefs]);
     rawList.forEach(rawItem => {
       const item = String(rawItem || '').trim();
-      if(!item) return;
+      if(!item || isSelfReference(item)) return;
       
       const isUrl = /^https?:\/\//i.test(item) || /^(drive\.google|docs\.google|onedrive|sharepoint)/i.test(item);
       if(isUrl){
-        parts.push({ text: item, isUrl: true });
+        if(!rawParts.some(p => p.isUrl && p.text === item)){
+          rawParts.push({ text: item, isUrl: true });
+        }
       } else {
         const normP = normalize_doc_key(item);
-        if(normP && normP !== currentDocNorm && !parts.some(existing => !existing.isUrl && normalize_doc_key(existing.text) === normP)){
-          const otherCarta = (ALL_CARTAS || []).find(x => normalize_doc_key(x.n_documento) === normP);
+        if(normP && normP !== currentDocNorm && !rawParts.some(existing => !existing.isUrl && normalize_doc_key(existing.text) === normP)){
+          const otherCarta = (ALL_CARTAS || []).find(x => x.id !== c.id && normalize_doc_key(x.n_documento) === normP);
           if(otherCarta){
             const otherDt = parseDate(otherCarta.fecha)?.getTime() || 0;
-            if(!currentDt || !otherDt || otherDt <= currentDt){
-              parts.push({ text: item });
+            if(!currentDt || !otherDt || otherDt <= currentDt || otherCarta.id < c.id){
+              rawParts.push({
+                text: otherCarta.n_documento,
+                cartaId: otherCarta.id,
+                isKnown: true
+              });
             }
           } else {
-            parts.push({ text: item });
+            rawParts.push({ text: item, isKnown: false });
           }
         }
       }
     });
   }
   
-  if(!parts.length && chain.length <= 1){
+  // Prioritize: (1) Parent & Known Cartas in system, (2) URLs / Links, (3) Other text items
+  rawParts.sort((a, b) => {
+    const scoreA = a.isParent ? 3 : (a.isKnown ? 2 : (a.isUrl ? 1 : 0));
+    const scoreB = b.isParent ? 3 : (b.isKnown ? 2 : (b.isUrl ? 1 : 0));
+    return scoreB - scoreA;
+  });
+  
+  if(!rawParts.length && chain.length <= 1){
     return '<span style="color:var(--text-muted)">—</span>';
   }
   
   let html = '';
-  if(parts.length){
-    const shown = parts.slice(0, 2);
+  if(rawParts.length){
+    const shown = rawParts.slice(0, 2);
     html += shown.map(it => {
       if(it.isUrl){
         let url = it.text;
@@ -3101,15 +3169,16 @@ function formatCartaReferenciaTableHtml(c){
         return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="ref-link-chip" style="background:#EBF3FA;color:#185A9D;border-color:#B8D3EE" title="Abrir enlace: ${escapeHtml(url)}"><i class="${icon}" style="font-size:10px"></i> ${label}</a>`;
       }
       const cleanP = escapeHtml(cleanSpaces(it.text));
-      const isKnown = (ALL_CARTAS || []).some(x => normalize_doc_key(x.n_documento) === normalize_doc_key(it.text));
-      if(isKnown){
-        return `<a href="javascript:void(0)" class="ref-link-chip" onclick="previewRefCartaDoc('${escapeHtml(it.text)}', event)" title="Ver carta citada: ${cleanP}"><i class="ri-git-commit-line" style="font-size:10px"></i> ${cleanP}</a>`;
+      if(it.isKnown || it.cartaId){
+        const cid = it.cartaId || (ALL_CARTAS || []).find(x => normalize_doc_key(x.n_documento) === normalize_doc_key(it.text))?.id;
+        const clickAction = cid ? `previewRefCarta(${cid})` : `previewRefCartaDoc('${escapeHtml(it.text)}', event)`;
+        return `<a href="javascript:void(0)" class="ref-link-chip" onclick="${clickAction}; if(event) { event.stopPropagation(); event.preventDefault(); }" title="Ver carta citada: ${cleanP}"><i class="ri-git-commit-line" style="font-size:10px"></i> ${cleanP}</a>`;
       }
       return `<span class="ref-plain-text" title="${cleanP}"><i class="ri-git-commit-line" style="color:var(--text-muted);font-size:10px"></i> ${cleanP}</span>`;
     }).join(' ');
     
-    if(parts.length > 2){
-      html += ` <span style="font-size:10px;color:var(--text-muted);font-weight:600">+${parts.length - 2}</span>`;
+    if(rawParts.length > 2){
+      html += ` <span style="font-size:10px;color:var(--text-muted);font-weight:600" title="${rawParts.length - 2} referencias más">+${rawParts.length - 2}</span>`;
     }
   }
   
@@ -3148,10 +3217,9 @@ function filterByHiloCustom(cartaId, event){
   if(!chain.length) return;
 
   activeHiloFilter = {
+    carta_id: c.id,
     hilo_id: c.hilo_id || null,
-    carta_ids: new Set(chain.map(x => x.id)),
-    title: c.n_documento || (`Trámite #${c.hilo_id || c.id}`),
-    count: chain.length
+    title: c.n_documento || (`Trámite #${c.hilo_id || c.id}`)
   };
 
   const tableQ = document.getElementById('cartasTableQ');
@@ -3160,7 +3228,7 @@ function filterByHiloCustom(cartaId, event){
   if(fQ) fQ.value = '';
 
   applyFilters();
-  showToast(`Mostrando los ${chain.length} registros del trámite`, 'info');
+  showToast(`Mostrando los ${filtered.length} registros del trámite`, 'info');
 }
 
 function clearActiveHiloFilter(e){
@@ -3250,11 +3318,6 @@ function initFilters(){
   while(selEsp.options.length>1)selEsp.remove(1);
   [...espSet].sort().forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;selEsp.appendChild(o);});
   if(prevEsp!=='all'&&[...selEsp.options].some(o=>o.value===prevEsp))selEsp.value=prevEsp;
-  const fEst=document.getElementById('f_estado');
-  if(fEst){
-    fEst.innerHTML='<option value="">—</option>';
-    ESTADO_OPTS.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;fEst.appendChild(o);});
-  }
 }
 
 const ESP_TO_AREA={
@@ -3641,8 +3704,28 @@ function applyFilters(){
   const contraparte=document.getElementById('filterContraparte')?.value||'all';
   const naturaleza=document.getElementById('filterNaturaleza')?.value||'all';
 
-  if(activeHiloFilter && activeHiloFilter.carta_ids){
-    filtered = ALL_CARTAS.filter(c => activeHiloFilter.carta_ids.has(c.id));
+  if(activeHiloFilter){
+    let hiloCartas = [];
+    if(activeHiloFilter.hilo_id){
+      hiloCartas = ALL_CARTAS.filter(c => c.hilo_id === activeHiloFilter.hilo_id);
+    }
+    if(!hiloCartas.length && activeHiloFilter.carta_id){
+      const refCarta = ALL_CARTAS.find(c => c.id === activeHiloFilter.carta_id);
+      if(refCarta){
+        hiloCartas = getHiloChainCartas(refCarta);
+      }
+    }
+    if(!hiloCartas.length && activeHiloFilter.carta_ids){
+      hiloCartas = ALL_CARTAS.filter(c => activeHiloFilter.carta_ids.has(c.id));
+    }
+    
+    if(hiloCartas.length && !activeHiloFilter.hilo_id){
+      const foundHid = hiloCartas.find(x => x.hilo_id)?.hilo_id;
+      if(foundHid) activeHiloFilter.hilo_id = foundHid;
+    }
+
+    const ids = new Set(hiloCartas.map(x => x.id));
+    filtered = ALL_CARTAS.filter(c => ids.has(c.id));
     filtered.sort((a, b) => {
       const fa = String(a.fecha || '');
       const fb = String(b.fecha || '');
@@ -5193,6 +5276,17 @@ function setupCartaPadreSearch(){
     }
     updatePlazoFromActors();
   });
+  const asuntoInput = document.getElementById('f_asunto');
+  asuntoInput?.addEventListener('input', () => {
+    if(editingId == null && estadoSel){
+      const val = (asuntoInput.value || '').toUpperCase();
+      if(/\b(PARA\s+CONOCIMIENTO|SOLO\s+INFORMATIVO|PARA\s+FINES\s+DE\s+ARCHIVO)\b/i.test(val)){
+        estadoSel.value = 'PARA CONOCIMIENTO';
+        if(reqCheck) reqCheck.checked = false;
+        updatePlazoFromActors();
+      }
+    }
+  });
 
   if(searchInput && suggestBox){
     searchInput.addEventListener('input', () => {
@@ -5597,6 +5691,7 @@ function openResponderModal(parentCartaId){
   }
   setupResponderCartaPadreSearch();
   document.getElementById('responderForm').reset();
+  populateRefList('', 'rf_referenciasListContainer', 'rf_referencias');
   
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('rf_fecha').value = today;
@@ -5798,6 +5893,7 @@ async function handleSaveResponder(){
   const esp = document.getElementById('rf_especialidad')?.value?.trim() || '';
   const asunto = document.getElementById('rf_asunto')?.value?.trim() || '';
   const observacion = document.getElementById('rf_observacion')?.value?.trim() || '';
+  const refs = document.getElementById('rf_referencias')?.value?.trim() || '';
   const padreDoc = document.getElementById('rf_padre_doc')?.value?.trim() || '';
   const hiloId = document.getElementById('rf_hilo_id')?.value?.trim() || '';
   const modeVal = document.querySelector('input[name="rf_tramite_mode"]:checked')?.value || 'cierre';
@@ -5864,6 +5960,7 @@ async function handleSaveResponder(){
     asunto: asunto,
     observacion: observacion,
     referencia: padreDoc,
+    referencias: refs || null,
     area: area,
     estado: estado,
     cerrar_referenciadas: true
@@ -5903,6 +6000,7 @@ async function handleDownloadDocxFromResponder(){
   const esp = document.getElementById('rf_especialidad')?.value?.trim() || '';
   const asunto = document.getElementById('rf_asunto')?.value?.trim() || '';
   const observacion = document.getElementById('rf_observacion')?.value?.trim() || '';
+  const refs = document.getElementById('rf_referencias')?.value?.trim() || '';
   const padreDoc = document.getElementById('rf_padre_doc')?.value?.trim() || '';
   const padreId = document.getElementById('rf_padre_id')?.value?.trim() || '';
 
@@ -5925,6 +6023,7 @@ async function handleDownloadDocxFromResponder(){
     asunto: asunto,
     observacion: observacion,
     referencia: padreDoc || null,
+    referencias: refs || null,
     padre_id: padreId ? parseInt(padreId, 10) : null
   };
 
@@ -6049,21 +6148,36 @@ function findParentCartaFor(d){
   if(!d) return null;
   const currentDocNorm = normalize_doc_key(d.n_documento);
   const currentDt = parseDate(d.fecha)?.getTime() || 0;
+  const currentId = d.id || 0;
   
-  // 1. Direct explicit referencia (must be strictly earlier or same day)
+  const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(d) : [];
+  const currentIdx = currentId ? chain.findIndex(x => x.id === currentId) : -1;
+  
+  const isStrictlyEarlier = (candidate) => {
+    if(!candidate || candidate.id === currentId) return false;
+    const cDt = parseDate(candidate.fecha)?.getTime() || 0;
+    if(currentDt && cDt && cDt < currentDt) return true;
+    if(currentDt && cDt && cDt === currentDt) {
+      if(currentIdx !== -1) {
+        const cIdx = chain.findIndex(x => x.id === candidate.id);
+        return cIdx !== -1 && cIdx < currentIdx;
+      }
+      return (candidate.id || 0) < currentId;
+    }
+    return (candidate.id || 0) < currentId;
+  };
+  
+  // 1. Direct explicit referencia (must be strictly earlier)
   const ref = String(d.referencia || '').trim();
   if(ref && ref !== '—' && ref !== d.n_documento){
     const normRef = normalize_doc_key(ref);
     const parent = (ALL_CARTAS || []).find(x => x.id !== d.id && normalize_doc_key(x.n_documento) === normRef);
-    if(parent){
-      const pDt = parseDate(parent.fecha)?.getTime() || 0;
-      if(!currentDt || !pDt || pDt <= currentDt){
-        return parent;
-      }
+    if(parent && isStrictlyEarlier(parent)){
+      return parent;
     }
   }
   
-  // 2. Parse from referencias (antecedentes citados, strictly earlier or same day)
+  // 2. Parse from referencias (antecedentes citados, strictly earlier)
   const rawRefs = d.referencias || '';
   if(rawRefs && typeof parseReferenciasAntecedentes === 'function'){
     const parts = parseReferenciasAntecedentes(rawRefs);
@@ -6071,25 +6185,16 @@ function findParentCartaFor(d){
       const normP = normalize_doc_key(p);
       if(normP && normP !== currentDocNorm){
         const parent = (ALL_CARTAS || []).find(x => x.id !== d.id && normalize_doc_key(x.n_documento) === normP);
-        if(parent){
-          const pDt = parseDate(parent.fecha)?.getTime() || 0;
-          if(!currentDt || !pDt || pDt <= currentDt){
-            return parent;
-          }
+        if(parent && isStrictlyEarlier(parent)){
+          return parent;
         }
       }
     }
   }
   
   // 3. From Hilo chain (immediately preceding letter in the thread)
-  if(typeof getHiloChainCartas === 'function'){
-    const chain = getHiloChainCartas(d);
-    if(chain && chain.length > 1){
-      const earlier = chain.filter(x => x.id !== d.id && (parseDate(x.fecha)?.getTime() || 0) <= currentDt);
-      if(earlier.length){
-        return earlier[earlier.length - 1]; // Immediately preceding letter in the conversation
-      }
-    }
+  if(chain && chain.length > 1 && currentIdx > 0){
+    return chain[currentIdx - 1]; // Immediately preceding letter in the conversation
   }
   
   return null;
@@ -6141,8 +6246,10 @@ function renderCartaPadreCardUI(prefix, parentCarta, currentCartaOrId){
         previewRefCarta(parentCarta.id);
       };
     }
+    const isCurrentClosed = currentCarta && (isClosedState(currentCarta.estado_norm || currentCarta.estado) || (currentCarta.estado_norm||currentCarta.estado) === 'PARA CONOCIMIENTO');
+    const isParentLocked = hasSuccessors || (chain.length > 1) || isCurrentClosed;
     if(removeBtn){
-      if(hasSuccessors){
+      if(isParentLocked){
         removeBtn.style.display = 'none';
         let lockIndicator = card.querySelector('.padre-lock-indicator');
         if(!lockIndicator){
@@ -6157,8 +6264,9 @@ function renderCartaPadreCardUI(prefix, parentCarta, currentCartaOrId){
           lockIndicator.style.gap = '4px';
           lockIndicator.style.padding = '3px 8px';
           lockIndicator.style.borderRadius = '4px';
-          lockIndicator.title = `Protegido: esta carta ya tiene ${numSuccessors} respuesta(s) posterior(es) en el trámite`;
-          lockIndicator.innerHTML = `<i class="ri-lock-2-line"></i> Trámite protegido (${numSuccessors} derivaciones)`;
+          const lockTitle = hasSuccessors ? `Protegido: esta carta ya tiene ${numSuccessors} respuesta(s) posterior(es)` : `Protegido: carta vinculada al trámite (${chain.length} cartas)`;
+          lockIndicator.title = lockTitle;
+          lockIndicator.innerHTML = `<i class="ri-lock-2-line"></i> ${hasSuccessors ? `Trámite protegido (${numSuccessors} derivaciones)` : `Trámite vinculado (${chain.length} cartas)`}`;
           card.querySelector('.carta-padre-actions')?.prepend(lockIndicator);
         }
       } else {
@@ -6280,13 +6388,107 @@ function applyForm(d){
   const hasSuccessors = currentIdx !== -1 && currentIdx < chain.length - 1;
   const numSuccessors = hasSuccessors ? (chain.length - 1 - currentIdx) : 0;
   
+  const docInput = document.getElementById('f_n_documento');
+  const fechaInput = document.getElementById('f_fecha');
+  const tipoDocInput = document.getElementById('f_tipo_documento');
+  const emisorSel = document.getElementById('f_emisor');
+  const destSel = document.getElementById('f_destinatario');
+
+  const isLinkedResponse = chain.length > 1 && currentIdx > 0;
+  const isClosedLetter = isClosedState(est) || est === 'PARA CONOCIMIENTO';
+
   if(hasSuccessors){
     setCategoriaCartaMode('successors', { numSuccessors });
-  } else if(isClosedState(est) || est === 'PARA CONOCIMIENTO'){
+  } else if(isClosedLetter){
     setCategoriaCartaMode('closed', { estado: est });
   } else {
     setCategoriaCartaMode('editable');
     if(reqCheck) reqCheck.checked = !isSoloInfo;
+  }
+
+  if(hasSuccessors || isClosedLetter || isLinkedResponse){
+    if(docInput){
+      docInput.readOnly = true;
+      docInput.style.backgroundColor = '#F4F5F7';
+      docInput.style.cursor = 'not-allowed';
+      docInput.title = hasSuccessors ? `🔒 Bloqueado: este documento es antecedente de ${numSuccessors} derivaciones en el trámite` : (isLinkedResponse ? '🔒 Bloqueado: documento vinculado como respuesta en el trámite' : '🔒 Bloqueado: trámite concluido');
+    }
+    if(fechaInput){
+      fechaInput.readOnly = true;
+      fechaInput.style.backgroundColor = '#F4F5F7';
+      fechaInput.style.cursor = 'not-allowed';
+      fechaInput.title = '🔒 Bloqueado: fecha fija para mantener la cronología del trámite';
+    }
+    if(tipoDocInput){
+      tipoDocInput.readOnly = true;
+      tipoDocInput.style.backgroundColor = '#F4F5F7';
+      tipoDocInput.style.cursor = 'not-allowed';
+      tipoDocInput.title = '🔒 Bloqueado: documento registrado en el trámite';
+    }
+    if(emisorSel){
+      emisorSel.disabled = true;
+      emisorSel.style.backgroundColor = '#F4F5F7';
+      emisorSel.style.cursor = 'not-allowed';
+      emisorSel.title = '🔒 Bloqueado por flujo documentario activo';
+    }
+    if(destSel){
+      destSel.disabled = true;
+      destSel.style.backgroundColor = '#F4F5F7';
+      destSel.style.cursor = 'not-allowed';
+      destSel.title = '🔒 Bloqueado por flujo documentario activo';
+    }
+    if(hasSuccessors){
+      if(fEstadoEl){
+        fEstadoEl.disabled = true;
+        fEstadoEl.style.backgroundColor = '#F4F5F7';
+        fEstadoEl.style.cursor = 'not-allowed';
+        fEstadoEl.title = '🔒 Bloqueado: las cartas intermedias de un trámite resuelto deben permanecer concluidas';
+      }
+    } else {
+      if(fEstadoEl){
+        fEstadoEl.disabled = false;
+        fEstadoEl.style.backgroundColor = '';
+        fEstadoEl.style.cursor = '';
+        fEstadoEl.title = '';
+      }
+    }
+  } else {
+    if(docInput){
+      docInput.readOnly = false;
+      docInput.style.backgroundColor = '';
+      docInput.style.cursor = '';
+      docInput.title = '';
+    }
+    if(fechaInput){
+      fechaInput.readOnly = false;
+      fechaInput.style.backgroundColor = '';
+      fechaInput.style.cursor = '';
+      fechaInput.title = '';
+    }
+    if(tipoDocInput){
+      tipoDocInput.readOnly = false;
+      tipoDocInput.style.backgroundColor = '';
+      tipoDocInput.style.cursor = '';
+      tipoDocInput.title = '';
+    }
+    if(emisorSel){
+      emisorSel.disabled = false;
+      emisorSel.style.backgroundColor = '';
+      emisorSel.style.cursor = '';
+      emisorSel.title = '';
+    }
+    if(destSel){
+      destSel.disabled = false;
+      destSel.style.backgroundColor = '';
+      destSel.style.cursor = '';
+      destSel.title = '';
+    }
+    if(fEstadoEl){
+      fEstadoEl.disabled = false;
+      fEstadoEl.style.backgroundColor = '';
+      fEstadoEl.style.cursor = '';
+      fEstadoEl.title = '';
+    }
   }
 
   const pInput = document.getElementById('f_plazo_dias');
@@ -6328,40 +6530,19 @@ function saveDraft(){
   return true;
 }
 function loadDraft(){
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if(!raw) return null;
   try {
-    const r = localStorage.getItem(DRAFT_KEY);
-    if(!r) return null;
-    const p = JSON.parse(r);
-    return p && p.data ? p.data : null;
-  } catch { return null; }
+    const obj = JSON.parse(raw);
+    return obj.data || null;
+  } catch(e){
+    return null;
+  }
 }
 function clearDraft(){ localStorage.removeItem(DRAFT_KEY); }
-let draftHintTimeout = null;
-function setDraftHint(v){
-  const el = document.getElementById('modalDraftHint');
-  if(!el) return;
-  if(draftHintTimeout){
-    clearTimeout(draftHintTimeout);
-    draftHintTimeout = null;
-  }
-  if(v){
-    el.classList.add('visible');
-    el.style.opacity = '1';
-    el.style.transform = 'translateY(0)';
-    draftHintTimeout = setTimeout(() => {
-      el.style.opacity = '0';
-      el.style.transform = '';
-      setTimeout(() => {
-        el.classList.remove('visible');
-        el.style.opacity = '';
-        el.style.transform = '';
-      }, 300);
-    }, 2500);
-  } else {
-    el.classList.remove('visible');
-    el.style.opacity = '';
-    el.style.transform = '';
-  }
+function setDraftHint(visible){
+  const h = document.getElementById('draftRestoredHint');
+  if(h) h.style.display = visible ? 'block' : 'none';
 }
 
 function showModal(){
@@ -6431,6 +6612,17 @@ function openNewModal(){
     setDraftHint(false);
     updatePlazoFromActors();
   }
+
+  const docInput = document.getElementById('f_n_documento');
+  if(docInput){ docInput.readOnly = false; docInput.style.backgroundColor = ''; docInput.style.cursor = ''; docInput.title = ''; }
+  const fechaInput = document.getElementById('f_fecha');
+  if(fechaInput){ fechaInput.readOnly = false; fechaInput.style.backgroundColor = ''; fechaInput.style.cursor = ''; fechaInput.title = ''; }
+  const emisorSel = document.getElementById('f_emisor');
+  if(emisorSel){ emisorSel.disabled = false; emisorSel.style.backgroundColor = ''; emisorSel.style.cursor = ''; emisorSel.title = ''; }
+  const destSel = document.getElementById('f_destinatario');
+  if(destSel){ destSel.disabled = false; destSel.style.backgroundColor = ''; destSel.style.cursor = ''; destSel.title = ''; }
+  const fEstadoEl = document.getElementById('f_estado');
+  if(fEstadoEl){ fEstadoEl.disabled = false; fEstadoEl.style.backgroundColor = ''; fEstadoEl.style.cursor = ''; fEstadoEl.title = ''; }
 
   setCartaFormReadOnly(false);
   snapshotCartaForm();
@@ -6532,8 +6724,8 @@ async function openEditModal(id){
     document.getElementById('f_id').value = id;
     setDraftHint(false);
     populateFormEspChips(c.especialidad);
-    applyForm(c);
     setCartaFormReadOnly(!canEdit);
+    applyForm(c);
     snapshotCartaForm();
     showModal();
     focusCartaModalHeader();
@@ -7165,8 +7357,8 @@ function setCategoriaCartaMode(mode, info = {}){
   }
 }
 
-function addRefListItem(val = ''){
-  const container = document.getElementById('referenciasListContainer');
+function addRefListItem(val = '', containerId = 'referenciasListContainer', hiddenInputId = 'f_referencias'){
+  const container = document.getElementById(containerId);
   if(!container) return;
   
   const placeholder = container.querySelector('.ref-empty-hint');
@@ -7176,6 +7368,8 @@ function addRefListItem(val = ''){
   const row = document.createElement('div');
   row.className = 'ref-dynamic-item';
   row.id = rowId;
+  row.dataset.containerId = containerId;
+  row.dataset.hiddenInputId = hiddenInputId;
   row.style.display = 'flex';
   row.style.alignItems = 'center';
   row.style.gap = '8px';
@@ -7191,7 +7385,7 @@ function addRefListItem(val = ''){
     <a href="#" target="_blank" rel="noopener noreferrer" class="ref-item-open-btn" style="display:none;align-items:center;gap:4px;padding:4px 10px;font-size:11.5px;font-weight:600;background:#EBF3FA;color:#185A9D;border:1px solid #B8D3EE;border-radius:4px;text-decoration:none;flex-shrink:0" title="Abrir en nueva pestaña">
       <i class="ri-external-link-line"></i> Abrir
     </a>
-    <button type="button" class="btn-cancel" onclick="removeRefListItem('${rowId}')" style="padding:4px 6px;font-size:13px;color:var(--rose);border:none;background:transparent;cursor:pointer;flex-shrink:0" title="Eliminar ítem">
+    <button type="button" class="btn-cancel" onclick="removeRefListItem('${rowId}', '${containerId}', '${hiddenInputId}')" style="padding:4px 6px;font-size:13px;color:var(--rose);border:none;background:transparent;cursor:pointer;flex-shrink:0" title="Eliminar ítem">
       <i class="ri-delete-bin-line"></i>
     </button>
   `;
@@ -7207,6 +7401,8 @@ function addRefListItem(val = ''){
 function handleRefInputLive(inputEl){
   const row = inputEl.closest('.ref-dynamic-item');
   if(!row) return;
+  const containerId = row.dataset.containerId || 'referenciasListContainer';
+  const hiddenInputId = row.dataset.hiddenInputId || 'f_referencias';
   const val = String(inputEl.value || '').trim();
   const openBtn = row.querySelector('.ref-item-open-btn');
   const iconEl = row.querySelector('.ref-item-icon');
@@ -7240,21 +7436,25 @@ function handleRefInputLive(inputEl){
       iconEl.style.color = 'var(--text-muted)';
     }
   }
-  syncRefListToHiddenField();
+  syncRefListToHiddenField(containerId, hiddenInputId);
 }
 
-function removeRefListItem(rowId){
+function removeRefListItem(rowId, containerId = 'referenciasListContainer', hiddenInputId = 'f_referencias'){
   const el = document.getElementById(rowId);
-  if(el) el.remove();
-  const container = document.getElementById('referenciasListContainer');
-  if(container && !container.children.length){
-    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>+ Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+  if(el) {
+    containerId = el.dataset.containerId || containerId;
+    hiddenInputId = el.dataset.hiddenInputId || hiddenInputId;
+    el.remove();
   }
-  syncRefListToHiddenField();
+  const container = document.getElementById(containerId);
+  if(container && !container.children.length){
+    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+  }
+  syncRefListToHiddenField(containerId, hiddenInputId);
 }
 
-function syncRefListToHiddenField(){
-  const container = document.getElementById('referenciasListContainer');
+function syncRefListToHiddenField(containerId = 'referenciasListContainer', hiddenInputId = 'f_referencias'){
+  const container = document.getElementById(containerId);
   if(!container) return;
   const rows = container.querySelectorAll('.ref-dynamic-item');
   const items = [];
@@ -7262,7 +7462,7 @@ function syncRefListToHiddenField(){
     const val = r.querySelector('.ref-item-input')?.value?.trim() || '';
     if(val) items.push(val);
   });
-  const hiddenInput = document.getElementById('f_referencias');
+  const hiddenInput = document.getElementById(hiddenInputId);
   if(hiddenInput) hiddenInput.value = items.join('\n');
 }
 
@@ -7308,24 +7508,24 @@ function parseReferenciasAntecedentes(raw){
   return out;
 }
 
-function populateRefList(rawRefs){
-  const container = document.getElementById('referenciasListContainer');
+function populateRefList(rawRefs, containerId = 'referenciasListContainer', hiddenInputId = 'f_referencias'){
+  const container = document.getElementById(containerId);
   if(!container) return;
   container.innerHTML = '';
   
   if(!rawRefs || !String(rawRefs).trim()){
-    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>+ Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
-    syncRefListToHiddenField();
+    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+    syncRefListToHiddenField(containerId, hiddenInputId);
     return;
   }
   
   const parts = parseReferenciasAntecedentes(rawRefs);
   if(!parts.length){
-    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>+ Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
+    container.innerHTML = `<div class="ref-empty-hint" style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:8px">Sin referencias ni enlaces. Haz clic en <strong>Agregar Referencia o Link</strong> para añadir documentos o enlaces de Drive/OneDrive.</div>`;
   } else {
-    parts.forEach(p => addRefListItem(cleanSpaces(p)));
+    parts.forEach(p => addRefListItem(cleanSpaces(p), containerId, hiddenInputId));
   }
-  syncRefListToHiddenField();
+  syncRefListToHiddenField(containerId, hiddenInputId);
 }
 
 function renderReferenciasPreviewHtml(rawRefs){

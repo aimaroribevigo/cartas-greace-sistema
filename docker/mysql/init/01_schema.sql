@@ -38,6 +38,7 @@ CREATE TABLE `cartas` (
   `caducidad` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_respuesta` date DEFAULT NULL,
   `carta_respuesta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `link_drive` text COLLATE utf8mb4_unicode_ci,
   `hilo_id` int DEFAULT NULL,
   `creado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `actualizado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
