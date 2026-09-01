@@ -138,7 +138,10 @@ BANDEJAS = {
     "recibida_otros": "4. Recibidas Otros",
 }
 
-app = Flask(__name__)
+BASE = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE, "static")
+
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
 app.secret_key = SECRET_KEY
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -1964,6 +1967,11 @@ def index():
 @app.route("/cggc_banner.png")
 def banner():
     return send_from_directory(BASE, "cggc_banner.png")
+
+
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    return send_from_directory(STATIC_DIR, filename)
 
 
 @app.route("/health")
