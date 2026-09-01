@@ -720,15 +720,12 @@ def rebuild_hilos_fast(conn) -> dict:
             if len(items) > 1:
                 # Ordenar cronológicamente para identificar la última carta vs intermedias
                 items.sort(key=lambda x: (x.get("fecha") is None, x.get("fecha") or date.min, x.get("id") or 0))
-                # Solo cerrar intermedias si la última carta del hilo tiene estado definitivo
-                last_est = normalize_estado(items[-1].get("estado_norm") or items[-1].get("estado"))
-                hilo_concluded = not is_estado_abierto(last_est)
-                if hilo_concluded:
-                    for c in items[:-1]:
-                        if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
-                            c["estado"] = "CERRADO"
-                            c["estado_norm"] = "CERRADO"
-                            auto_closed_cids.append(c["id"])
+                # Todas las cartas intermedias anteriores a la última ya fueron atendidas/contestadas por la carta sucesora
+                for c in items[:-1]:
+                    if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
+                        c["estado"] = "CERRADO"
+                        c["estado_norm"] = "CERRADO"
+                        auto_closed_cids.append(c["id"])
 
             g = _summarize_group(items, stable=True)
             base_clave = g["clave"][:200]
@@ -830,10 +827,7 @@ def auto_close_intermediate_hilo_cartas(conn) -> dict:
     for hid, items in threads.items():
         if len(items) <= 1:
             continue
-        # Solo cerrar intermedias si la última carta tiene estado definitivo
-        last_est = normalize_estado(items[-1].get("estado_norm") or items[-1].get("estado"))
-        if is_estado_abierto(last_est):
-            continue  # Hilo aún activo, no cerrar intermedias
+        # Todas las cartas intermedias anteriores a la última ya fueron atendidas por la respuesta/derivación
         for c in items[:-1]:
             if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
                 cids_to_close.append(c["id"])
@@ -1315,8 +1309,5 @@ def try_close_referenced_cartas(conn, nueva: dict | str, cerrar: bool = True) ->
         if cited_result.get("closed", 0) > 0:
             return cited_result
         return hilo_result if hilo_result.get("hilo_cartas", 0) >= 2 else cited_result
-
-    if not cerrar and not is_cierre:
-        return {"ok": True, "closed": 0, "reason": "cerrar_desactivado"}
 
     return _close_cited_open_cartas(conn, cited, skip_id=nueva.get("id"))

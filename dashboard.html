@@ -1662,7 +1662,7 @@ body.app-locked .app-layout{visibility:hidden}
           <!-- 7. Especialidad(es) (Selección Múltiple) -->
           <div class="form-group full-width" style="grid-column:1/-1">
             <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-              <span><i class="ri-tools-line" style="color:var(--accent);margin-right:5px"></i>Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(en blanco si viene del Supervisor; clic para seleccionar una o varias)</span></span>
+              <span><i class="ri-tools-line" style="color:var(--accent);margin-right:5px"></i>Especialidad(es) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(haz clic para seleccionar una o varias)</span></span>
               <span id="f_esp_count_badge" style="font-size:11.5px;font-weight:700;color:var(--accent)">0 seleccionadas</span>
             </label>
             <input type="hidden" id="f_especialidad">
@@ -1677,10 +1677,10 @@ body.app-locked .app-layout{visibility:hidden}
             <textarea id="f_asunto" rows="2" required maxlength="5000" placeholder="Describe el objeto o tema principal de la carta…" style="resize:vertical;min-height:56px"></textarea>
           </div>
 
-          <!-- 9. Observación (Texto libre) -->
+          <!-- 9. Observación (Notas / aspecto a tomar en cuenta) -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label><i class="ri-file-text-line" style="color:var(--accent);margin-right:5px"></i>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
-            <textarea id="f_observacion" rows="2" maxlength="3000" placeholder="Ej: Notas o informe N° 34-2026 del Especialista de Estructuras adjunto…" style="resize:vertical;min-height:50px"></textarea>
+            <label><i class="ri-file-text-line" style="color:var(--accent);margin-right:5px"></i>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Observaciones sencillas o notas a tomar en cuenta)</span></label>
+            <textarea id="f_observacion" rows="2" maxlength="3000" placeholder="Escribe alguna observación o aspecto a tomar en cuenta…" style="resize:vertical;min-height:50px"></textarea>
           </div>
 
           <!-- 9. Carta Padre (Buscador interactivo del sistema) -->
@@ -1841,10 +1841,10 @@ body.app-locked .app-layout{visibility:hidden}
             <textarea id="rf_asunto" rows="2" required maxlength="5000" placeholder="Escribe lo que dice el papel (ej: 'Se acepta el clavito' o 'Procedente el acero')…" style="resize:vertical;min-height:56px"></textarea>
           </div>
 
-          <!-- Observación (Texto libre) -->
+          <!-- Observación (Notas / aspecto a tomar en cuenta) -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label><i class="ri-file-text-line" style="color:var(--accent);margin-right:5px"></i>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Texto libre: notas, informe adjunto, sustento técnico, respaldo documental…)</span></label>
-            <textarea id="rf_observacion" rows="2" maxlength="3000" placeholder="Ej: Notas o informe N° 34-2026 del especialista, sustento de la respuesta…" style="resize:vertical;min-height:50px"></textarea>
+            <label><i class="ri-file-text-line" style="color:var(--accent);margin-right:5px"></i>Observación <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(Observaciones sencillas o notas a tomar en cuenta)</span></label>
+            <textarea id="rf_observacion" rows="2" maxlength="3000" placeholder="Escribe alguna observación o aspecto a tomar en cuenta…" style="resize:vertical;min-height:50px"></textarea>
           </div>
 
           <!-- Carta Padre (El buscador de amarre) -->
@@ -1862,9 +1862,6 @@ body.app-locked .app-layout{visibility:hidden}
                   <div class="carta-padre-actions">
                     <button type="button" class="btn-padre-preview" id="rf_btnPreviewCartaPadre" title="Ver detalle del antecedente">
                       <i class="ri-eye-line"></i> Ver Carta
-                    </button>
-                    <button type="button" class="btn-cancel" id="rf_btnRemoveCartaPadre" title="Cambiar carta padre" style="padding:4px 8px;font-size:11.5px;color:var(--rose)">
-                      <i class="ri-refresh-line"></i> Cambiar
                     </button>
                   </div>
                 </div>
@@ -2628,7 +2625,24 @@ function fmtDate(d){
   }
   return String(d);
 }
-function fmtDateIso(d){if(!d)return'';return d.toISOString().slice(0,10);}
+function getTodayIso(){
+  const n = new Date();
+  const y = n.getFullYear();
+  const m = String(n.getMonth() + 1).padStart(2, '0');
+  const d = String(n.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function fmtDateIso(d){
+  if(!d) return '';
+  if(d instanceof Date){
+    if(isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  return String(d).trim().slice(0,10);
+}
 function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function bandejaLabel(id){return BANDEJAS_META[id]||id||'—';}
 function monthLabel(m){if(!m)return'';const mo=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];const[y,mn]=m.split('-');return mo[parseInt(mn,10)-1]+' '+y;}
@@ -5693,7 +5707,7 @@ function openResponderModal(parentCartaId){
   document.getElementById('responderForm').reset();
   populateRefList('', 'rf_referenciasListContainer', 'rf_referencias');
   
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getTodayIso();
   document.getElementById('rf_fecha').value = today;
   const modeCierre = document.getElementById('rf_mode_cierre');
   if(modeCierre){ modeCierre.checked = true; updateResponderTramitePills(); }
@@ -6599,7 +6613,7 @@ function openNewModal(){
     document.getElementById('f_requiere_respuesta').checked = true;
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getTodayIso();
   document.getElementById('f_fecha').value = today;
 
   const draft = loadDraft();
