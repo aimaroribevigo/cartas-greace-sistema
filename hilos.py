@@ -75,7 +75,15 @@ def normalize_doc_key(raw: str | None) -> str:
 def extract_cited_docs(text: str | None) -> list[str]:
     if not text:
         return []
-    return [normalize_doc_key(m.group(0)) for m in _DOC_RE.finditer(str(text))]
+    from normalizers import parse_referencias_antecedentes
+    res = []
+    for m in _DOC_RE.finditer(str(text)):
+        res.append(normalize_doc_key(m.group(0)))
+        res.append(_fold(m.group(0)))
+    for p in parse_referencias_antecedentes(text):
+        res.append(normalize_doc_key(p))
+        res.append(_fold(p))
+    return list(dict.fromkeys(res))
 
 
 def extract_tramite_keys(c: dict) -> list[str]:
@@ -720,12 +728,14 @@ def rebuild_hilos_fast(conn) -> dict:
             if len(items) > 1:
                 # Ordenar cronológicamente para identificar la última carta vs intermedias
                 items.sort(key=lambda x: (x.get("fecha") is None, x.get("fecha") or date.min, x.get("id") or 0))
-                # Todas las cartas intermedias anteriores a la última ya fueron atendidas/contestadas por la carta sucesora
-                for c in items[:-1]:
-                    if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
-                        c["estado"] = "CERRADO"
-                        c["estado_norm"] = "CERRADO"
-                        auto_closed_cids.append(c["id"])
+                ult_est = normalize_estado(items[-1].get("estado_norm") or items[-1].get("estado"))
+                # Si la última carta del hilo es observación (OBSERVADO/C. OBSERVADA), las anteriores no se autocierran
+                if ult_est not in ("C. OBSERVADA", "OBSERVADO", "OBSERVADA"):
+                    for c in items[:-1]:
+                        if is_estado_abierto(c.get("estado_norm") or c.get("estado")):
+                            c["estado"] = "CERRADO"
+                            c["estado_norm"] = "CERRADO"
+                            auto_closed_cids.append(c["id"])
 
             g = _summarize_group(items, stable=True)
             base_clave = g["clave"][:200]
@@ -1247,7 +1257,7 @@ def try_close_referenced_cartas(conn, nueva: dict | str, cerrar: bool = True) ->
     elif not isinstance(nueva, dict):
         return {"ok": True, "closed": 0}
     has_ref = bool(nueva.get("referencia") or nueva.get("referencias"))
-    if not cerrar and not has_ref:
+    if not has_ref:
         return {"ok": True, "closed": 0}
     est = normalize_estado(nueva.get("estado_norm") or nueva.get("estado"))
     is_cierre = est in (
@@ -1259,6 +1269,8 @@ def try_close_referenced_cartas(conn, nueva: dict | str, cerrar: bool = True) ->
         "PARA CONOCIMIENTO",
     )
     is_response = is_respuesta_emitida(nueva)
+    if not (is_cierre or is_response or cerrar):
+        return {"ok": True, "closed": 0, "reason": "no_cierre_requested"}
 
     blob = " ".join([
         str(nueva.get("referencia") or ""),

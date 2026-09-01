@@ -12,7 +12,7 @@ import re
 import unicodedata
 from typing import Any
 
-from normalizers import is_estado_abierto, normalize_estado
+from normalizers import CLOSED_STATES, is_estado_abierto, normalize_estado
 
 ACTORES = {
     "residente": "Residente",
@@ -36,6 +36,54 @@ DEUDA_NINGUNA = "ninguna"
 
 _TRASLADO_RE = re.compile(r"\bTRASLAD", re.I)
 
+_ABSOLUCION_RE = re.compile(
+    r"\b(?:ABSUELV(?:EN|E|O|A)?|ABSUELT[OA]S?|ABSOLUCI[OÓ]N(?:\s+DE\s+CONSULTA)?|ABSOLVER|ATENCI[OÓ]N\s+DE\s+CONSULTA|CONSULTA\s+ABSUELTA)\b",
+    re.I,
+)
+
+_ENSAYOS_COMUNICACION_RE = re.compile(
+    r"\b(?:"
+    r"PRESENTACI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"PRESENTAR\s+(?:LOS\s+)?ENSAYOS?|"
+    r"SOLICIT(?:A|UD|O)?\s+(?:SE\s+)?(?:DE\s+)?(?:LA\s+)?PRESENTACI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"REITERACI[OÓ]N(?:\s+CONSECUTIVA)?\s+(?:EN|DE)?\s+(?:LA\s+)?PRESENTACI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"SOLICIT(?:A|UD|O)?\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"ENTREGA\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"REMISI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"ENV[IÍ]O\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"RESULTADOS?\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|"
+    r"ENSAYOS?\s+DE\s+(?:CONTROL\s+DE\s+)?CALIDAD|"
+    r"ENSAYOS?\s+DE\s+(?:TUBER[IÍ]A|COBRE|CONCRETO|COMPRESI[OÓ]N|DENSIDAD|SUELOS?|ASFALTO|ACERO|PROBETAS?|MATERIAL(?:ES)?|LABORATORIO)|"
+    r"CERTIFICADOS?\s+DE\s+(?:CALIDAD|CALIBRACI[OÓ]N|RECALIBRACI[OÓ]N)|"
+    r"RECALIBRACI[OÓ]N(?:\s+DE\s+(?:LOS\s+)?EQUIPOS)?|"
+    r"PROTOCOLOS?\s+DE\s+(?:CALIDAD|LIBERACI[OÓ]N|PRUEBA)|"
+    r"DOSSIER\s+DE\s+CALIDAD|FICHAS?\s+T[EÉ]CNICA[SD]?|DISE[ÑN]O\s+DE\s+MEZCLAS?|"
+    r"ROTURAS?\s+A\s+COMPRESI[OÓ]N|ROTURA\s+DE\s+PROBETA|ENSAYOS?\s+DEL\s+LADRILLO|"
+    r"FORMATOS?\s+ATS|FORMATOS?\s+DE\s+SEGURIDAD|SEGURIDAD\s+Y\s+SALUD\s+EN\s+EL\s+TRABAJO|CHARLA\s+INFORMATIVA|"
+    r"INSTRUCTIVO\s+PARA\s+ATORTOLAR|DESENCOFRADO|PLAN\s+DE\s+CALIDAD\s+DEL\s+PROVEEDOR|MEZCLADORAS\s+DE\s+CONCRETO|"
+    r"PROGRAMA\s+DE\s+ENSAYOS|INSTRUCTIVOS?\s+DE\s+ENSAYOS|ANDAMIOS\s+CERTIFICADOS|"
+    r"CONSIDERACIONES\s+PARA\s+(?:EMPALME|LA\s+RECEPCI[OÓ]N)"
+    r")\b",
+    re.I,
+)
+
+_COMUNICACION_GENERAL_RE = re.compile(
+    r"\b(?:"
+    r"TRASLAD(?:O|AR|A|E)|REMIT(?:E|O)\s+COPIA|PARA\s+(?:FINES\s+DE\s+)?ARCHIVO|"
+    r"COMUNICADO|CARTA\s+CIRCULAR|PONE\s+EN\s+CONOCIMIENTO|PARA\s+(?:SU\s+)?CONOCIMIENTO|"
+    r"SOLO\s+INFORMATIVO|INFORMATIV[OA]|"
+    r"COMUNICA(?:MOS)?\s+(?:DESIGNACI[OÓ]N|INICIO|CONCLUSION|SUSPENSION|REINICIO|EVENTO|VISITA|FERIADO|DISPONIBILIDAD|ESTADO|AVANCE)|"
+    r"ALCANZA(?:R)?\s+CRONOGRAMA|REMIT(?:E|O)\s+(?:LOS\s+)?COMPROBANTES?|REMIT(?:E|O)\s+(?:LA\s+)?ACREDITACI[OÓ]N|"
+    r"REMIT(?:E|O|IR)\s+PLANO\s+GEORREFERENCIADO|ITINERARIO\s+DE\s+REUNI[OÓ]N|DECLARACI[OÓ]N\s+ANUAL|"
+    r"AMPLIACI[OÓ]N\s+DE\s+CORREOS?\s+ELECTR[OÓ]NICOS?|AMPLIACI[OÓ]N\s+DE\s+CORRESO|"
+    r"ALERTA\s+TEMPRANA|COMUNICACI[OÓ]N\s+DEL\s+MATERIAL|COMUNICACI[OÓ]N\s+DE\s+AFECTACIONES|NOTIFICACI[OÓ]N\s+DE\s+HITO|HITO\s+DE\s+CONTROL|"
+    r"ALCANZAR\s+ACTA|ACTA\s+DE\s+ACUERDOS|ACUERDOS\s+DEL\s+ACTA|DEVOLUCI[OÓ]N\s+DE\s+(?:03\s+)?ARCHIVADORES|DEVOLUCI[OÓ]N\s+DE\s+EXPEDIENTE|"
+    r"RESPUESTA\s+A\s+ALERTA|"
+    r"INVITACI[OÓ]N|CONVOCATORIA|DONACI[OÓ]N"
+    r")\b",
+    re.I,
+)
+
 _PEND_ENTIDAD_STATES = {
     "PENDIENTE ENTIDAD",
     "PENDIENTE MUNICIPALIDAD",
@@ -44,6 +92,22 @@ _PEND_ENTIDAD_STATES = {
 }
 
 SEMANTIC_RULES = [
+    (
+        "absolucion",
+        "✅ Absolución / Trámite Atendido",
+        "Absolución",
+        _ABSOLUCION_RE,
+        "Consulta técnica o trámite resuelto y absuelto (cerrado sin deuda de respuesta)",
+        False,
+    ),
+    (
+        "ensayo_calidad",
+        "🧪 Control de Calidad / Ensayos",
+        "Ensayos / Calidad",
+        re.compile(r"\b(?:ENSAYOS?|DENSIDAD(?:ES)?|COMPRESI[OÓ]N|RESISTENCIA|PROCTOR|CALIDAD|DOSIFICACI[OÓ]N|DISE[ÑN]O\s+DE\s+MEZCLA|ROTURA\s+DE\s+PROBETA|SLUMP|ASENTAMIENTO|MTC|ESPECIFICACION(?:ES)?\s+T[EÉ]CNICA(?:S)?|CERTIFICADOS?\s+DE\s+CALIDAD|PROTOCOLOS?\s+DE\s+CALIDAD|DOSSIER\s+DE\s+CALIDAD)\b", re.I),
+        "Presentación de ensayos o control de calidad (comunicado informativo)",
+        False,
+    ),
     (
         "reiterativo",
         "⚠️ Reiterativo / Urgente",
@@ -58,14 +122,6 @@ SEMANTIC_RULES = [
         "Consulta Técnica",
         re.compile(r"\b(?:CONSULTA(?:\s*N[°º]?\s*\d+|\s+T[EÉ]CNICA|\s+DE\s+OBRA)?|INTERFERENCIA(?:S)?|INCOMPATIBILIDAD(?:ES)?|ACLARACI[OÓ]N\s+DE\s+PLANO(?:S)?|DUDAS?\s+T[EÉ]CNICA)\b", re.I),
         "Consulta técnica o incompatibilidad que exige absolución contractual",
-        True,
-    ),
-    (
-        "ensayo_calidad",
-        "🧪 Control de Calidad / Ensayos",
-        "Ensayos / Calidad",
-        re.compile(r"\b(?:ENSAYOS?|DENSIDAD(?:ES)?|COMPRESI[OÓ]N|RESISTENCIA|PROCTOR|CALIDAD|DOSIFICACI[OÓ]N|DISE[ÑN]O\s+DE\s+MEZCLA|ROTURA\s+DE\s+PROBETA|SLUMP|ASENTAMIENTO|MTC|ESPECIFICACION(?:ES)?\s+T[EÉ]CNICA(?:S)?)\b", re.I),
-        "Presentación de ensayos o control de calidad para conformidad técnica",
         True,
     ),
     (
@@ -112,14 +168,23 @@ def analyze_semantic_intent(c: dict) -> dict[str, Any]:
     blob = f"{doc} {asunto} {obs} {refs}"
     
     estado = normalize_estado(c.get("estado_norm") or c.get("estado"))
-    if estado == "PARA CONOCIMIENTO":
+    if estado == "PARA CONOCIMIENTO" or is_solo_comunicacion(c):
+        if is_absolucion(c):
+            return {
+                "categoria": "absolucion",
+                "label": "✅ Absolución / Trámite Atendido",
+                "short_label": "Absolución",
+                "exige_respuesta": False,
+                "action_hint": "Consulta técnica o trámite resuelto y absuelto (cerrado)",
+                "keywords": ["ABSUELTO"],
+            }
         return {
             "categoria": "comunicacion",
             "label": "📄 Solo Comunicación / Informativo",
             "short_label": "Solo Informativo",
             "exige_respuesta": False,
-            "action_hint": "Trámite registrado para conocimiento, sin deuda de respuesta",
-            "keywords": ["PARA CONOCIMIENTO"],
+            "action_hint": "Trámite registrado para conocimiento / comunicación informativa, sin deuda de respuesta",
+            "keywords": ["COMUNICACIÓN"],
         }
 
     for cat, label, short_label, pattern, hint, req_resp in SEMANTIC_RULES:
@@ -152,8 +217,24 @@ def _fold(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip().upper()
 
 
+def is_absolucion(c: dict) -> bool:
+    """Detecta si el documento corresponde a una absolución de consulta / trámite resuelto."""
+    estado = normalize_estado(c.get("estado_norm") or c.get("estado"))
+    if any(k in estado for k in ("ABSUELT", "ABSUELV", "ABSOLUCI")):
+        return True
+    blob = " ".join(
+        [
+            str(c.get("asunto") or ""),
+            str(c.get("n_documento") or ""),
+            str(c.get("observacion") or ""),
+            str(c.get("referencias") or ""),
+        ]
+    )
+    return bool(_ABSOLUCION_RE.search(blob))
+
+
 def is_solo_comunicacion(c: dict) -> bool:
-    """Traslado / para conocimiento: no exige respuesta operativa propia."""
+    """Traslado / presentación de ensayos / para conocimiento: no exige respuesta operativa propia."""
     estado = normalize_estado(c.get("estado_norm") or c.get("estado"))
     if estado == "PARA CONOCIMIENTO":
         return True
@@ -165,7 +246,9 @@ def is_solo_comunicacion(c: dict) -> bool:
             str(c.get("referencias") or ""),
         ]
     )
-    return bool(_TRASLADO_RE.search(blob))
+    if _TRASLADO_RE.search(blob) or _ENSAYOS_COMUNICACION_RE.search(blob) or _COMUNICACION_GENERAL_RE.search(blob):
+        return True
+    return False
 
 
 def actor_registro(c: dict) -> str:
@@ -275,7 +358,20 @@ def infer_contraparte(c: dict) -> str:
 
 def classify_carta(c: dict) -> dict[str, Any]:
     estado = normalize_estado(c.get("estado_norm") or c.get("estado"))
-    abierta = is_estado_abierto(estado)
+    es_abs = is_absolucion(c)
+    if es_abs:
+        if estado not in CLOSED_STATES:
+            contraparte_infer = infer_contraparte(c)
+            if contraparte_infer == "entidad":
+                estado = "ABSUELTO ENTIDAD"
+            elif contraparte_infer == "supervisor":
+                estado = "ABSUELTO SUPERVISION"
+            else:
+                estado = "ABSUELTO"
+        abierta = False
+    else:
+        abierta = is_estado_abierto(estado)
+
     sentido = (c.get("sentido") or "").strip().lower()
     if not sentido:
         ban = c.get("bandeja") or ""
@@ -283,18 +379,10 @@ def classify_carta(c: dict) -> dict[str, Any]:
 
     actor = actor_registro(c)
     contraparte = infer_contraparte(c)
-    traslado = is_solo_comunicacion(c) and estado != "PARA CONOCIMIENTO"
-    # PARA CONOCIMIENTO siempre comunicación; TRASLADO:
-    # - en recibidas: no deuda (Excel)
-    # - en emitidas: sí deuda si está pendiente entidad/muni (seguimiento);
-    #   si solo es PARA RESPUESTA/EN PROCESO informativo, no cuenta
-    if estado == "PARA CONOCIMIENTO":
-        deuda = DEUDA_NINGUNA
-        naturaleza = NATURALEZA_COMUNICACION
-    elif sentido == "recibida" and traslado:
-        deuda = DEUDA_NINGUNA
-        naturaleza = NATURALEZA_COMUNICACION
-    elif sentido == "emitida" and traslado and estado not in _PEND_ENTIDAD_STATES:
+    comunicacion_detectada = is_solo_comunicacion(c)
+    traslado = comunicacion_detectada and estado != "PARA CONOCIMIENTO"
+
+    if estado == "PARA CONOCIMIENTO" or comunicacion_detectada:
         deuda = DEUDA_NINGUNA
         naturaleza = NATURALEZA_COMUNICACION
     elif not abierta:

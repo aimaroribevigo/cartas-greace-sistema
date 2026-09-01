@@ -18,11 +18,35 @@ ESTADO_ALIASES = {
     "EN TRÁMITE": "ABIERTO",
     "CERRADO": "CERRADO",
     "CERRADA": "CERRADO",
+    "ABSUELTO": "ABSUELTO",
+    "ABSUELTA": "ABSUELTO",
     "ABSUELTO SUPERVISION": "ABSUELTO SUPERVISION",
     "ABSUELTO SUPERVISIÓN": "ABSUELTO SUPERVISION",
     "ABSUELTA POR SUPERVISOR": "ABSUELTA POR SUPERVISOR",
+    "ABSUELTA SUPERVISION": "ABSUELTO SUPERVISION",
+    "ABSUELTA SUPERVISIÓN": "ABSUELTO SUPERVISION",
+    "ABSUELTO POR SUPERVISION": "ABSUELTO SUPERVISION",
+    "ABSUELTO POR SUPERVISIÓN": "ABSUELTO SUPERVISION",
     "ABSUELTO ENTIDAD": "ABSUELTO ENTIDAD",
     "ABSUELTA POR ENTIDAD": "ABSUELTA POR ENTIDAD",
+    "ABSUELTA ENTIDAD": "ABSUELTO ENTIDAD",
+    "ABSUELTO POR ENTIDAD": "ABSUELTO ENTIDAD",
+    "ABSUELTA POR LA ENTIDAD": "ABSUELTA POR ENTIDAD",
+    "ABSUELTO POR LA ENTIDAD": "ABSUELTO ENTIDAD",
+    "ABSUELTA POR LA SUPERVISION": "ABSUELTA POR SUPERVISOR",
+    "ABSUELTO POR LA SUPERVISION": "ABSUELTA POR SUPERVISOR",
+    "ABSOLUCION": "ABSUELTO",
+    "ABSOLUCIÓN": "ABSUELTO",
+    "ABSOLUCION DE CONSULTA": "ABSUELTO",
+    "ABSOLUCIÓN DE CONSULTA": "ABSUELTO",
+    "ABSUELVE CONSULTA": "ABSUELTO",
+    "ABSUELVEN CONSULTA": "ABSUELTO",
+    "ABSUELVE": "ABSUELTO",
+    "ABSUELVEN": "ABSUELTO",
+    "ABSOLVER": "ABSUELTO",
+    "ATENCION DE CONSULTA": "ABSUELTO",
+    "ATENCIÓN DE CONSULTA": "ABSUELTO",
+    "CONSULTA ABSUELTA": "ABSUELTO",
     "PARA RESPUESTA": "PARA RESPUESTA",
     "PARA RESPUESTAA": "PARA RESPUESTA",
     "EN PROCESO": "EN PROCESO",
@@ -46,6 +70,7 @@ ESTADO_ALIASES = {
     "PENDIENTE RO": "PENDIENTE RO",
     "PENDIENTE JRD": "PENDIENTE JRD",
     "SUBSANADO": "SUBSANADO",
+    "SUBSANADA": "SUBSANADO",
     "REITERADO": "REITERADO",
     "C. ANULADA": "ANULADA",
     "ANULADA": "ANULADA",
@@ -53,6 +78,13 @@ ESTADO_ALIASES = {
     "REINGRESO": "REINGRESO",
     "RESPONDER": "PARA RESPUESTA",
     "PARA CONOCIMIENTO": "PARA CONOCIMIENTO",
+    "SOLO COMUNICACION": "PARA CONOCIMIENTO",
+    "SOLO COMUNICACIÓN": "PARA CONOCIMIENTO",
+    "COMUNICADO": "PARA CONOCIMIENTO",
+    "COMUNICACION": "PARA CONOCIMIENTO",
+    "COMUNICACIÓN": "PARA CONOCIMIENTO",
+    "INFORMATIVO": "PARA CONOCIMIENTO",
+    "INFORMATIVA": "PARA CONOCIMIENTO",
     # En bandejas a veces cierran así, pero la hoja 'Le Deben' aún las sigue:
     # las tratamos como abiertas de seguimiento hasta que el Excel las retire.
     "INGRESADA CON OTRO NUMERO DE ONSULTA": "EN PROCESO",
@@ -218,12 +250,37 @@ def suggest_especialista(especialidad_norm: str | None) -> str | None:
 CLOSED_STATES = {
     "CERRADO",
     "CERRADA",
+    "ABSUELTO",
+    "ABSUELTA",
     "ABSUELTO SUPERVISION",
     "ABSUELTO SUPERVISIÓN",
     "ABSUELTA POR SUPERVISOR",
     "ABSUELTO ENTIDAD",
     "ABSUELTA POR ENTIDAD",
+    "ABSUELTA SUPERVISION",
+    "ABSUELTA SUPERVISIÓN",
+    "ABSUELTO POR SUPERVISION",
+    "ABSUELTO POR SUPERVISIÓN",
+    "ABSUELTO POR ENTIDAD",
+    "ABSUELTA POR ENTIDAD",
+    "ABSUELTO POR LA ENTIDAD",
+    "ABSUELTA POR LA ENTIDAD",
+    "ABSUELTO POR LA SUPERVISION",
+    "ABSUELTA POR LA SUPERVISION",
+    "ABSOLUCION",
+    "ABSOLUCIÓN",
+    "ABSOLUCION DE CONSULTA",
+    "ABSOLUCIÓN DE CONSULTA",
+    "ABSUELVE CONSULTA",
+    "ABSUELVEN CONSULTA",
+    "ABSUELVE",
+    "ABSUELVEN",
+    "ABSOLVER",
+    "ATENCION DE CONSULTA",
+    "ATENCIÓN DE CONSULTA",
+    "CONSULTA ABSUELTA",
     "SUBSANADO",
+    "SUBSANADA",
     "PARA CONOCIMIENTO",
     "ANULADA",
     "C. ANULADA",
@@ -267,15 +324,63 @@ def normalize_estado(raw) -> str:
 
 
 def infer_estado_from_row(raw_estado, asunto: str = "", n_documento: str = "", bandeja: str = "") -> str:
+    asunto_upper = _fold(str(asunto or ""))
+    doc_upper = _fold(str(n_documento or ""))
+    bandeja_lower = str(bandeja or "").lower()
+    
+    # 1. Si el contenido es explícitamente una absolución (ej. "ABSOLUCIÓN DE CONSULTA", "ABSUELTO", "ABSUELVEN"),
+    # prevalece como cerrado/absuelto aunque en el Excel se haya registrado temporalmente "PENDIENTE ENTIDAD" o "PARA RESPUESTA".
+    if any(k in asunto_upper or k in doc_upper for k in [
+        "ABSUELT", "ABSUELV", "ABSOLUCION DE CONSULTA", "ABSOLUCIÓN DE CONSULTA", "ABSOLUCION", "ABSOLUCIÓN",
+        "CONSULTA ABSUELTA", "ATENCION DE CONSULTA", "ATENCIÓN DE CONSULTA", "ABSOLVER",
+        "ABSOLUCION A LAS OBSERVACIONES", "ABSOLUCIÓN A LAS OBSERVACIONES", "PRONUNCIAMIENTO A LA ABSOLUCION"
+    ]):
+        if bandeja_lower in ("recibida_sup",) or "SUPERVIS" in asunto_upper:
+            return "ABSUELTO SUPERVISION"
+        if bandeja_lower in ("recibida_pronis",) or "PRONIS" in asunto_upper or "MINSA" in asunto_upper:
+            return "ABSUELTO ENTIDAD"
+        return "ABSUELTO"
+
+    # 2. Si el contenido es presentación/pedido de ensayos de control de calidad o comunicaciones informativas/protocolos
+    if any(k in asunto_upper or k in doc_upper for k in [
+        "PRESENTACION DE ENSAYO", "PRESENTACIÓN DE ENSAYO", "PRESENTACION DE LOS ENSAYO", "PRESENTACIÓN DE LOS ENSAYO",
+        "PRESENTAR ENSAYO", "PRESENTAR LOS ENSAYO", "SOLICITA PRESENTACION DE ENSAYO", "SOLICITA PRESENTACIÓN DE ENSAYO",
+        "SOLICITA PRESENTACION DE LOS ENSAYO", "SOLICITA PRESENTACIÓN DE LOS ENSAYO", "SOLICITA ENSAYO", "SOLICITUD DE ENSAYO",
+        "REITERACION EN PRESENTACION DE ENSAYO", "REITERACIÓN EN PRESENTACIÓN DE ENSAYO",
+        "REITERACION CONSECUTIVA EN PRESENTACION DE ENSAYO", "REITERACIÓN CONSECUTIVA EN PRESENTACIÓN DE ENSAYO",
+        "ENTREGA DE ENSAYO", "REMISIÓN DE ENSAYO", "REMISION DE ENSAYO", "ENVÍO DE ENSAYO", "ENVIO DE ENSAYO",
+        "RESULTADOS DE ENSAYO", "RESULTADO DE ENSAYO", "ENSAYOS DE CONTROL DE CALIDAD",
+        "ENSAYO DE MATERIAL", "ENSAYOS DE MATERIAL", "ENSAYO DE DENSIDAD", "ENSAYOS DE DENSIDAD",
+        "ENSAYO DE COMPRESION", "ENSAYOS DE COMPRESIÓN", "ROTURAS A COMPRESION", "ROTURAS A COMPRESIÓN",
+        "ROTURA DE PROBETA", "ENSAYOS DEL LADRILLO", "ENSAYOS DE TUBERIA", "ENSAYOS DE CONCRETO",
+        "CERTIFICADO DE CALIDAD", "CERTIFICADOS DE CALIDAD", "CERTIFICADO DE CALIBRACION", "CERTIFICADOS DE CALIBRACIÓN",
+        "RECALIBRACION", "RECALIBRACIÓN", "CERTIFICADOS DE RECALIBRACIÓN", "CERTIFICADOS DE RECALIBRACION",
+        "PROTOCOLOS DE LIBERACION", "PROTOCOLOS DE LIBERACIÓN", "PROTOCOLOS DE CALIDAD", "PROTOCOLOS PENDIENTES",
+        "DOSSIER DE CALIDAD", "FICHAS TECNICAS", "FICHAS TÉCNICAS", "FICHAS TECNICAD", "FICHA TECNICAD", "DISEÑO DE MEZCLA", "DISEÑO DE MEZCLAS",
+        "FORMATOS ATS", "FORMATOS DE SEGURIDAD", "SEGURIDAD Y SALUD EN EL TRABAJO", "CHARLA INFORMATIVA",
+        "INSTRUCTIVO PARA ATORTOLAR", "CONSIDERACIONES EN BASE A LAS EE.TT PARA SU DESENCOFRADO",
+        "CONSIDERACIONES PARA EMPALME", "CONSIDERACIONES PARA LA RECEPCIÓN", "CONSIDERACIONES PARA LA RECEPCION",
+        "PLAN DE CALIDAD DEL PROVEEDOR", "MEZCLADORAS DE CONCRETO", "PROGRAMA DE ENSAYOS", "INSTRUCTIVOS DE ENSAYOS",
+        "ANDAMIOS CERTIFICADOS", "ALERTA TEMPRANA", "COMUNICACIÓN DEL MATERIAL", "COMUNICACION DEL MATERIAL",
+        "COMUNICACIÓN DE AFECTACIONES", "COMUNICACION DE AFECTACIONES",
+        "NOTIFICACIÓN DE HITO", "NOTIFICACION DE HITO", "RESPUESTA A ALERTA",
+        "ALCANZAR ACTA DE ACUERDOS", "ALCANZAR ACTA", "ACTA DE ACUERDOS", "ACUERDOS DEL ACTA",
+        "DEVOLUCION DE 03 ARCHIVADORES", "DEVOLUCIÓN DE 03 ARCHIVADORES", "DEVOLUCION DE ARCHIVADORES", "DEVOLUCIÓN DE ARCHIVADORES", "DEVOLUCIÓN DE EXPEDIENTE", "DEVOLUCION DE EXPEDIENTE",
+        "COMUNICADO", "CARTA CIRCULAR",
+        "TRASLADO", "COMUNICAMOS DESIGNACION", "COMUNICAMOS DESIGNACIÓN", "ALCANZA CRONOGRAMA", "ALCANZAR CRONOGRAMA",
+        "REMITO COMPROBANTE", "REMITO LOS COMPROBANTE", "REMITO LA ACREDITACION", "REMITO LA ACREDITACIÓN",
+        "REMITO PLANO GEORREFERENCIADO", "REMITIR PLANO GEORREFERENCIADO", "ITINERARIO DE REUNION", "ITINERARIO DE REUNIÓN",
+        "DECLARACION ANUAL SOBRE MINIMIZACION", "DECLARACIÓN ANUAL SOBRE MINIMIZACIÓN",
+        "AMPLIACION DE CORREOS ELECTRONICOS", "AMPLIACIÓN DE CORREOS ELECTRÓNICOS", "AMPLIACIÓN DE CORRESO", "AMPLIACION DE CORRESO",
+        "PONE EN CONOCIMIENTO", "PARA SU CONOCIMIENTO", "SOLO INFORMATIVO", "INFORMATIVO", "INFORMATIVA"
+    ]):
+        return "PARA CONOCIMIENTO"
+
     if raw_estado is not None and str(raw_estado).strip() and str(raw_estado).strip() != "-":
         norm = normalize_estado(raw_estado)
         if norm and norm != "SIN ESTADO":
             return norm
             
-    asunto_upper = _fold(str(asunto or ""))
-    doc_upper = _fold(str(n_documento or ""))
-    bandeja_lower = str(bandeja or "").lower()
-    
     if any(k in asunto_upper for k in ["NO HA SIDO EMITIDA", "NO SE EMITIO", "ANULADA"]):
         return "ANULADA"
         
@@ -284,6 +389,9 @@ def infer_estado_from_row(raw_estado, asunto: str = "", n_documento: str = "", b
         
     if any(k in asunto_upper or k in doc_upper for k in ["AUTORIZACI", "PERMISO", "CERTIFICADO", "LICENCIA", "CONFORMIDAD", "RESPUESTA"]):
         return "CERRADO"
+
+    if any(k in asunto_upper for k in ["REUBICACION DE POSTES", "REUBICACIÓN DE POSTES", "REUBICACION DE SEMAFORO", "REUBICACIÓN DE SEMAFORO", "CIERRE DE VIAS", "CIERRE DE VÍAS", "CIERRE TEMPORAL DE JR", "INTERSECCION DE VIAS", "INTERSECCIÓN DE VÍAS"]):
+        return "PENDIENTE MUNICIPALIDAD"
         
     if bandeja_lower in ("recibida_mpsc", "recibida_otros"):
         return "PARA CONOCIMIENTO"
@@ -391,15 +499,18 @@ def parse_referencias_antecedentes(raw) -> list[str]:
         seen.add(key)
         out.append(p)
 
-    for m in _REF_ANT_DOC_RE.finditer(s):
-        _push(m.group(0))
-
-    if not out:
-        for chunk in re.split(r"[,;\n\r]+|\s+Y\s+", s, flags=re.I):
-            for piece in re.split(r"\s{2,}", chunk):
-                _push(piece)
-            if chunk.strip():
-                _push(chunk)
+    for line in re.split(r"[\n\r]+", s):
+        line_clean = line.strip()
+        if not line_clean:
+            continue
+        doc_matches = list(_REF_ANT_DOC_RE.finditer(line_clean))
+        if doc_matches:
+            for m in doc_matches:
+                _push(m.group(0))
+        else:
+            for piece in re.split(r"[,;]+|\s+Y\s+", line_clean, flags=re.I):
+                if piece.strip():
+                    _push(piece)
 
     if not out and s:
         _push(s)
@@ -419,11 +530,16 @@ def normalize_referencias_antecedentes(raw) -> str | None:
 def refresh_normalized_fields(conn) -> dict:
     """Recalcula estado_norm / especialidad_norm sobre filas ya importadas."""
     with conn.cursor() as cur:
-        cur.execute("SELECT id, estado, especialidad FROM cartas")
+        cur.execute("SELECT id, estado, especialidad, asunto, n_documento, bandeja FROM cartas")
         rows = cur.fetchall()
         updated = 0
         for r in rows:
-            en = normalize_estado(r.get("estado"))
+            raw_est = r.get("estado")
+            asunto = r.get("asunto") or ""
+            doc = r.get("n_documento") or ""
+            ban = r.get("bandeja") or ""
+            
+            en = infer_estado_from_row(raw_est, asunto, doc, ban)
             esp = normalize_especialidad(r.get("especialidad"))
             cur.execute(
                 """
@@ -446,5 +562,7 @@ def is_estado_abierto(estado_norm: str) -> bool:
     if not s or s == "SIN ESTADO":
         return False
     if s in CLOSED_STATES:
+        return False
+    if any(k in s for k in ("ABSUELT", "ABSUELV", "ABSOLUCI", "CERRAD", "ANULAD", "SUBSANAD", "PARA CONOCIMIENTO", "INFORMATIV")):
         return False
     return True

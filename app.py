@@ -1559,6 +1559,7 @@ def api_import_excel():
         result = import_excel_to_db(db, excel_path=excel_target, force=force)
         if result.get("ok") and not result.get("skipped"):
             try:
+                result["normalizados"] = refresh_normalized_fields(db)
                 result["hilos"] = _rebuild_hilos(db)
             except Exception as exc:
                 logging.exception("Error construyendo hilos tras import: %s", exc)

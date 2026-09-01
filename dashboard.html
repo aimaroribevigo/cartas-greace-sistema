@@ -2110,7 +2110,16 @@ body.app-locked .app-layout{visibility:hidden}
 <script>
 
 const OPEN_STATES=new Set(['PARA RESPUESTA','EN PROCESO','C. OBSERVADA','PENDIENTE ENTIDAD','PENDIENTE MUNICIPALIDAD','PENDIENTE SUPERVISION','PENDIENTE CGGC','SIN RESPUESTA','REINGRESO']);
-const CLOSED_PEND_STATES=new Set(['CERRADO','ABSUELTO SUPERVISION','ABSUELTO ENTIDAD']);
+const CLOSED_PEND_STATES=new Set([
+  'CERRADO','CERRADA','ABSUELTO','ABSUELTA','ABSUELTO SUPERVISION','ABSUELTO SUPERVISIÓN',
+  'ABSUELTA POR SUPERVISOR','ABSUELTO ENTIDAD','ABSUELTA POR ENTIDAD','ABSUELTA SUPERVISION',
+  'ABSUELTA SUPERVISIÓN','ABSUELTO POR SUPERVISION','ABSUELTO POR SUPERVISIÓN',
+  'ABSUELTO POR ENTIDAD','ABSUELTA POR ENTIDAD','ABSUELTO POR LA ENTIDAD','ABSUELTA POR LA ENTIDAD',
+  'ABSUELTO POR LA SUPERVISION','ABSUELTA POR LA SUPERVISION','ABSOLUCION','ABSOLUCIÓN',
+  'ABSOLUCION DE CONSULTA','ABSOLUCIÓN DE CONSULTA','ABSUELVE CONSULTA','ABSUELVEN CONSULTA',
+  'ABSUELVE','ABSUELVEN','ABSOLVER','ATENCION DE CONSULTA','ATENCIÓN DE CONSULTA',
+  'CONSULTA ABSUELTA','SUBSANADO','SUBSANADA','PARA CONOCIMIENTO','ANULADA','C. ANULADA'
+]);
 let VENCIDA_DIAS=15,POR_VENCER_DIAS=10,HILO_PLAZO_DIAS=5;
 const PAGE_SIZE=20,DRAFT_KEY='sistemagreace_nueva_carta_draft';
 const FORM_FIELDS=['n_documento','tipo_documento','fecha','emisor','destinatario','especialidad','asunto','observacion','referencias','referencia','hilo_id','plazo_dias','estado'];
@@ -2482,13 +2491,39 @@ function pendPlazoBadgeHtml(plazo){
   return `<span class="pend-plazo-badge ${cls}">${escapeHtml(txt)}</span>`;
 }
 
-function isOpen(est){return OPEN_STATES.has((est||'').toUpperCase());}
+const ABSOLUCION_RX = /\b(?:ABSUELV(?:EN|E|O|A)?|ABSUELT[OA]S?|ABSOLUCI[OÓ]N(?:\s+DE\s+CONSULTA|\s+A\s+LAS\s+OBSERVACIONES)?|ABSOLVER|ATENCI[OÓ]N\s+DE\s+CONSULTA|CONSULTA\s+ABSUELTA|PRONUNCIAMIENTO\s+A\s+LA\s+ABSOLUCION)\b/i;
+const ENSAYOS_COMUNICACION_RX = /\b(?:PRESENTACI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|PRESENTAR\s+(?:LOS\s+)?ENSAYOS?|SOLICIT(?:A|UD|O)?\s+(?:SE\s+)?(?:DE\s+)?(?:LA\s+)?PRESENTACI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|REITERACI[OÓ]N(?:\s+CONSECUTIVA)?\s+(?:EN|DE)?\s+(?:LA\s+)?PRESENTACI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|SOLICIT(?:A|UD|O)?\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|ENTREGA\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|REMISI[OÓ]N\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|ENV[IÍ]O\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|RESULTADOS?\s+(?:DE\s+)?(?:LOS\s+)?ENSAYOS?|ENSAYOS?\s+DE\s+(?:CONTROL\s+DE\s+)?CALIDAD|ENSAYOS?\s+DE\s+(?:TUBER[IÍ]A|COBRE|CONCRETO|COMPRESI[OÓ]N|DENSIDAD|SUELOS?|ASFALTO|ACERO|PROBETAS?|MATERIAL(?:ES)?|LABORATORIO)|CERTIFICADOS?\s+DE\s+(?:CALIDAD|CALIBRACI[OÓ]N|RECALIBRACI[OÓ]N)|RECALIBRACI[OÓ]N(?:\s+DE\s+(?:LOS\s+)?EQUIPOS)?|PROTOCOLOS?\s+DE\s+(?:CALIDAD|LIBERACI[OÓ]N|PRUEBA)|DOSSIER\s+DE\s+CALIDAD|FICHAS?\s+T[EÉ]CNICA[SD]?|DISE[ÑN]O\s+DE\s+MEZCLAS?|ROTURAS?\s+A\s+COMPRESI[OÓ]N|ROTURA\s+DE\s+PROBETA|ENSAYOS?\s+DEL\s+LADRILLO|FORMATOS?\s+ATS|FORMATOS?\s+DE\s+SEGURIDAD|SEGURIDAD\s+Y\s+SALUD\s+EN\s+EL\s+TRABAJO|CHARLA\s+INFORMATIVA|INSTRUCTIVO\s+PARA\s+ATORTOLAR|DESENCOFRADO|PLAN\s+DE\s+CALIDAD\s+DEL\s+PROVEEDOR|MEZCLADORAS\s+DE\s+CONCRETO|PROGRAMA\s+DE\s+ENSAYOS|INSTRUCTIVOS?\s+DE\s+ENSAYOS|ANDAMIOS\s+CERTIFICADOS|CONSIDERACIONES\s+PARA\s+(?:EMPALME|LA\s+RECEPCI[OÓ]N))\b/i;
+const COMUNICACION_GENERAL_RX = /\b(?:TRASLAD(?:O|AR|A|E)|REMIT(?:E|O)\s+COPIA|PARA\s+(?:FINES\s+DE\s+)?ARCHIVO|COMUNICADO|CARTA\s+CIRCULAR|PONE\s+EN\s+CONOCIMIENTO|PARA\s+(?:SU\s+)?CONOCIMIENTO|SOLO\s+INFORMATIVO|INFORMATIV[OA]|COMUNICA(?:MOS)?\s+(?:DESIGNACI[OÓ]N|INICIO|CONCLUSION|SUSPENSION|REINICIO|EVENTO|VISITA|FERIADO|DISPONIBILIDAD|ESTADO|AVANCE)|ALCANZA(?:R)?\s+CRONOGRAMA|REMIT(?:E|O)\s+(?:LOS\s+)?COMPROBANTES?|REMIT(?:E|O)\s+(?:LA\s+)?ACREDITACI[OÓ]N|REMIT(?:E|O|IR)\s+PLANO\s+GEORREFERENCIADO|ITINERARIO\s+DE\s+REUNI[OÓ]N|DECLARACI[OÓ]N\s+ANUAL|AMPLIACI[OÓ]N\s+DE\s+CORREOS?\s+ELECTR[OÓ]NICOS?|AMPLIACI[OÓ]N\s+DE\s+CORRESO|ALERTA\s+TEMPRANA|COMUNICACI[OÓ]N\s+DEL\s+MATERIAL|COMUNICACI[OÓ]N\s+DE\s+AFECTACIONES|NOTIFICACI[OÓ]N\s+DE\s+HITO|HITO\s+DE\s+CONTROL|ALCANZAR\s+ACTA|ACTA\s+DE\s+ACUERDOS|ACUERDOS\s+DEL\s+ACTA|DEVOLUCI[OÓ]N\s+DE\s+(?:03\s+)?ARCHIVADORES|DEVOLUCI[OÓ]N\s+DE\s+EXPEDIENTE|RESPUESTA\s+A\s+ALERTA|INVITACI[OÓ]N|CONVOCATORIA|DONACI[OÓ]N)\b/i;
+
+function isOpen(est){
+  const e=String(est||'').trim().toUpperCase();
+  if(isClosedState(e)) return false;
+  return OPEN_STATES.has(e);
+}
+
 function isClosedState(est){
   const e=String(est||'').trim().toUpperCase();
   if(CLOSED_PEND_STATES.has(e)) return true;
-  if(e.includes('ABSUELT')||e.includes('CERRAD')||e.includes('ANULAD')||e==='PARA CONOCIMIENTO') return true;
+  if(e.includes('ABSUELT')||e.includes('ABSUELV')||e.includes('ABSOLUCI')||e.includes('CERRAD')||e.includes('ANULAD')||e.includes('SUBSANAD')||e==='PARA CONOCIMIENTO') return true;
   return false;
 }
+
+function isAbsolucionJs(c){
+  if(!c) return false;
+  const est=String(c.estado_norm||c.estado||'').toUpperCase();
+  if(est.includes('ABSUELT')||est.includes('ABSUELV')||est.includes('ABSOLUCI')) return true;
+  const blob=[c.asunto,c.n_documento,c.observacion,c.referencias].join(' ');
+  return ABSOLUCION_RX.test(blob);
+}
+
+function isSoloComunicacionJs(c){
+  if(!c) return false;
+  const est=String(c.estado_norm||c.estado||'').toUpperCase();
+  if(est==='PARA CONOCIMIENTO') return true;
+  const blob=[c.asunto,c.n_documento,c.observacion,c.referencias].join(' ');
+  return /TRASLAD/i.test(blob) || ENSAYOS_COMUNICACION_RX.test(blob) || COMUNICACION_GENERAL_RX.test(blob);
+}
+
 function analyzeSemanticIntent(c){
   if(!c) return { categoria: 'gestion_general', label: '📋 Gestión General', short_label: 'Gestión', exige_respuesta: true, action_hint: 'Trámite en gestión', keywords: [] };
   if(c.clasificacion && c.clasificacion.semantica){
@@ -2501,25 +2536,36 @@ function analyzeSemanticIntent(c){
   const blob = `${doc} ${asunto} ${obs} ${refs}`;
 
   const estado = String(c.estado_norm || c.estado || '').toUpperCase();
-  if(estado === 'PARA CONOCIMIENTO'){
+  if(estado === 'PARA CONOCIMIENTO' || isSoloComunicacionJs(c)){
+    if(isAbsolucionJs(c)){
+      return {
+        categoria: 'absolucion',
+        label: '✅ Absolución / Trámite Atendido',
+        short_label: 'Absolución',
+        exige_respuesta: false,
+        action_hint: 'Consulta técnica o trámite resuelto y absuelto (cerrado sin deuda)',
+        keywords: ['ABSUELTO']
+      };
+    }
     return {
       categoria: 'comunicacion',
       label: '📄 Solo Comunicación / Informativo',
       short_label: 'Solo Informativo',
       exige_respuesta: false,
-      action_hint: 'Trámite registrado para conocimiento, sin deuda de respuesta',
-      keywords: ['PARA CONOCIMIENTO']
+      action_hint: 'Trámite registrado para conocimiento / comunicación informativa, sin deuda de respuesta',
+      keywords: ['COMUNICACIÓN']
     };
   }
 
   const rules = [
+    { cat: 'absolucion', label: '✅ Absolución / Trámite Atendido', short_label: 'Absolución', rx: ABSOLUCION_RX, hint: 'Consulta técnica o trámite resuelto y absuelto (cerrado sin deuda)', req: false },
+    { cat: 'ensayo_calidad', label: '🧪 Control de Calidad / Ensayos', short_label: 'Ensayos / Calidad', rx: /\b(?:ENSAYOS?|DENSIDAD(?:ES)?|COMPRESI[OÓ]N|RESISTENCIA|PROCTOR|CALIDAD|DOSIFICACI[OÓ]N|DISE[ÑN]O\s+DE\s+MEZCLA|ROTURA\s+DE\s+PROBETA|SLUMP|ASENTAMIENTO|MTC|ESPECIFICACION(?:ES)?\s+T[EÉ]CNICA(?:S)?|CERTIFICADOS?\s+DE\s+CALIDAD|PROTOCOLOS?\s+DE\s+CALIDAD|DOSSIER\s+DE\s+CALIDAD)\b/i, hint: 'Presentación de ensayos o control de calidad (comunicado informativo)', req: false },
     { cat: 'reiterativo', label: '⚠️ Reiterativo / Urgente', short_label: 'Reiterativo', rx: /\b(?:REITERATIVO|REITERACI[OÓ]N|REITER(?:O|A)\s+(?:SOLICITUD|ATENCI[OÓ]N|PRONUNCIAMIENTO|RESPUESTA)|BAJO\s+APERCIBIMIENTO|URGENTE)\b/i, hint: 'Trámite con reiteración formal de atención urgente', req: true },
     { cat: 'consulta_rfi', label: '❓ Consulta Técnica / RFI', short_label: 'Consulta Técnica', rx: /\b(?:CONSULTA(?:\s*N[°º]?\s*\d+|\s+T[EÉ]CNICA|\s+DE\s+OBRA)?|INTERFERENCIA(?:S)?|INCOMPATIBILIDAD(?:ES)?|ACLARACI[OÓ]N\s+DE\s+PLANO(?:S)?|DUDAS?\s+T[EÉ]CNICA)\b/i, hint: 'Consulta técnica o incompatibilidad que exige absolución contractual', req: true },
-    { cat: 'ensayo_calidad', label: '🧪 Control de Calidad / Ensayos', short_label: 'Ensayos / Calidad', rx: /\b(?:ENSAYOS?|DENSIDAD(?:ES)?|COMPRESI[OÓ]N|RESISTENCIA|PROCTOR|CALIDAD|DOSIFICACI[OÓ]N|DISE[ÑN]O\s+DE\s+MEZCLA|ROTURA\s+DE\s+PROBETA|SLUMP|ASENTAMIENTO|MTC|ESPECIFICACION(?:ES)?\s+T[EÉ]CNICA(?:S)?)\b/i, hint: 'Presentación de ensayos o control de calidad para conformidad técnica', req: true },
     { cat: 'plazo_economico', label: '💰 Plazo / Económico', short_label: 'Plazo / Económico', rx: /\b(?:AMPLIACI[OÓ]N\s+DE\s+PLAZO|VALORIZACI[OÓ]N(?:\s*N[°º]?\s*\d+)?|ADICIONAL\s+DE\s+OBRA|MAYORES\s+METRADOS|DEDUCTIVO|LIQUIDACI[OÓ]N|PENALIDAD(?:ES)?|RECONOCIMIENTO\s+DE\s+GASTOS)\b/i, hint: 'Trámite contractual con plazos legales de Ley de Contrataciones', req: true },
     { cat: 'subsanacion', label: '🔧 Subsanación de Observaciones', short_label: 'Subsanación', rx: /\b(?:SUBSANACI[OÓ]N(?:\s+DE\s+OBSERVACI[OÓ]N(?:ES)?)?|LEVANTAMIENTO\s+DE\s+OBSERVACI[OÓ]N(?:ES)?|REINGRESO|ABSOLUCI[OÓ]N\s+DE\s+OBSERVACI[OÓ]N(?:ES)?|OBSERVACI[OÓ]N(?:ES)?\s+AL\s+INFORME)\b/i, hint: 'Subsanación o levantamiento de observaciones presentado para verificación', req: true },
     { cat: 'aprobacion', label: '📝 Solicitud de Aprobación', short_label: 'Solicitud Aprobación', rx: /\b(?:APROBACI[OÓ]N|SOLICIT(?:UD|O|A)\s+(?:DE\s+)?(?:APROBACI[OÓ]N|PRONUNCIAMIENTO|AUTORIZACI[OÓ]N|CONFORMIDAD|PERMISO|REVISI[OÓ]N)|SOLICIT(?:UD|O|A)\s+SE\s+(?:AUTORICE|APRUEBE|PRONUNCIE)|PRONUNCIAMIENTO|CONFORMIDAD)\b/i, hint: 'Solicitud formal que requiere pronunciamiento o autorización expresa', req: true },
-    { cat: 'comunicacion', label: '📄 Solo Comunicación / Informativo', short_label: 'Solo Informativo', rx: /\b(?:PARA\s+(?:SU\s+)?CONOCIMIENTO|TRASLAD(?:O|AR)|REMIT(?:E|O)\s+COPIA|PARA\s+(?:FINES\s+DE\s+)?ARCHIVO|COMUNIC(?:O|A)\s+INICIO|PONE\s+EN\s+CONOCIMIENTO|INFORMATIVO)\b/i, hint: 'Documento informativo o traslado sin requerimiento de respuesta', req: false },
+    { cat: 'comunicacion', label: '📄 Solo Comunicación / Informativo', short_label: 'Solo Informativo', rx: COMUNICACION_GENERAL_RX, hint: 'Documento informativo o traslado sin requerimiento de respuesta', req: false },
   ];
 
   for(const r of rules){
@@ -2713,10 +2759,13 @@ function inferClasificacion(c){
   const ban=String(c.bandeja||'');
   const sentido=c.sentido||(ban.startsWith('recibida')?'recibida':'emitida');
   const estado=(c.estado_norm||c.estado||'').toUpperCase();
-  const abierta=OPEN_STATES.has(estado);
-  const traslado=/TRASLAD/i.test([c.asunto,c.n_documento,c.observacion,c.referencias].join(' '));
+  const esAbs=isAbsolucionJs(c);
+  const abierta=!esAbs && isOpen(estado) && !isClosedState(estado);
+  const esCom=isSoloComunicacionJs(c);
   let naturaleza='respuesta', deuda='ninguna';
-  if(estado==='PARA CONOCIMIENTO'||(sentido==='recibida'&&traslado)){
+  if(esAbs){
+    naturaleza='respuesta'; deuda='ninguna';
+  }else if(estado==='PARA CONOCIMIENTO'||esCom){
     naturaleza='comunicacion'; deuda='ninguna';
   }else if(!abierta){
     deuda='ninguna';
@@ -2815,8 +2864,10 @@ function plazoRank(kind){return({vencida:0,por_vencer:1,ok:2,sin_plazo:3,comunic
 
 function estadoBadgeClass(est){
   const e=(est||'').toUpperCase();
+  if(e.includes('CERR')||e.includes('ABSUELT')||e.includes('ABSUELV')||e.includes('ABSOLUCI')||e.includes('SUBSANAD'))return'cerrado';
+  if(e==='PARA CONOCIMIENTO'||e.includes('INFORMATIV')||e.includes('COMUNIC'))return'comunicacion';
+  if(isClosedState(e))return'cerrado';
   if(OPEN_STATES.has(e))return'abierto';
-  if(e.includes('CERR')||e.includes('ABSUELT'))return'cerrado';
   if(e.includes('OBSERV'))return'observado';
   return'otro';
 }
