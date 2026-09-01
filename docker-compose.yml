@@ -74,6 +74,7 @@ services:
     volumes:
       # Copia el Excel a ./data/ si quieres reimportar (opcional; el clone trae seed MySQL).
       - ./data:/app/data:ro
+      - ./static:/app/static:ro
       - ./dashboard.html:/app/dashboard.html:ro
       - ./app.py:/app/app.py:ro
       - ./normalizers.py:/app/normalizers.py:ro
