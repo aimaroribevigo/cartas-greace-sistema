@@ -1,3 +1,22 @@
+async function ensurePendientesLoaded(force = false){
+  if(pendientesLoaded && !force && PENDIENTES && PENDIENTES.counts){
+    renderPendientes();
+    return;
+  }
+  renderPendientesSkeleton();
+  try{
+    const [pend] = await Promise.all([
+      apiFetch('/api/pendientes').then(r=>r.ok?r.json():{}).catch(()=>({})),
+      loadHilos().catch(()=>({hilos:[],counts:{}}))
+    ]);
+    PENDIENTES = pend || {};
+    pendientesLoaded = true;
+    renderPendientes();
+  }catch(e){
+    console.error('Error al cargar pendientes:', e);
+  }
+}
+
 function isPendDetailVisible(){
   const el=document.querySelector('.pend-detail-toolbar');
   if(!el)return false;

@@ -153,7 +153,30 @@ function renderSaldos(){
   });
 }
 
+async function ensureSaldosLoaded(force = false){
+  if(saldosLoaded && !force && SALDOS && SALDOS.por_bandeja){
+    renderSaldos();
+    return;
+  }
+  renderSaldosSkeleton();
+  try{
+    const [saldos, status] = await Promise.all([
+      apiFetch('/api/saldos').then(r=>r.ok?r.json():{}).catch(()=>({})),
+      apiFetch('/api/status/supervision').then(r=>r.ok?r.json():{}).catch(()=>({}))
+    ]);
+    SALDOS = saldos || {};
+    STATUS_SUP = status || {};
+    saldosLoaded = true;
+    renderSaldos();
+  }catch(e){
+    console.error('Error al cargar saldos:', e);
+  }
+}
+
 async function refreshData(isBackground = true){
+  pendientesLoaded = false;
+  saldosLoaded = false;
+  reportesLoaded = false;
   return await loadData(isBackground);
 }
 
@@ -163,11 +186,8 @@ async function loadData(isBackground = false){
     if(!ok)return;
     if(!isBackground && (!ALL_CARTAS || ALL_CARTAS.length === 0)){
       renderTableSkeleton(8);
-      renderSaldosSkeleton();
-      renderPendientesSkeleton();
-      renderReportesSkeleton();
     }
-    // Paso 1: Carga prioritaria inmediata de cartas y stats
+    // Carga exclusiva e inmediata de cartas y stats (Control de Cartas)
     const [cartas, stats] = await Promise.all([
       fetchCartas(),
       fetchStats()
@@ -184,31 +204,17 @@ async function loadData(isBackground = false){
     initFilters();
     updateHeroMeta();
     applyFilters(true);
-    if(currentView==='cartas') requestAnimationFrame(setupCartasSearchFloat);
 
-    // Paso 2: Carga asincrona no bloqueante de datos secundarios (pendientes, saldos, status)
-    Promise.all([
-      apiFetch('/api/pendientes').then(r=>r.ok?r.json():{}).catch(()=>({})),
-      apiFetch('/api/saldos').then(r=>r.ok?r.json():{}).catch(()=>({})),
-      apiFetch('/api/status/supervision').then(r=>r.ok?r.json():{}).catch(()=>({}))
-    ]).then(([pend, saldos, status]) => {
-      PENDIENTES = pend || {};
-      SALDOS = saldos || {};
-      STATUS_SUP = status || {};
-      if(currentView==='pendientes') renderPendientes();
-      if(currentView==='saldos') renderSaldos();
-      if(currentView==='reportes') updateCharts();
-    }).catch(e => console.warn('Carga diferida:', e));
-
-    if(currentView==='pendientes'){
-      try{await loadHilos();}catch(e){console.warn('hilos',e);HILOS={hilos:[],counts:{}};}
-      renderPendientes();
-    } else {
-      if(window.requestIdleCallback){
-        requestIdleCallback(()=>{loadHilos().catch(()=>{});},{timeout:800});
-      } else {
-        setTimeout(()=>{loadHilos().catch(()=>{});},150);
-      }
+    // Activar únicamente la vista que el usuario tiene abierta actualmente
+    if(currentView==='cartas'){
+      requestAnimationFrame(setupCartasSearchFloat);
+    } else if(currentView==='pendientes'){
+      ensurePendientesLoaded(true);
+    } else if(currentView==='saldos'){
+      ensureSaldosLoaded(true);
+    } else if(currentView==='reportes'){
+      updateCharts();
+      reportesLoaded = true;
     }
   }catch(e){
     showCartasLoading(false);

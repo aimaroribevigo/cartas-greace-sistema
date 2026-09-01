@@ -33,12 +33,35 @@ function showView(view){
   updateDocumentTitle(view);
   requestAnimationFrame(updateHeaderHeight);
   if(location.hash!=='#'+view)history.replaceState(null,'','#'+view);
-  if(view==='reportes')requestAnimationFrame(()=>Object.values(charts).forEach(ch=>ch&&ch.resize()));
-  if(view==='pendientes')renderPendientes();
-  if(view==='saldos')renderSaldos();
-  if(view==='usuarios')loadUsersAdmin();
-  if(view==='configuracion')loadConfigAdmin();
-  if(view==='cartas')syncCartasSearchUI();
+
+  // Carga e inicialización bajo demanda (Lazy Loading) exclusiva por vista
+  if(view==='cartas'){
+    syncCartasSearchUI();
+    if(ALL_CARTAS && ALL_CARTAS.length > 0){
+      updateTable();
+    }
+  }
+  else if(view==='reportes'){
+    if(!reportesLoaded){
+      updateCharts();
+      reportesLoaded = true;
+    }
+    requestAnimationFrame(()=>Object.values(charts).forEach(ch=>ch&&ch.resize()));
+  }
+  else if(view==='pendientes'){
+    if(typeof ensurePendientesLoaded === 'function') ensurePendientesLoaded();
+    else if(typeof renderPendientes === 'function') renderPendientes();
+  }
+  else if(view==='saldos'){
+    if(typeof ensureSaldosLoaded === 'function') ensureSaldosLoaded();
+    else if(typeof renderSaldos === 'function') renderSaldos();
+  }
+  else if(view==='usuarios'){
+    loadUsersAdmin();
+  }
+  else if(view==='configuracion'){
+    loadConfigAdmin();
+  }
   updateFloatingSearchOnScroll();
   closeMobileSidebar();
 }
