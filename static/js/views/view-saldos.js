@@ -150,55 +150,57 @@ function renderSaldos(){
     });
   });
 
-  const estados=st.estados||[];
   const thead=document.querySelector('#statusTable thead');
   const stb=document.querySelector('#statusTable tbody');
-  thead.innerHTML='<tr><th>Especialidad</th>'+estados.map(e=>`<th>${escapeHtml(e)}</th>`).join('')+'<th>Total</th></tr>';
-  stb.innerHTML='';
-  const colSums={};
-  estados.forEach(e=>{colSums[e]=0;});
-  let grandTotal=0;
-  (st.rows||[]).forEach((r,idx)=>{
-    grandTotal+=(r.total||0);
-    estados.forEach(e=>{colSums[e]+=(r[e]||0);});
-    const tr=document.createElement('tr');
-    tr.className='row-rendered';
-    tr.style.animationDelay=`${Math.min(idx*15,200)}ms`;
-    const cells=estados.map(e=>{
-      const val=r[e]||0;
-      if(!val)return `<td class="num" style="color:var(--text-muted);cursor:default">0</td>`;
-      return `<td class="num" data-esp="${escapeHtml(r.especialidad)}" data-estado="${escapeHtml(e)}" style="cursor:pointer" title="Ver cartas: ${escapeHtml(e)} en ${escapeHtml(r.especialidad)}">${val}</td>`;
-    }).join('');
-    tr.innerHTML=`<td><strong>${escapeHtml(r.especialidad)}</strong></td>`+cells+`<td class="num"><strong>${r.total||0}</strong></td>`;
-    stb.appendChild(tr);
-  });
-  if((st.rows||[]).length){
-    const trTot=document.createElement('tr');
-    trTot.style.background='var(--bg-card)';
-    trTot.style.fontWeight='700';
-    trTot.style.borderTop='2px solid var(--border)';
-    const cellsTot=estados.map(e=>`<td class="num">${colSums[e]||0}</td>`).join('');
-    trTot.innerHTML=`<td>TOTALES</td>`+cellsTot+`<td class="num"><strong>${grandTotal}</strong></td>`;
-    stb.appendChild(trTot);
-  }
-  stb.querySelectorAll('td.num[data-estado]').forEach(td=>{
-    td.addEventListener('click',()=>{
-      const esp=td.dataset.esp, estado=td.dataset.estado;
-      resetFilters();
-      document.getElementById('filterBandeja').value='recibida_sup';
-      activeBandeja='recibida_sup';
-      if(estado&&estado!=='all')document.getElementById('filterEstado').value=estado;
-      if(esp&&esp!=='all'){
-        const sel=document.getElementById('filterEsp');
-        if(![...sel.options].some(o=>o.value===esp)){
-          const o=document.createElement('option');o.value=esp;o.textContent=esp;sel.appendChild(o);
-        }
-        sel.value=esp;
-      }
-      applyFilters();
-      goToCartasWithFilters();
+  if(thead && stb){
+    const estados=st.estados||[];
+    thead.innerHTML='<tr><th>Especialidad</th>'+estados.map(e=>`<th>${escapeHtml(e)}</th>`).join('')+'<th>Total</th></tr>';
+    stb.innerHTML='';
+    const colSums={};
+    estados.forEach(e=>{colSums[e]=0;});
+    let grandTotal=0;
+    (st.rows||[]).forEach((r,idx)=>{
+      grandTotal+=(r.total||0);
+      estados.forEach(e=>{colSums[e]+=(r[e]||0);});
+      const tr=document.createElement('tr');
+      tr.className='row-rendered';
+      tr.style.animationDelay=`${Math.min(idx*15,200)}ms`;
+      const cells=estados.map(e=>{
+        const val=r[e]||0;
+        if(!val)return `<td class="num" style="color:var(--text-muted);cursor:default">0</td>`;
+        return `<td class="num" data-esp="${escapeHtml(r.especialidad)}" data-estado="${escapeHtml(e)}" style="cursor:pointer" title="Ver cartas: ${escapeHtml(e)} en ${escapeHtml(r.especialidad)}">${val}</td>`;
+      }).join('');
+      tr.innerHTML=`<td><strong>${escapeHtml(r.especialidad)}</strong></td>`+cells+`<td class="num"><strong>${r.total||0}</strong></td>`;
+      stb.appendChild(tr);
     });
-  });
+    if((st.rows||[]).length){
+      const trTot=document.createElement('tr');
+      trTot.style.background='var(--bg-card)';
+      trTot.style.fontWeight='700';
+      trTot.style.borderTop='2px solid var(--border)';
+      const cellsTot=estados.map(e=>`<td class="num">${colSums[e]||0}</td>`).join('');
+      trTot.innerHTML=`<td>TOTALES</td>`+cellsTot+`<td class="num"><strong>${grandTotal}</strong></td>`;
+      stb.appendChild(trTot);
+    }
+    stb.querySelectorAll('td.num[data-estado]').forEach(td=>{
+      td.addEventListener('click',()=>{
+        const esp=td.dataset.esp, estado=td.dataset.estado;
+        resetFilters();
+        document.getElementById('filterBandeja').value='recibida_sup';
+        activeBandeja='recibida_sup';
+        if(estado&&estado!=='all')document.getElementById('filterEstado').value=estado;
+        if(esp&&esp!=='all'){
+          const sel=document.getElementById('filterEsp');
+          if(![...sel.options].some(o=>o.value===esp)){
+            const o=document.createElement('option');o.value=esp;o.textContent=esp;sel.appendChild(o);
+          }
+          sel.value=esp;
+        }
+        applyFilters();
+        goToCartasWithFilters();
+      });
+    });
+  }
 }
 
 async function ensureSaldosLoaded(force = false){
