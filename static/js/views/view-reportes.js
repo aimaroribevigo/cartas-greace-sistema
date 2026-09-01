@@ -253,9 +253,9 @@ function updateTable(){
         <td class="cell-wrap" style="font-weight:600;color:var(--text-secondary)">${escapeHtml(cleanSpaces(getTipoDocumentoDisplay(c)))}</td>
         <td class="cell-wrap">${formatEspecialidadBadge(c)}</td>
         <td class="cell-wrap">${humanFlujoBadge(c)}</td>
+        <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
         <td class="cell-wrap" style="line-height:1.4">${escapeHtml(cleanSpaces(c.asunto||'—'))}${semBadge}</td>
         <td class="cell-wrap">${refHtml}</td>
-        <td class="cell-wrap">${getRespRespuestaLabel(c)}</td>
         <td><span class="plazo-badge ${pb}"><span><i class="ri-time-line"></i> ${escapeHtml(st.label)}</span>${st.date?`<span class="plazo-date">${fmtDate(st.date)}</span>`:''}</span></td>
         <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(cleanSpaces(c.estado_norm||c.estado||'—'))}</span></td>
         <td class="cell-wrap" style="font-size:11.5px;color:var(--text-secondary);max-width:200px" title="${escapeHtml(cleanSpaces(c.observacion||''))}">${escapeHtml(cleanSpaces(c.observacion||'—'))}</td>
