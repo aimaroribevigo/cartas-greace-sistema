@@ -167,20 +167,39 @@ async function loadData(isBackground = false){
       renderPendientesSkeleton();
       renderReportesSkeleton();
     }
-    const[cartas,stats,pend,saldos,status]=await Promise.all([
+    // Paso 1: Carga prioritaria inmediata de cartas y stats
+    const [cartas, stats] = await Promise.all([
       fetchCartas(),
-      fetchStats(),
-      apiFetch('/api/pendientes').then(r=>{if(!r.ok)throw new Error('pendientes');return r.json();}),
-      apiFetch('/api/saldos').then(r=>{if(!r.ok)throw new Error('saldos');return r.json();}),
-      apiFetch('/api/status/supervision').then(r=>{if(!r.ok)throw new Error('status');return r.json();})
+      fetchStats()
     ]);
-    ALL_CARTAS=cartas;STATS=stats;PENDIENTES=pend;SALDOS=saldos;STATUS_SUP=status;
+    ALL_CARTAS = cartas;
+    STATS = stats;
     prepareCartasSearchCache(ALL_CARTAS);
-    BANDEJAS_META=stats.bandejas_meta||BANDEJAS_META;
-    ACTORES_META=stats.actores_meta||ACTOR_LABELS;
-    if(stats.user)applyUserChrome(stats.user);
+    BANDEJAS_META = stats.bandejas_meta || BANDEJAS_META;
+    ACTORES_META = stats.actores_meta || ACTOR_LABELS;
+    if(stats.user) applyUserChrome(stats.user);
     applyCatalogoFromStats(stats);
-    applyPlazosConfig(stats);initBandejas();initFilters();updateHeroMeta();applyFilters();
+    applyPlazosConfig(stats);
+    initBandejas();
+    initFilters();
+    updateHeroMeta();
+    applyFilters(true);
+    if(currentView==='cartas') requestAnimationFrame(setupCartasSearchFloat);
+
+    // Paso 2: Carga asincrona no bloqueante de datos secundarios (pendientes, saldos, status)
+    Promise.all([
+      apiFetch('/api/pendientes').then(r=>r.ok?r.json():{}).catch(()=>({})),
+      apiFetch('/api/saldos').then(r=>r.ok?r.json():{}).catch(()=>({})),
+      apiFetch('/api/status/supervision').then(r=>r.ok?r.json():{}).catch(()=>({}))
+    ]).then(([pend, saldos, status]) => {
+      PENDIENTES = pend || {};
+      SALDOS = saldos || {};
+      STATUS_SUP = status || {};
+      if(currentView==='pendientes') renderPendientes();
+      if(currentView==='saldos') renderSaldos();
+      if(currentView==='reportes') updateCharts();
+    }).catch(e => console.warn('Carga diferida:', e));
+
     if(currentView==='pendientes'){
       try{await loadHilos();}catch(e){console.warn('hilos',e);HILOS={hilos:[],counts:{}};}
       renderPendientes();
@@ -191,8 +210,6 @@ async function loadData(isBackground = false){
         setTimeout(()=>{loadHilos().catch(()=>{});},150);
       }
     }
-    if(currentView==='saldos')renderSaldos();
-    if(currentView==='cartas')requestAnimationFrame(setupCartasSearchFloat);
   }catch(e){
     showCartasLoading(false);
     console.error(e);

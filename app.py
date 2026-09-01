@@ -215,11 +215,19 @@ def _gate_password_rotation():
 
 _RAW_CARTAS_CACHE = None
 _CACHE_VERSION = int(time.time() * 1000)
+_STATS_CACHE = {}
+_PENDIENTES_CACHE = {}
+_SALDOS_CACHE = {}
+_STATUS_SUP_CACHE = {}
 
 
 def invalidate_cartas_cache():
-    global _RAW_CARTAS_CACHE, _CACHE_VERSION
+    global _RAW_CARTAS_CACHE, _CACHE_VERSION, _STATS_CACHE, _PENDIENTES_CACHE, _SALDOS_CACHE, _STATUS_SUP_CACHE
     _RAW_CARTAS_CACHE = None
+    _STATS_CACHE = {}
+    _PENDIENTES_CACHE = {}
+    _SALDOS_CACHE = {}
+    _STATUS_SUP_CACHE = {}
     _CACHE_VERSION = int(time.time() * 1000)
 
 
@@ -1145,9 +1153,19 @@ def api_pendientes():
     etag = f'W/"pendientes_{_CACHE_VERSION}_{uid}"'
     if request.headers.get("If-None-Match") == etag:
         return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
+
+    cache_key = (uid, _CACHE_VERSION)
+    if cache_key in _PENDIENTES_CACHE:
+        resp = jsonify(_PENDIENTES_CACHE[cache_key])
+        resp.headers["ETag"] = etag
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
     rows = scoped_cartas()
     _apply_plazos_from_config()
-    resp = jsonify(public_pendientes(rows))
+    payload = public_pendientes(rows)
+    _PENDIENTES_CACHE[cache_key] = payload
+    resp = jsonify(payload)
     resp.headers["ETag"] = etag
     resp.headers["Cache-Control"] = "no-cache"
     return resp
@@ -1224,6 +1242,14 @@ def api_saldos():
     etag = f'W/"saldos_{_CACHE_VERSION}_{uid}"'
     if request.headers.get("If-None-Match") == etag:
         return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
+
+    cache_key = (uid, _CACHE_VERSION)
+    if cache_key in _SALDOS_CACHE:
+        resp = jsonify(_SALDOS_CACHE[cache_key])
+        resp.headers["ETag"] = etag
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
     rows = scoped_cartas()
     payload = build_saldos(rows)
     if u and u.get("vista_parcial"):
@@ -1233,6 +1259,7 @@ def api_saldos():
             "Vista parcial por especialidad: los totales no deben compararse "
             "con la paridad Excel global (175/228)."
         )
+    _SALDOS_CACHE[cache_key] = payload
     resp = jsonify(payload)
     resp.headers["ETag"] = etag
     resp.headers["Cache-Control"] = "no-cache"
@@ -1242,8 +1269,15 @@ def api_saldos():
 @app.route("/api/status/supervision", methods=["GET"])
 @require_auth
 def api_status_supervision():
+    u = current_user()
+    uid = u.get("id") if u else 0
+    cache_key = (uid, _CACHE_VERSION)
+    if cache_key in _STATUS_SUP_CACHE:
+        return jsonify(_STATUS_SUP_CACHE[cache_key])
     rows = scoped_cartas()
-    return jsonify(build_status_supervision(rows))
+    payload = build_status_supervision(rows)
+    _STATUS_SUP_CACHE[cache_key] = payload
+    return jsonify(payload)
 
 
 @app.route("/api/cartas/<int:cid>", methods=["GET"])
@@ -1471,6 +1505,13 @@ def api_stats():
     if request.headers.get("If-None-Match") == etag:
         return ("", 304, {"ETag": etag, "Cache-Control": "no-cache"})
 
+    cache_key = (uid, _CACHE_VERSION)
+    if cache_key in _STATS_CACHE:
+        resp = jsonify(_STATS_CACHE[cache_key])
+        resp.headers["ETag"] = etag
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
     rows = scoped_cartas()
     u = current_user()
 
@@ -1497,37 +1538,40 @@ def api_stats():
 
     classified = classify_cartas(rows, vencida_dias=v_dias, por_vencer_dias=pv_dias)
     pendientes = public_pendientes(rows)
-    return jsonify(
-        {
-            "total": len(rows),
-            "by_bandeja": by_bandeja,
-            "by_estado": by_estado,
-            "by_especialidad": by_esp,
-            "by_month": by_month,
-            "bandejas_meta": BANDEJAS,
-            "actores_meta": ACTORES,
-            "alertas": classified["counts"],
-            "plazos": plazos_config(v_dias, pv_dias),
-            "plazos_respuesta": plazos_respuesta_config(cfg_row),
-            "plazos_contractuales": {
-                "plazo_sup_dias": cfg_row.get("plazo_sup_dias") or 5,
-                "plazo_entidad_dias": cfg_row.get("plazo_entidad_dias") or 15,
-                "plazo_muni_dias": cfg_row.get("plazo_muni_dias") or 15,
-                "plazo_jrd_dias": cfg_row.get("plazo_jrd_dias") or 15,
-                "plazo_ro_dias": cfg_row.get("plazo_ro_dias") or 5,
-            },
-            "pendientes": {
-                "counts": pendientes["counts"],
-                "debo_by_actor": pendientes["debo"]["by_actor"],
-                "me_deben_by_actor": pendientes["me_deben"]["by_actor"],
-                "debo_by_especialidad": pendientes["debo"]["by_especialidad"],
-                "me_deben_by_especialidad": pendientes["me_deben"]["by_especialidad"],
-            },
-            "vista_parcial": bool(u and u.get("vista_parcial")),
-            "user": public_user(u),
-            "catalogo": catalogo_payload(),
-        }
-    )
+    payload = {
+        "total": len(rows),
+        "by_bandeja": by_bandeja,
+        "by_estado": by_estado,
+        "by_especialidad": by_esp,
+        "by_month": by_month,
+        "bandejas_meta": BANDEJAS,
+        "actores_meta": ACTORES,
+        "alertas": classified["counts"],
+        "plazos": plazos_config(v_dias, pv_dias),
+        "plazos_respuesta": plazos_respuesta_config(cfg_row),
+        "plazos_contractuales": {
+            "plazo_sup_dias": cfg_row.get("plazo_sup_dias") or 5,
+            "plazo_entidad_dias": cfg_row.get("plazo_entidad_dias") or 15,
+            "plazo_muni_dias": cfg_row.get("plazo_muni_dias") or 15,
+            "plazo_jrd_dias": cfg_row.get("plazo_jrd_dias") or 15,
+            "plazo_ro_dias": cfg_row.get("plazo_ro_dias") or 5,
+        },
+        "pendientes": {
+            "counts": pendientes["counts"],
+            "debo_by_actor": pendientes["debo"]["by_actor"],
+            "me_deben_by_actor": pendientes["me_deben"]["by_actor"],
+            "debo_by_especialidad": pendientes["debo"]["by_especialidad"],
+            "me_deben_by_especialidad": pendientes["me_deben"]["by_especialidad"],
+        },
+        "vista_parcial": bool(u and u.get("vista_parcial")),
+        "user": public_user(u),
+        "catalogo": catalogo_payload(),
+    }
+    _STATS_CACHE[cache_key] = payload
+    resp = jsonify(payload)
+    resp.headers["ETag"] = etag
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
 
 
 _IMPORT_LOCK = threading.Lock()

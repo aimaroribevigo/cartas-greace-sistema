@@ -357,6 +357,10 @@ def infer_contraparte(c: dict) -> str:
 
 
 def classify_carta(c: dict) -> dict[str, Any]:
+    if not c:
+        return {}
+    if "clasificacion" in c and isinstance(c["clasificacion"], dict) and "deuda" in c["clasificacion"]:
+        return c["clasificacion"]
     estado = normalize_estado(c.get("estado_norm") or c.get("estado"))
     es_abs = is_absolucion(c)
     if es_abs:
