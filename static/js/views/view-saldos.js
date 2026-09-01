@@ -59,38 +59,6 @@ function renderSaldos(){
       : 'Haz clic en cualquier número para ver directamente las cartas de esa especialidad.';
   }
 
-  const kpisEl = document.getElementById('saldosKpis');
-  if(kpisEl){
-    const totalTramites = (c.le_deben||0) + (c.cggc_debe||0);
-    const pctPropio = totalTramites ? Math.round((c.cggc_debe||0) / totalTramites * 100) : 0;
-    const saldoNeto = c.saldo_neto||0;
-    kpisEl.innerHTML=`
-      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--amber)">
-        <div class="kpi-icon" style="background:var(--amber-light);color:#8A6A20"><i class="ri-mail-send-line"></i></div>
-        <div class="kpi-value">${c.le_deben||0}</div>
-        <div class="kpi-label">🟡 Esperando a Contraparte</div>
-        <div class="kpi-sub">Cartas emitidas pendientes de respuesta</div>
-      </div>
-      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--rose)">
-        <div class="kpi-icon" style="background:var(--rose-light);color:var(--rose)"><i class="ri-inbox-unarchive-line"></i></div>
-        <div class="kpi-value">${c.cggc_debe||0}</div>
-        <div class="kpi-label">🔴 Pendientes de Responder</div>
-        <div class="kpi-sub">Cartas recibidas por contestar</div>
-      </div>
-      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--teal)">
-        <div class="kpi-icon" style="background:var(--teal-light);color:var(--teal)"><i class="ri-scales-3-line"></i></div>
-        <div class="kpi-value" style="color:${saldoNeto>=0?'var(--teal)':'var(--rose)'}">${saldoNeto>0?'+':''}${saldoNeto}</div>
-        <div class="kpi-label">⚖️ Balance Neto</div>
-        <div class="kpi-sub">${saldoNeto>=0?'Mayor volumen a favor de obra':'Mayor carga por responder'}</div>
-      </div>
-      <div class="kpi-card kpi-rendered" style="border-left:4px solid var(--sage)">
-        <div class="kpi-icon" style="background:var(--sage-light);color:var(--sage)"><i class="ri-pie-chart-line"></i></div>
-        <div class="kpi-value">${pctPropio}%</div>
-        <div class="kpi-label">📊 % Carga Operativa Propia</div>
-        <div class="kpi-sub">Proporción que depende de nosotros</div>
-      </div>`;
-  }
-
   const tb=document.querySelector('#saldosTable tbody');
   if(!tb) return;
   tb.innerHTML='';
@@ -114,9 +82,9 @@ function renderSaldos(){
     if ((r.cggc_debe||0) >= 10 || r.nivel_riesgo === 'ALTO') {
       riskBadge = `<span class="saldos-badge-critico">🔴 Crítico (${r.cggc_debe} por responder)</span>`;
     } else if ((r.cggc_debe||0) > 0) {
-      riskBadge = `<span class="saldos-badge-medio">🟡 Atención (${r.cggc_debe} pendientes)</span>`;
+      riskBadge = `<span class="saldos-badge-medio">🟡 Atención (${r.cggc_debe} por responder)</span>`;
     } else if ((r.le_deben||0) > 0) {
-      riskBadge = `<span class="saldos-badge-medio" style="background:#F4EFEB;color:#6E5C4F">⏳ Esperando respuesta</span>`;
+      riskBadge = `<span class="saldos-badge-ok">🟢 Al Día (${r.le_deben} en Supervisión)</span>`;
     } else {
       riskBadge = `<span class="saldos-badge-ok">🟢 Al Día</span>`;
     }
