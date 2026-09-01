@@ -76,11 +76,15 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary)
 /* Main Content Area */
 .app-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);transition:all .25s ease;position:relative}
 
-/* Full View Loading Overlay with Backdrop Blur */
-.view-loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100%;background:rgba(247,246,243,0.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:150;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;transition:opacity .25s ease,visibility .25s ease;pointer-events:all}
+/* Full View Loading Overlay - Centered in visible viewport, NO blur to prevent lag */
+.view-loading-overlay{position:fixed;top:0;left:var(--sidebar-width);right:0;bottom:0;background:rgba(248,247,244,0.92);z-index:999;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;transition:opacity .15s ease,visibility .15s ease;pointer-events:all}
+.app-sidebar.collapsed ~ .app-main .view-loading-overlay{left:var(--sidebar-collapsed-width, 68px)}
+@media (max-width: 900px){
+  .view-loading-overlay{left:0}
+}
 .view-loading-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
-.view-loading-card{background:var(--bg-card);border:1px solid var(--border);padding:24px 32px;border-radius:16px;box-shadow:0 16px 40px -10px rgba(0,0,0,0.12),0 4px 14px rgba(0,0,0,0.04);display:flex;flex-direction:column;align-items:center;text-align:center;max-width:320px;animation:modalZoomIn .28s cubic-bezier(0.16,1,0.3,1)}
-.view-loading-spinner{width:40px;height:40px;border:3.5px solid rgba(196,91,62,0.18);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite;margin-bottom:14px}
+.view-loading-card{background:#FFFFFF;border:1px solid var(--border);padding:26px 36px;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);display:flex;flex-direction:column;align-items:center;text-align:center;max-width:320px;animation:modalZoomIn .2s cubic-bezier(0.16,1,0.3,1)}
+.view-loading-spinner{width:38px;height:38px;border:3px solid rgba(196,91,62,0.18);border-top-color:var(--accent);border-radius:50%;animation:spin .65s linear infinite;margin-bottom:12px}
 .view-loading-title{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em}
 .view-loading-sub{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.35}
 
