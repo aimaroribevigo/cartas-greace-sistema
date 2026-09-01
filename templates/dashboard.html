@@ -293,99 +293,129 @@
 
 <nav class="filter-bar" id="filterBar">
   <div class="filter-panel" id="filterPanel">
-    <div class="filter-row">
+    <div class="filter-row filter-row-primary">
       <div class="filter-search-wrap" id="filterSearchWrap">
         <i class="ri-search-line" aria-hidden="true"></i>
-        <input class="filter-input filter-search" id="filterQ" type="search" placeholder="Buscar cartas…" aria-label="Búsqueda rápida">
+        <input class="filter-input filter-search" id="filterQ" type="search" placeholder="Buscar por N° carta, asunto, emisor…" aria-label="Búsqueda rápida">
       </div>
-      <select class="filter-select" id="filterBandeja" aria-label="Bandeja"><option value="all">Todas las bandejas</option></select>
-      <select class="filter-select" id="filterEstado" aria-label="Estado"><option value="all">Todos los estados</option></select>
-      <select class="filter-select" id="filterEsp" aria-label="Especialidad"><option value="all">Todas las especialidades</option></select>
+      <select class="filter-select" id="filterBandeja" aria-label="Bandeja"><option value="all">📁 Todas las bandejas</option></select>
+      <select class="filter-select" id="filterEstado" aria-label="Estado"><option value="all">⚡ Todos los estados</option></select>
       <select class="filter-select" id="filterPlazo" aria-label="Plazo">
-        <option value="all">Todos los plazos</option>
-        <option value="vencida" id="optPlazoVencida">Vencidas (abiertas)</option>
-        <option value="hoy-or-por_vencer" id="optPlazoRiesgo">Por vencer</option>
-        <option value="ok" id="optPlazoOk">En gestión</option>
-        <option value="abiertas">Todas abiertas</option>
-        <option value="cerrada">Cerradas</option>
-        <option value="sin_plazo">Sin plazo definido</option>
-        <option value="comunicacion">Solo comunicación</option>
+        <option value="all">⏱️ Todos los plazos</option>
+        <option value="vencida" id="optPlazoVencida">🚨 Vencidas (urgente)</option>
+        <option value="hoy-or-por_vencer" id="optPlazoRiesgo">⏳ Por vencer</option>
+        <option value="ok" id="optPlazoOk">✅ En gestión normal</option>
+        <option value="abiertas">📂 Todas abiertas</option>
+        <option value="cerrada">🔒 Cerradas / Resueltas</option>
       </select>
-      <select class="filter-select" id="filterDeuda" aria-label="Deuda">
-        <option value="all">Toda deuda</option>
-        <option value="debo">Yo debo responder</option>
-        <option value="me_deben">Me deben respuesta</option>
-        <option value="ninguna">Sin deuda / cerrada</option>
+      <button type="button" class="btn-toggle-adv-filters" id="btnToggleAdvFilters" title="Mostrar más filtros específicos">
+        <i class="ri-equalizer-line"></i> <span>Más Filtros</span> <i class="ri-arrow-down-s-line adv-arrow"></i>
+      </button>
+      <span class="filter-flex-spacer"></span>
+      <span class="filter-active-tag" id="filterActiveTag"><i class="ri-filter-3-line"></i> Filtros activos</span>
+      <button type="button" class="filter-reset" id="btnReset"><i class="ri-refresh-line"></i> <span>Limpiar</span></button>
+    </div>
+
+    <!-- Fila Desplegable de Filtros Avanzados -->
+    <div class="filter-row filter-row-secondary" id="advFiltersRow" style="display:none">
+      <select class="filter-select" id="filterEsp" aria-label="Especialidad"><option value="all">👷 Todas las especialidades</option></select>
+      <select class="filter-select" id="filterDeuda" aria-label="Responsabilidad">
+        <option value="all">👥 Toda responsabilidad</option>
+        <option value="debo">🔴 Debemos responder nosotros</option>
+        <option value="me_deben">🟡 Esperando a contraparte</option>
+        <option value="ninguna">⚪ Informativas / Sin deuda</option>
       </select>
-      <select class="filter-select" id="filterSemantica" aria-label="Intención / Tipo">
-        <option value="all">Todas las intenciones</option>
+      <select class="filter-select" id="filterSemantica" aria-label="Tipo de trámite">
+        <option value="all">📋 Tipo de trámite</option>
         <option value="ensayo_calidad">🧪 Ensayos / Calidad</option>
         <option value="consulta_rfi">❓ Consulta Técnica / RFI</option>
         <option value="aprobacion">📝 Solicitud de Aprobación</option>
         <option value="plazo_economico">💰 Plazo / Económico</option>
         <option value="subsanacion">🔧 Subsanación</option>
-        <option value="reiterativo">⚠️ Reiterativo / Urgente</option>
+        <option value="reiterativo">⚠️ Reiterativo</option>
         <option value="comunicacion">📄 Solo Informativo</option>
-        <option value="gestion_general">📋 Gestión General</option>
       </select>
       <select class="filter-select" id="filterFlujo" aria-label="Flujo Documentario">
-        <option value="all">Todos los flujos</option>
+        <option value="all">🔄 Todos los flujos</option>
         <option value="RO➔SUP">📤 RO ➔ SUP (Residente a Supervisión)</option>
         <option value="SUP➔RO">📥 SUP ➔ RO (Supervisión a Residente)</option>
         <option value="RL➔SUP">📤 RL ➔ SUP (Rep. Legal a Supervisión)</option>
         <option value="SUP➔RL">📥 SUP ➔ RL (Supervisión a Rep. Legal)</option>
         <option value="PRONIS➔RO">📥 PRONIS ➔ RO (Entidad a Residente)</option>
         <option value="RO➔PRONIS">📤 RO ➔ PRONIS (Residente a Entidad)</option>
-        <option value="RL➔PRONIS">📤 RL ➔ PRONIS (Rep. Legal a Entidad)</option>
-        <option value="MUNI➔RO">📥 MUNI ➔ RO (Municipalidad a Residente)</option>
-        <option value="OTRO➔RO">📥 OTRO ➔ RO (Otros a Residente)</option>
-        <option value="RO➔OTRO">📤 RO ➔ OTRO (Residente a Otros)</option>
       </select>
-      <select class="filter-select" id="filterContraparte" aria-label="Contraparte">
-        <option value="all">Toda contraparte</option>
-        <option value="supervisor">Supervisión</option>
-        <option value="entidad">PRONIS</option>
-        <option value="municipalidad">Municipalidad</option>
-        <option value="jrd">Junta Resol. Disputas</option>
-        <option value="otro">Otro</option>
-        <option value="rl">Representante Legal</option>
-        <option value="residente">Residente</option>
-      </select>
-      <select class="filter-select" id="filterNaturaleza" aria-label="Naturaleza">
-        <option value="all">Respuesta + comunicación</option>
-        <option value="respuesta">Solo con respuesta</option>
-        <option value="comunicacion">Solo traslados / comunicación</option>
-      </select>
-      <span class="filter-flex-spacer"></span>
-      <span class="filter-active-tag" id="filterActiveTag"><i class="ri-filter-3-line"></i> Filtros activos</span>
-      <button type="button" class="filter-reset" id="btnReset"><i class="ri-refresh-line"></i> <span>Limpiar filtros</span></button>
+      <select class="filter-select" id="filterContraparte" aria-label="Contraparte" style="display:none"></select>
+      <select class="filter-select" id="filterNaturaleza" aria-label="Naturaleza" style="display:none"></select>
     </div>
   </div>
 </nav>
 
 <div class="view-panel active" id="view-reportes">
-  <div class="deadline-alert">
-    <div class="deadline-alert-inner tone-ok" id="deadlineAlertInnerReportes">
-      <div class="deadline-alert-copy">
-        <h3 id="deadlineTitleReportes">Control de plazos</h3>
-        <p id="deadlineTextReportes">Calculando vencimientos…</p>
+  <!-- Sección Mis Tareas de Hoy / Accionabilidad Directa -->
+  <div class="today-tasks-hero" id="todayTasksHero">
+    <div class="today-tasks-header">
+      <div class="today-tasks-title-wrap">
+        <span class="today-tasks-badge"><i class="ri-flashlight-line"></i> Qué atender hoy</span>
+        <h2 class="today-tasks-title">Resumen Operativo y Prioridades de la Obra</h2>
       </div>
-      <div class="deadline-alert-stats" id="deadlineStatsReportes"></div>
-      <div class="deadline-alert-actions">
-        <button type="button" class="btn-deadline-filter" id="btnFilterVencidasReportes"><i class="ri-alarm-warning-line"></i> Ver en Cartas</button>
+      <button type="button" class="btn-today-new-carta" onclick="openNewCartaModal()">
+        <i class="ri-add-circle-line"></i> <span>Registrar Nueva Carta</span>
+      </button>
+    </div>
+    
+    <div class="today-tasks-cards">
+      <div class="today-card urgent" id="cardTodayUrgent" onclick="filterTodayTasks('vencidas')" title="Clic para ver cartas vencidas">
+        <div class="today-card-top">
+          <div class="today-card-icon"><i class="ri-alarm-warning-line"></i></div>
+          <span class="today-card-tag">Urgente</span>
+        </div>
+        <div class="today-card-val" id="todayVencidasCount">0</div>
+        <div class="today-card-label">Cartas Vencidas</div>
+        <div class="today-card-action"><span>Ver y Atender</span> <i class="ri-arrow-right-line"></i></div>
+      </div>
+
+      <div class="today-card warning" id="cardTodayWarning" onclick="filterTodayTasks('por_vencer')" title="Clic para ver cartas por vencer">
+        <div class="today-card-top">
+          <div class="today-card-icon"><i class="ri-time-line"></i></div>
+          <span class="today-card-tag">Atención</span>
+        </div>
+        <div class="today-card-val" id="todayPorVencerCount">0</div>
+        <div class="today-card-label">Por Vencer (&le; 5 días)</div>
+        <div class="today-card-action"><span>Revisar Plazos</span> <i class="ri-arrow-right-line"></i></div>
+      </div>
+
+      <div class="today-card info" id="cardTodayPending" onclick="showView('pendientes')" title="Clic para ver pendientes de respuesta">
+        <div class="today-card-top">
+          <div class="today-card-icon"><i class="ri-exchange-funds-line"></i></div>
+          <span class="today-card-tag">Seguimiento</span>
+        </div>
+        <div class="today-card-val" id="todayPendientesCount">0</div>
+        <div class="today-card-label">Pendientes de Respuesta</div>
+        <div class="today-card-action"><span>Ver Expedientes</span> <i class="ri-arrow-right-line"></i></div>
+      </div>
+
+      <div class="today-card success" id="cardTodayClosed" onclick="filterTodayTasks('cerradas')" title="Clic para ver cartas cerradas">
+        <div class="today-card-top">
+          <div class="today-card-icon"><i class="ri-checkbox-circle-line"></i></div>
+          <span class="today-card-tag">Al día</span>
+        </div>
+        <div class="today-card-val" id="todayCerradasCount">0</div>
+        <div class="today-card-label">Trámites Resueltos</div>
+        <div class="today-card-action"><span>Ver Historial</span> <i class="ri-arrow-right-line"></i></div>
       </div>
     </div>
   </div>
-  <section class="kpi-row">
-    <div class="kpi-card"><div class="kpi-icon" style="background:var(--teal-light);color:var(--teal)"><i class="ri-mail-line"></i></div><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-label">Cartas totales</div><div class="kpi-sub" id="kpiTotalSub"></div></div>
-    <div class="kpi-card"><div class="kpi-icon" style="background:var(--sage-light);color:var(--sage)"><i class="ri-lock-line"></i></div><div class="kpi-value" id="kpiCerradas">0</div><div class="kpi-label">Cerradas</div><div class="kpi-sub" id="kpiCerradasSub"></div></div>
-    <div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-light);color:var(--amber)"><i class="ri-mail-open-line"></i></div><div class="kpi-value" id="kpiAbiertas">0</div><div class="kpi-label">Abiertas</div><div class="kpi-sub" id="kpiAbiertasSub"></div></div>
+
+  <section class="kpi-row" style="margin-top: 20px;">
+    <div class="kpi-card"><div class="kpi-icon" style="background:var(--teal-light);color:var(--teal)"><i class="ri-mail-line"></i></div><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-label">Cartas registradas</div><div class="kpi-sub" id="kpiTotalSub"></div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:var(--sage-light);color:var(--sage)"><i class="ri-lock-line"></i></div><div class="kpi-value" id="kpiCerradas">0</div><div class="kpi-label">Atendidas / Cerradas</div><div class="kpi-sub" id="kpiCerradasSub"></div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-light);color:var(--amber)"><i class="ri-mail-open-line"></i></div><div class="kpi-value" id="kpiAbiertas">0</div><div class="kpi-label">En trámite (Abiertas)</div><div class="kpi-sub" id="kpiAbiertasSub"></div></div>
     <div class="kpi-card"><div class="kpi-icon" style="background:var(--rose-light);color:var(--rose)"><i class="ri-alarm-warning-line"></i></div><div class="kpi-value" id="kpiAlertas">0</div><div class="kpi-label">Alertas de plazo</div><div class="kpi-sub" id="kpiAlertasSub"></div></div>
   </section>
   <div class="jump-cartas">
     <div class="jump-cartas-inner">
-      <p class="jump-cartas-text">Con los filtros actuales hay <strong id="jumpCount">0</strong> cartas. Ábrelas en la lista operativa para revisar, editar o exportar.</p>
-      <button type="button" class="btn-jump-cartas" id="btnJumpCartas"><i class="ri-mail-open-line"></i> Ver en Cartas</button>
+      <p class="jump-cartas-text">Hay <strong id="jumpCount">0</strong> cartas con los filtros seleccionados. Ábrelas en el listado para revisar o exportar.</p>
+      <button type="button" class="btn-jump-cartas" id="btnJumpCartas"><i class="ri-mail-open-line"></i> Abrir en Cartas</button>
     </div>
   </div>
   <section class="chart-grid">
@@ -399,14 +429,14 @@
 <div class="view-panel" id="view-pendientes">
   <div class="pend-grid">
     <div class="pend-card debo">
-      <h3>Yo debo responder</h3>
-      <p class="hint">Cartas recibidas abiertas de Supervisión, PRONIS, Municipalidad o JRD. Al responder (emitir carta con antecedentes o marcar CERRADO), salen de esta lista.</p>
+      <h3>🔴 Pendientes de Nuestra Respuesta</h3>
+      <p class="hint">Cartas recibidas de Supervisión, PRONIS o Municipalidad que requieren una respuesta oficial nuestra.</p>
       <div class="big" id="pendDeboCount">0</div>
       <div class="pend-actor-row" id="pendDeboActors"></div>
     </div>
     <div class="pend-card me_deben">
-      <h3>Me deben respuesta</h3>
-      <p class="hint">Cartas emitidas abiertas hacia las 4 contrapartes. Sup. 5 hábiles; si traslada a Entidad, 15 días calendario desde la fecha de traslado.</p>
+      <h3>🟡 Esperando Respuesta de Contraparte</h3>
+      <p class="hint">Cartas enviadas por nosotros en las que estamos esperando la respuesta oficial de la Supervisión o PRONIS.</p>
       <div class="big" id="pendMeDebenCount">0</div>
       <div class="pend-actor-row" id="pendMeDebenActors"></div>
     </div>
@@ -414,14 +444,14 @@
   <div class="pend-detail" id="pendDetail">
     <div class="pend-detail-toolbar">
       <div>
-        <h3>Detalle operativo</h3>
-        <p>Lista operativa (primera tabla), matriz por especialidad e hilos. Use <strong>Respondidos</strong> para trámites ya cerrados.</p>
+        <h3>Detalle de Expedientes y Cartas</h3>
+        <p>Selecciona una pestaña para ver los expedientes según su estado de atención:</p>
       </div>
       <div class="pend-mode" id="pendMode">
-        <button type="button" class="active" data-mode="debo">Yo debo</button>
-        <button type="button" data-mode="me_deben">Me deben</button>
-        <button type="button" data-mode="respondidos">Respondidos</button>
-        <button type="button" data-mode="comunicacion">Traslados</button>
+        <button type="button" class="active" data-mode="debo">🔴 Debemos responder</button>
+        <button type="button" data-mode="me_deben">🟡 Esperando a contraparte</button>
+        <button type="button" data-mode="respondidos">🟢 Trámites Atendidos</button>
+        <button type="button" data-mode="comunicacion">ℹ️ Solo Comunicación</button>
       </div>
     </div>
     <div class="pend-detail-stack">

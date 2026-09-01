@@ -1039,6 +1039,60 @@ function updateHeroMeta(){
   const ds=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
   document.getElementById('heroDate').textContent=ds;
   document.getElementById('footerDate').textContent=ds;
+  updateTodayTasksCounts();
+}
+
+function updateTodayTasksCounts(){
+  const counts = countPlazos(ALL_CARTAS);
+  const vEl = document.getElementById('todayVencidasCount');
+  const pEl = document.getElementById('todayPorVencerCount');
+  const pendEl = document.getElementById('todayPendientesCount');
+  const cEl = document.getElementById('todayCerradasCount');
+
+  if(vEl) vEl.textContent = counts.vencida || 0;
+  if(pEl) pEl.textContent = counts.por_vencer || 0;
+  if(pendEl) pendEl.textContent = counts.abiertas || 0;
+  if(cEl) cEl.textContent = counts.cerrada || 0;
+}
+
+function filterTodayTasks(type){
+  const selPlazo = document.getElementById('filterPlazo');
+  const selBandeja = document.getElementById('filterBandeja');
+  const selEstado = document.getElementById('filterEstado');
+  if(selBandeja) selBandeja.value = 'all';
+  if(selEstado) selEstado.value = 'all';
+
+  if(type === 'vencidas'){
+    if(selPlazo) selPlazo.value = 'vencida';
+    showToast('Mostrando cartas vencidas prioritarias', 'info');
+  } else if(type === 'por_vencer'){
+    if(selPlazo) selPlazo.value = 'hoy-or-por_vencer';
+    showToast('Mostrando cartas por vencer', 'info');
+  } else if(type === 'cerradas'){
+    if(selPlazo) selPlazo.value = 'cerrada';
+    showToast('Mostrando trámites atendidos y resueltos', 'info');
+  }
+  applyFilters();
+  goToCartasWithFilters();
+}
+
+function setupAdvFiltersToggle(){
+  const btn = document.getElementById('btnToggleAdvFilters');
+  const row = document.getElementById('advFiltersRow');
+  if(btn && row && !btn._hasToggleBound){
+    btn._hasToggleBound = true;
+    btn.addEventListener('click', () => {
+      const isHidden = row.style.display === 'none';
+      row.style.display = isHidden ? 'flex' : 'none';
+      btn.classList.toggle('active', isHidden);
+    });
+  }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', setupAdvFiltersToggle);
+} else {
+  setupAdvFiltersToggle();
 }
 
 function countPlazos(list){
