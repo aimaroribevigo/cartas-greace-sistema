@@ -1301,25 +1301,17 @@ function applyForm(d){
 }
 
 function saveDraft(){
-  const d = collectForm();
-  if(!formHasContent(d)){ localStorage.removeItem(DRAFT_KEY); return false; }
-  localStorage.setItem(DRAFT_KEY, JSON.stringify({savedAt: new Date().toISOString(), data: d}));
-  return true;
+  return false;
 }
 function loadDraft(){
-  const raw = localStorage.getItem(DRAFT_KEY);
-  if(!raw) return null;
-  try {
-    const obj = JSON.parse(raw);
-    return obj.data || null;
-  } catch(e){
-    return null;
-  }
+  return null;
 }
-function clearDraft(){ localStorage.removeItem(DRAFT_KEY); }
+function clearDraft(){
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+}
 function setDraftHint(visible){
   const h = document.getElementById('draftRestoredHint');
-  if(h) h.style.display = visible ? 'block' : 'none';
+  if(h) h.style.display = 'none';
 }
 
 function showModal(){
@@ -1379,16 +1371,9 @@ function openNewModal(){
   const today = getTodayIso();
   document.getElementById('f_fecha').value = today;
 
-  const draft = loadDraft();
-  if(draft && formHasContent(draft)){
-    applyForm(draft);
-    setDraftHint(true);
-    showToast('Borrador restaurado.', 'info');
-  } else {
-    clearDraft();
-    setDraftHint(false);
-    updatePlazoFromActors();
-  }
+  clearDraft();
+  setDraftHint(false);
+  updatePlazoFromActors();
 
   const docInput = document.getElementById('f_n_documento');
   if(docInput){ docInput.readOnly = false; docInput.style.backgroundColor = ''; docInput.style.cursor = ''; docInput.title = ''; }
@@ -1513,9 +1498,14 @@ async function openEditModal(id){
 }
 
 function closeModal(opts={}){
-  const isNew = editingId == null;
-  if(isNew && !opts.fromSave && saveDraft()) showToast('Borrador guardado. Al abrir Nueva Carta lo verás de nuevo.', 'info');
-  hideModal(() => { editingId = null; cartaFormSnapshot = null; });
+  clearDraft();
+  setDraftHint(false);
+  hideModal(() => { 
+    editingId = null; 
+    cartaFormSnapshot = null; 
+    const form = document.getElementById('cartaForm');
+    if(form) form.reset();
+  });
 }
 
 async function handleSave(){
