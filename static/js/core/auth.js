@@ -138,19 +138,55 @@ function applyUserChrome(user){
   if(cfgMaint)cfgMaint.style.display=user.can_import?'':'none';
   const btnNew = document.getElementById('btnNewCarta');
   if(btnNew) btnNew.style.display = userPerm(user,'can_create_cartas') ? '' : 'none';
+  const tabR=document.getElementById('tabReportes');
+  const tabS=document.getElementById('tabSaldos');
+  const tabCartas=document.getElementById('tabCartas');
+  const isIngeniero = user && user.rol === 'ingeniero';
+  if(tabR) tabR.style.display = isIngeniero ? 'none' : 'flex';
+  if(tabS) tabS.style.display = isIngeniero ? 'none' : 'flex';
+  if(tabCartas) tabCartas.style.display = isIngeniero ? 'none' : 'flex';
+  const heroMeta = document.getElementById('heroMeta');
+  if(heroMeta) heroMeta.style.display = isIngeniero ? 'none' : 'flex';
   if(tabU)tabU.style.display=user.can_manage_users?'flex':'none';
   if(tabC)tabC.style.display=user.can_manage_users?'flex':'none';
   if(btnU)btnU.style.display=user.can_manage_users?'':'none';
   if(user.vista_parcial){
     ban.style.display='block';
-    document.getElementById('scopeBannerText').textContent=
-      `Solo lectura · especialidad(es) ${(user.especialidades||[]).join(', ')||'—'}. El Administrador registra cartas, respuestas (hilos) y cierres.`;
+    const esps = (user.especialidades||[]).join(', ')||'—';
+    ban.innerHTML = `
+      <div class="scope-banner-card">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:38px;height:38px;border-radius:8px;background:rgba(196,91,62,0.1);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">
+            <i class="ri-user-settings-line"></i>
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary)">
+              Panel de Especialista · ${escapeHtml(user.nombre||user.username)}
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:1px">
+              Especialidad: <strong style="color:var(--accent);font-weight:700">${escapeHtml(esps)}</strong>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);background:var(--bg-secondary, #FAF9F6);padding:6px 12px;border-radius:6px;border:1px solid var(--border)">
+          <i class="ri-shield-check-line" style="color:var(--teal);font-size:15px"></i>
+          <span>Vista filtrada automáticamente a tus especialidades asignadas</span>
+        </div>
+      </div>
+    `;
   }else if(user.solo_lectura_cartas && !user.can_create_cartas){
     ban.style.display='block';
-    document.getElementById('scopeBannerText').textContent=
-      'Modo consulta: puede ver todas las cartas. Crear, editar, responder (hilo) y borrar lo gestiona únicamente el Administrador.';
+    ban.innerHTML = `
+      <div class="scope-banner-card" style="border-left-color:var(--teal)">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <i class="ri-eye-line" style="color:var(--teal);font-size:18px"></i>
+          <span style="font-size:13px;color:var(--text-primary)"><strong>Modo Consulta (Solo Lectura):</strong> Acceso completo para visualización y seguimiento de trámites.</span>
+        </div>
+      </div>
+    `;
   }else{
     ban.style.display='none';
+    ban.innerHTML = '';
   }
 }
 
@@ -172,6 +208,10 @@ async function ensureSession(){
     }
     hidePwdGate();
     hideLoginGate();
+    const hash = (location.hash||'').replace('#','');
+    if(me.user.rol === 'ingeniero' && (!hash || hash === 'reportes')){
+      showView('pendientes');
+    }
     return true;
   }
   applyUserChrome(null);

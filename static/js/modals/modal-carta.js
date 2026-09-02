@@ -1061,6 +1061,21 @@ function renderCartaPadreCardUI(prefix, parentCarta, currentCartaOrId){
     if(removeBtn) removeBtn.style.display = 'none';
     card.querySelector('.padre-lock-indicator')?.remove();
   } else {
+    const canEdit = CURRENT_USER && (CURRENT_USER.can_edit_cartas || CURRENT_USER.can_edit_formal);
+    if (!canEdit) {
+      if(docEl) docEl.innerHTML = `<span class="carta-padre-badge" style="background:#F0EEEA;color:var(--text-secondary);margin-right:6px"><i class="ri-file-text-line"></i> TRÁMITE INDEPENDIENTE</span><strong>Sin carta antecedente previa</strong>`;
+      if(subEl){
+        subEl.innerHTML = `<div style="font-size:12px;color:var(--text-muted)">Esta carta fue registrada como documento inicial directo sin antecedentes previos vinculados.</div>`;
+      }
+      if(previewBtn) previewBtn.style.display = 'none';
+      if(removeBtn) removeBtn.style.display = 'none';
+      card.querySelector('.padre-lock-indicator')?.remove();
+      if(timelineEl){ timelineEl.style.display = 'none'; timelineEl.innerHTML = ''; }
+      card.style.display = 'flex';
+      const searchWrap = document.getElementById(prefix ? `${prefix}_cartaPadreSearchWrap` : 'cartaPadreSearchWrap');
+      if(searchWrap) searchWrap.style.display = 'none';
+      return;
+    }
     card.style.display = 'none';
     const searchWrap = document.getElementById(prefix ? `${prefix}_cartaPadreSearchWrap` : 'cartaPadreSearchWrap');
     if(searchWrap) searchWrap.style.display = 'block';
@@ -1075,19 +1090,28 @@ function renderCartaPadreCardUI(prefix, parentCarta, currentCartaOrId){
         const isCur = currentId && ch.id === currentId;
         const label = escapeHtml(ch.n_documento || ('ID ' + ch.id));
         const dt = fmtDate(ch.fecha) || '';
+        if(isCur){
+          return `
+            <div class="carta-hilo-step current" style="cursor:default;user-select:none" title="Carta actual en pantalla">
+              <span>${idx + 1}.</span> <strong>${label}</strong> ${dt ? `<span style="font-size:10px;opacity:0.9">(${dt})</span>` : ''} <span style="font-size:9.5px;background:rgba(255,255,255,0.25);padding:1px 5px;border-radius:3px;margin-left:2px">Actual</span>
+            </div>
+          `;
+        }
         return `
-          <button type="button" class="carta-hilo-step ${isCur ? 'current' : ''}" onclick="previewRefCarta(${ch.id})" title="${isCur ? 'Carta actual en edición' : 'Clic para ver detalle'} (${escapeHtml(ch.asunto||'')})">
+          <button type="button" class="carta-hilo-step" onclick="previewRefCarta(${ch.id})" title="Clic para ver antecedente (${escapeHtml(ch.asunto||'')})">
             <span>${idx + 1}.</span> <strong>${label}</strong> ${dt ? `<span style="font-size:10px;opacity:0.85">(${dt})</span>` : ''}
           </button>
         `;
-      }).join('<span class="carta-hilo-arrow"><i class="ri-arrow-right-s-line"></i></span>');
+      }).join('');
       
       timelineEl.innerHTML = `
-        <div class="carta-hilo-stepper">
-          <div style="width:100%;font-size:11px;font-weight:700;color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-bottom:2px">
-            <i class="ri-git-merge-line" style="color:var(--accent)"></i> LÍNEA DE VIDA DEL TRÁMITE ${hid ? `(#${hid})` : ''} · ${chain.length} cartas vinculadas:
+        <div class="carta-hilo-stepper" style="display:flex;flex-direction:column;gap:6px;width:100%">
+          <div style="width:100%;font-size:11px;font-weight:700;color:var(--text-muted);display:flex;align-items:center;gap:5px">
+            <i class="ri-git-merge-line" style="color:var(--accent);font-size:13px"></i> LÍNEA DE VIDA DEL TRÁMITE ${hid ? `(#${hid})` : ''} · ${chain.length} cartas vinculadas:
           </div>
-          ${stepsHtml}
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">
+            ${stepsHtml}
+          </div>
         </div>
       `;
       timelineEl.style.display = 'block';
@@ -1178,10 +1202,16 @@ function applyForm(d){
     setCategoriaCartaMode('successors', { numSuccessors });
   } else if(isClosedLetter){
     setCategoriaCartaMode('closed', { estado: est });
+  } else if(isLinkedResponse){
+    setCategoriaCartaMode('linked');
   } else {
-    setCategoriaCartaMode('editable');
-    if(reqCheck) reqCheck.checked = !isSoloInfo;
+    setCategoriaCartaMode('editable', { requiereRespuesta: !isSoloInfo });
   }
+
+  let pVal = d.plazo_dias;
+  if(pVal == null || pVal === '') pVal = 5;
+  document.getElementById('f_plazo_dias').value = pVal;
+  updatePlazoFromActors();
 
   if(hasSuccessors || isClosedLetter || isLinkedResponse){
     if(docInput){
@@ -1283,12 +1313,7 @@ function applyForm(d){
   } else {
     document.getElementById('f_referencia').value = '';
     document.getElementById('f_hilo_id').value = d.hilo_id || '';
-    const chain = typeof getHiloChainCartas === 'function' ? getHiloChainCartas(d) : [];
-    if(chain.length > 1){
-      renderCartaPadreCardUI('', null, d);
-    } else {
-      clearCartaPadre();
-    }
+    renderCartaPadreCardUI('', null, d);
   }
 
   // Asegurar que se preserve el tipo de documento y especialidad propios de la carta al editar
@@ -1395,19 +1420,90 @@ function openNewModal(){
 function setCartaFormReadOnly(ro){
   const form = document.getElementById('cartaForm');
   if(!form) return;
-  form.querySelectorAll('input,select,textarea,button').forEach(el => {
+  form.querySelectorAll('input,select,textarea').forEach(el => {
     if(el.id === 'f_id' || el.id === 'f_referencia' || el.id === 'f_hilo_id') return;
     if(el.closest('.modal-footer')) return;
     if(el.type === 'hidden') return;
-    if(el.tagName === 'BUTTON'){
-      el.disabled = !!ro;
-      el.style.pointerEvents = ro ? 'none' : '';
-      el.style.opacity = ro ? '0.55' : '';
-      return;
-    }
     el.disabled = !!ro;
     el.readOnly = !!ro;
+    if(ro){
+      el.style.pointerEvents = 'none';
+      el.style.backgroundColor = 'var(--bg-card, #f8f9fa)';
+      el.style.cursor = 'default';
+    } else {
+      el.style.pointerEvents = '';
+      el.style.backgroundColor = '';
+      el.style.cursor = '';
+    }
   });
+
+  // Action buttons, trashcan buttons, and dynamic adds inside form (EXCEPT timeline steps and preview buttons)
+  form.querySelectorAll('button:not(.modal-footer button):not(.carta-hilo-step):not(.btn-padre-preview), #btnAddRefDynamic, #btnEspAddCustom, .ref-dynamic-item button').forEach(el => {
+    if(ro){
+      el.style.display = 'none';
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+    } else {
+      el.style.display = '';
+      el.disabled = false;
+      el.style.pointerEvents = '';
+    }
+  });
+
+  // Explicitly ensure timeline step buttons and preview button are ALWAYS visible and clickable
+  form.querySelectorAll('.carta-hilo-step, .btn-padre-preview').forEach(el => {
+    el.style.display = 'inline-flex';
+    el.disabled = false;
+    el.style.pointerEvents = 'auto';
+    el.style.opacity = '1';
+  });
+
+  const padreInst = document.querySelector('#labelCartaPadre .padre-instruction');
+  const padreTitle = document.querySelector('#labelCartaPadre span');
+  if(padreInst) padreInst.style.display = ro ? 'none' : '';
+  if(padreTitle) padreTitle.textContent = ro ? 'Antecedente / Trámite Vinculado' : 'Carta Padre';
+
+  const removePadreBtn = document.getElementById('btnRemoveCartaPadre');
+  if(removePadreBtn && ro) removePadreBtn.style.display = 'none';
+
+  // Especialidad tag chips
+  form.querySelectorAll('.esp-tag-chip, .esp-chip').forEach(el => {
+    if(ro){
+      el.style.pointerEvents = 'none';
+      el.style.cursor = 'default';
+    } else {
+      el.style.pointerEvents = '';
+      el.style.cursor = 'pointer';
+    }
+  });
+
+  // Reference items styling in readonly
+  form.querySelectorAll('.ref-dynamic-item').forEach(row => {
+    const inp = row.querySelector('.ref-item-input');
+    const delBtn = row.querySelector('button');
+    if(ro){
+      if(delBtn) delBtn.style.display = 'none';
+      if(inp){
+        inp.readOnly = true;
+        inp.disabled = true;
+        inp.style.border = 'none';
+        inp.style.background = 'transparent';
+        inp.style.pointerEvents = 'none';
+        inp.style.color = 'var(--text-primary)';
+      }
+    } else {
+      if(delBtn) delBtn.style.display = '';
+      if(inp){
+        inp.readOnly = false;
+        inp.disabled = false;
+        inp.style.border = '';
+        inp.style.background = '';
+        inp.style.pointerEvents = '';
+        inp.style.color = '';
+      }
+    }
+  });
+
   const saveBtn = document.getElementById('btnSaveForm');
   if(saveBtn){
     saveBtn.style.display = ro ? 'none' : '';
@@ -1459,7 +1555,7 @@ async function openEditModal(id){
       if (sumEl) {
         sumEl.style.display = 'block';
         const sentido = c.sentido || (String(c.bandeja || '').startsWith('recibida') ? 'recibida' : 'emitida');
-        const bLab = (sentido === 'recibida' ? '📥 ' : '📤 ') + (BANDEJA_LABELS[c.bandeja] || bandejaLabel(c.bandeja));
+        const bLab = (sentido === 'recibida' ? '📥 ' : '📤 ') + bandejaLabel(c.bandeja);
         const espTxt = c.especialidad_norm || c.especialidad || 'GENERAL';
         document.getElementById('csum_bandeja').textContent = bLab;
         if (document.getElementById('csum_especialidad')) document.getElementById('csum_especialidad').textContent = '👷 ' + espTxt;
@@ -1486,8 +1582,8 @@ async function openEditModal(id){
     document.getElementById('f_id').value = id;
     setDraftHint(false);
     populateFormEspChips(c.especialidad);
-    setCartaFormReadOnly(!canEdit);
     applyForm(c);
+    setCartaFormReadOnly(!canEdit);
     snapshotCartaForm();
     showModal();
     focusCartaModalHeader();

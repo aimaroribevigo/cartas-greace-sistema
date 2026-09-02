@@ -181,19 +181,19 @@
 
     <div class="sidebar-section-title">Panel de Control</div>
     <nav class="sidebar-nav" aria-label="Vistas del panel">
-      <button type="button" class="view-tab active" data-view="reportes" title="Reportes">
+      <button type="button" class="view-tab active" data-view="reportes" id="tabReportes" title="Reportes">
         <i class="ri-bar-chart-box-line"></i>
         <span class="tab-label">Reportes</span>
       </button>
-      <button type="button" class="view-tab" data-view="pendientes" title="Pendientes">
+      <button type="button" class="view-tab" data-view="pendientes" id="tabPendientes" title="Pendientes">
         <i class="ri-exchange-funds-line"></i>
         <span class="tab-label">Pendientes</span>
       </button>
-      <button type="button" class="view-tab" data-view="saldos" title="Resumen de Saldos">
+      <button type="button" class="view-tab" data-view="saldos" id="tabSaldos" title="Resumen de Saldos">
         <i class="ri-scales-3-line"></i>
         <span class="tab-label">Resumen Saldos</span>
       </button>
-      <button type="button" class="view-tab" data-view="cartas" title="Cartas">
+      <button type="button" class="view-tab" data-view="cartas" id="tabCartas" title="Cartas">
         <i class="ri-mail-line"></i>
         <span class="tab-label">Cartas</span>
       </button>
@@ -256,33 +256,33 @@
       </div>
 
       <div class="app-header-right">
-        <div class="hero-meta">
-          <div class="hero-meta-pill" title="Total de cartas registradas">
-            <div class="meta-pill-icon"><i class="ri-mail-line"></i></div>
+        <div class="hero-meta" id="heroMeta">
+          <div class="hero-meta-pill" id="heroCountPill" title="Total general de cartas registradas en la obra">
+            <div class="meta-pill-icon"><i class="ri-file-list-3-line"></i></div>
             <div class="meta-pill-content">
               <span class="meta-pill-val" id="heroCount">0</span>
-              <span class="meta-pill-lbl">cartas</span>
+              <span class="meta-pill-lbl">Total Cartas</span>
             </div>
           </div>
-          <div class="hero-meta-pill" title="Especialidades técnicas">
+          <div class="hero-meta-pill" id="heroEspPill" title="Especialidades técnicas asignadas a las cartas">
             <div class="meta-pill-icon"><i class="ri-building-line"></i></div>
             <div class="meta-pill-content">
               <span class="meta-pill-val" id="heroEsp">0</span>
-              <span class="meta-pill-lbl">esps</span>
+              <span class="meta-pill-lbl">Especialidades</span>
             </div>
           </div>
-          <div class="hero-meta-pill" title="Bandejas activas">
+          <div class="hero-meta-pill" id="heroBandejasPill" title="Bandejas de correspondencia de obra">
             <div class="meta-pill-icon"><i class="ri-inbox-archive-line"></i></div>
             <div class="meta-pill-content">
               <span class="meta-pill-val" id="heroBandejas">0</span>
-              <span class="meta-pill-lbl">bandejas</span>
+              <span class="meta-pill-lbl">Bandejas de Obra</span>
             </div>
           </div>
-          <div class="hero-meta-pill" title="Última actualización">
-            <div class="meta-pill-icon"><i class="ri-refresh-line"></i></div>
+          <div class="hero-meta-pill" id="heroDatePill" title="Fecha actual de sincronización">
+            <div class="meta-pill-icon"><i class="ri-calendar-check-line"></i></div>
             <div class="meta-pill-content">
               <span class="meta-pill-val" id="heroDate">—</span>
-              <span class="meta-pill-lbl">actualizado</span>
+              <span class="meta-pill-lbl">Actualizado</span>
             </div>
           </div>
         </div>
@@ -356,7 +356,10 @@
     <div class="today-tasks-header">
       <div class="today-tasks-title-wrap">
         <span class="today-tasks-badge"><i class="ri-flashlight-line"></i> Qué atender hoy</span>
-        <h2 class="today-tasks-title">Resumen Operativo y Prioridades de la Obra</h2>
+        <h2 class="today-tasks-title" style="display:flex;align-items:center;gap:6px">
+          <span>Resumen Operativo y Prioridades de la Obra</span>
+          <span class="th-help-badge" style="font-size:11px;width:16px;height:16px;" title="Panel de control rápido para identificar las cartas más críticas del día que requieren atención inmediata para evitar penalidades o retrasos.">?</span>
+        </h2>
       </div>
     </div>
     
@@ -367,7 +370,10 @@
           <span class="today-card-tag">Urgente</span>
         </div>
         <div class="today-card-val" id="todayVencidasCount">0</div>
-        <div class="today-card-label">Cartas Vencidas (Fuera de Plazo)</div>
+        <div class="today-card-label" style="display:flex;align-items:center;gap:4px">
+          <span>Cartas Vencidas (Fuera de Plazo)</span>
+          <span class="th-help-badge" title="Cartas cuyo plazo contractual ha expirado y superan los días máximos de respuesta. Requieren emisión o seguimiento urgente.">?</span>
+        </div>
         <div class="today-card-action"><span>Ver y Atender</span> <i class="ri-arrow-right-line"></i></div>
       </div>
 
@@ -377,30 +383,79 @@
           <span class="today-card-tag">Atención</span>
         </div>
         <div class="today-card-val" id="todayPorVencerCount">0</div>
-        <div class="today-card-label">A Punto de Vencer (&le; 5 días)</div>
+        <div class="today-card-label" style="display:flex;align-items:center;gap:4px">
+          <span>A Punto de Vencer (&le; 5 días)</span>
+          <span class="th-help-badge" title="Cartas que están próximas a su fecha límite de atención (dentro de los próximos 5 días). Deben priorizarse en la mesa técnica.">?</span>
+        </div>
         <div class="today-card-action"><span>Revisar Plazos</span> <i class="ri-arrow-right-line"></i></div>
       </div>
     </div>
   </div>
 
   <section class="chart-grid" style="margin-top: 20px;">
-    <div class="chart-card"><div class="chart-header"><div class="chart-title">Por bandeja</div><div class="chart-subtitle">Distribución según bandeja del Excel HLP</div></div><div class="chart-body" id="chartBandeja"></div><div class="chart-insight" id="insightBandeja"><i class="ri-lightbulb-line"></i> <span></span></div></div>
-    <div class="chart-card"><div class="chart-header"><div class="chart-title">Por estado</div><div class="chart-subtitle">Estados normalizados de gestión</div></div><div class="chart-body" id="chartEstado"></div><div class="chart-insight" id="insightEstado"><i class="ri-lightbulb-line"></i> <span></span></div></div>
-    <div class="chart-card full-width"><div class="chart-header"><div class="chart-title">Por especialidad</div><div class="chart-subtitle">Cartas por especialidad técnica</div></div><div class="chart-body tall" id="chartEsp"></div><div class="chart-insight" id="insightEsp"><i class="ri-lightbulb-line"></i> <span></span></div></div>
-    <div class="chart-card full-width"><div class="chart-header"><div class="chart-title">Evolución mensual</div><div class="chart-subtitle">Cartas registradas por mes (fecha del documento)</div></div><div class="chart-body tall" id="chartMonth"></div><div class="chart-insight" id="insightMonth"><i class="ri-lightbulb-line"></i> <span></span></div></div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title" style="display:flex;align-items:center;gap:4px">
+          <span>Por bandeja</span>
+          <span class="th-help-badge" title="Muestra el volumen de cartas agrupadas por su origen de registro en obra (Cartas Residencia, Cartas RL, Recibidas Supervisión, Pronis, MPSC y Otros). Haz clic en un sector para filtrar.">?</span>
+        </div>
+        <div class="chart-subtitle">Distribución según bandeja del Excel HLP</div>
+      </div>
+      <div class="chart-body" id="chartBandeja"></div>
+      <div class="chart-insight" id="insightBandeja"><i class="ri-lightbulb-line"></i> <span></span></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title" style="display:flex;align-items:center;gap:4px">
+          <span>Por estado</span>
+          <span class="th-help-badge" title="Distribución de las cartas según su estado actual de gestión (Abierto, Para Respuesta, En Proceso, Cerrado, Absuelto por Supervisor, etc.). Haz clic para filtrar.">?</span>
+        </div>
+        <div class="chart-subtitle">Estados normalizados de gestión</div>
+      </div>
+      <div class="chart-body" id="chartEstado"></div>
+      <div class="chart-insight" id="insightEstado"><i class="ri-lightbulb-line"></i> <span></span></div>
+    </div>
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <div class="chart-title" style="display:flex;align-items:center;gap:4px">
+          <span>Por especialidad</span>
+          <span class="th-help-badge" title="Desglose de cartas por disciplina técnica (Estructuras, Arquitectura, Sanitarias, Eléctricas, Calidad, etc.), permitiendo ver qué especialidad tiene mayor carga documentaria. Haz clic en una barra para filtrar.">?</span>
+        </div>
+        <div class="chart-subtitle">Cartas por especialidad técnica</div>
+      </div>
+      <div class="chart-body tall" id="chartEsp"></div>
+      <div class="chart-insight" id="insightEsp"><i class="ri-lightbulb-line"></i> <span></span></div>
+    </div>
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <div class="chart-title" style="display:flex;align-items:center;gap:4px">
+          <span>Evolución mensual</span>
+          <span class="th-help-badge" title="Histórico y tendencia cronológica del flujo de cartas emitidas y recibidas mes a mes a lo largo del proyecto Hospital Leoncio Prado. Haz clic en un punto para filtrar.">?</span>
+        </div>
+        <div class="chart-subtitle">Cartas registradas por mes (fecha del documento)</div>
+      </div>
+      <div class="chart-body tall" id="chartMonth"></div>
+      <div class="chart-insight" id="insightMonth"><i class="ri-lightbulb-line"></i> <span></span></div>
+    </div>
   </section>
 </div>
 
 <div class="view-panel" id="view-pendientes">
   <div class="pend-grid">
     <div class="pend-card debo">
-      <h3>🔴 Pendientes de Nuestra Respuesta</h3>
+      <h3 style="display:flex;align-items:center;gap:6px">
+        <span>🔴 Debemos responder</span>
+        <span class="th-help-badge" style="font-size:11px;width:16px;height:16px;" title="Cartas recibidas de Supervisión, PRONIS o Municipalidad que requieren respuesta técnica oficial de nuestro equipo.">?</span>
+      </h3>
       <p class="hint">Cartas recibidas de Supervisión, PRONIS o Municipalidad que requieren una respuesta oficial nuestra.</p>
       <div class="big" id="pendDeboCount">0</div>
       <div class="pend-actor-row" id="pendDeboActors"></div>
     </div>
     <div class="pend-card me_deben">
-      <h3>🟡 Esperando Respuesta de Contraparte</h3>
+      <h3 style="display:flex;align-items:center;gap:6px">
+        <span>🟡 Esperando a contraparte</span>
+        <span class="th-help-badge" style="font-size:11px;width:16px;height:16px;" title="Cartas emitidas por nosotros donde estamos esperando el pronunciamiento o respuesta oficial de la contraparte.">?</span>
+      </h3>
       <p class="hint">Cartas enviadas por nosotros en las que estamos esperando la respuesta oficial de la Supervisión o PRONIS.</p>
       <div class="big" id="pendMeDebenCount">0</div>
       <div class="pend-actor-row" id="pendMeDebenActors"></div>
@@ -422,9 +477,19 @@
     <div class="pend-detail-stack">
       <div class="table-card" id="pendOperBlock">
         <div class="table-card-body">
-          <div class="pend-matrix-head">
-            <h4 id="pendOperTitle">Listado operativo — Yo debo responder</h4>
-            <p class="pend-reglas-note" id="pendOperSub">Solo cartas abiertas. Al emitir respuesta con antecedentes o marcar CERRADO, desaparecen de aquí.</p>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px;padding-top:4px;">
+            <div class="pend-matrix-head" style="margin-bottom:0;padding-top:0;flex:1;min-width:280px;">
+              <h4 id="pendOperTitle">Listado operativo — Debemos responder</h4>
+              <p class="pend-reglas-note" id="pendOperSub">Solo cartas abiertas. Al emitir respuesta con antecedentes o marcar CERRADO, desaparecen de aquí.</p>
+            </div>
+            <div class="cartas-search-wrap" style="width:380px;max-width:100%;flex-shrink:0;">
+              <i class="ri-search-line" aria-hidden="true"></i>
+              <input type="search" id="pendOperQ" placeholder="Buscar en esta tabla por N° carta, asunto, especialista…" aria-label="Buscar en tabla de pendientes" autocomplete="off">
+              <button type="button" class="cartas-search-clear" id="pendOperQClear" aria-label="Limpiar búsqueda"><i class="ri-close-line"></i></button>
+            </div>
+          </div>
+          <div id="pendOperSearchHintWrap" style="margin-bottom:10px;display:none;">
+            <span class="cartas-search-hint" id="pendOperSearchHint"></span>
           </div>
         </div>
         <div class="table-wrap">
@@ -458,7 +523,10 @@
   <div class="saldos-guide-card" style="margin:18px 32px 6px;padding:18px 22px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
       <div style="width:28px;height:28px;border-radius:6px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px"><i class="ri-alarm-warning-line"></i></div>
-      <h3 style="font-family:var(--font-display);font-size:17px;margin:0;color:var(--text-primary)">Semáforo de Atención y Cuellos de Botella por Especialidad</h3>
+      <h3 style="font-family:var(--font-display);font-size:17px;margin:0;color:var(--text-primary);display:flex;align-items:center;gap:6px">
+        <span>Semáforo de Atención y Cuellos de Botella por Especialidad</span>
+        <span class="th-help-badge" style="font-size:11px;width:16px;height:16px;" title="Guía ejecutiva que clasifica las disciplinas técnicas de la obra según su nivel de criticidad y volumen de cartas pendientes.">?</span>
+      </h3>
     </div>
     <p style="font-size:13px;color:var(--text-secondary);margin:0 0 10px 0;line-height:1.4">
       Esta tabla te indica <strong>cuáles son las especialidades más críticas de la obra</strong> (donde tenemos más cartas pendientes de responder). Las áreas prioritarias aparecen primero en la lista:
@@ -473,17 +541,45 @@
   <div style="max-width:100%;margin:16px auto 0;padding:0 32px 32px;display:flex;flex-direction:column;gap:24px">
     <div class="table-card">
       <div class="chart-header">
-        <div class="chart-title">🚨 Prioridad de Atención por Especialidad Técnica</div>
+        <div class="chart-title" style="display:flex;align-items:center;gap:6px">
+          <span>🚨 Prioridad de Atención por Especialidad Técnica</span>
+          <span class="th-help-badge" style="font-size:11px;width:16px;height:16px;" title="Matriz consolidada de saldos contractuales por especialidad técnica. Compara la deuda activa del Consorcio frente a los requerimientos en espera de contraparte.">?</span>
+        </div>
         <div class="chart-subtitle" id="saldosSub">Ordenado de mayor a menor urgencia. Haz clic en cualquier número para ver sus cartas.</div>
       </div>
       <div class="table-wrap">
         <table class="pend-matrix saldos-clean-table" id="saldosTable"><thead>
           <tr>
-            <th style="text-align:left;min-width:170px">Especialidad Técnica</th>
-            <th style="text-align:center;color:var(--rose)">🔴 Debemos Responder</th>
-            <th style="text-align:center;color:#8A6A20">🟡 Esperando a Contraparte</th>
-            <th style="text-align:center">⚖️ Balance</th>
-            <th style="text-align:center;min-width:160px">Estado de Urgencia</th>
+            <th style="text-align:left;min-width:170px">
+              <div style="display:inline-flex;align-items:center;gap:2px">
+                <span>Especialidad Técnica</span>
+                <span class="th-help-badge" title="Disciplina o área técnica de la ingeniería a la que corresponde la gestión documentaria (Estructuras, Sanitarias, etc.).">?</span>
+              </div>
+            </th>
+            <th style="text-align:center;color:var(--rose)">
+              <div style="display:inline-flex;align-items:center;justify-content:center;gap:2px">
+                <span>🔴 Debemos Responder</span>
+                <span class="th-help-badge" title="Número de cartas recibidas abiertas en esta especialidad que el Consorcio tiene pendientes de responder oficialmente.">?</span>
+              </div>
+            </th>
+            <th style="text-align:center;color:#8A6A20">
+              <div style="display:inline-flex;align-items:center;justify-content:center;gap:2px">
+                <span>🟡 Esperando a Contraparte</span>
+                <span class="th-help-badge" title="Número de cartas emitidas abiertas en esta especialidad donde estamos a la espera de contestación de Supervisión o PRONIS.">?</span>
+              </div>
+            </th>
+            <th style="text-align:center">
+              <div style="display:inline-flex;align-items:center;justify-content:center;gap:2px">
+                <span>⚖️ Balance</span>
+                <span class="th-help-badge" title="Diferencia neta (Debemos Responder menos Esperando Contraparte). Un valor positivo alto indica mayor presión para el equipo de obra.">?</span>
+              </div>
+            </th>
+            <th style="text-align:center;min-width:160px">
+              <div style="display:inline-flex;align-items:center;justify-content:center;gap:2px">
+                <span>Estado de Urgencia</span>
+                <span class="th-help-badge" title="Nivel de alerta según el balance y volumen de pendientes: Atención Crítica (rojo), En Seguimiento (amarillo) o Al Día (verde).">?</span>
+              </div>
+            </th>
           </tr>
         </thead><tbody></tbody></table>
       </div>
@@ -514,19 +610,19 @@
           <span class="cartas-search-hint" id="cartasSearchHint"></span>
         </div>
         <table class="data-table"><thead><tr>
-          <th style="width:45px;text-align:center">#</th>
-          <th>N° Carta</th>
-          <th>Fecha</th>
-          <th>Tipo de Documento</th>
-          <th>Especialidad</th>
-          <th>Flujo (Emisor ➔ Destino)</th>
-          <th>Responsable de Respuesta</th>
-          <th>Asunto</th>
-          <th>Referencia</th>
-          <th>Plazo / Semáforo</th>
-          <th>Estado de Trámite</th>
-          <th>Observación</th>
-          <th class="col-acc" style="text-align:right">Acciones</th>
+          <th style="width:45px;text-align:center"><div style="display:inline-flex;align-items:center;justify-content:center;gap:2px"><span>#</span><span class="th-help-badge" title="Numeración correlativa de los registros listados según el ordenamiento actual.">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>N° Carta</span><span class="th-help-badge" title="Código y número oficial del documento (Carta, Informe, Oficio, Asiento). Incluye botón rápido para copiar.">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Fecha</span><span class="th-help-badge" title="Fecha formal de emisión o recepción de la carta registrada.">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Tipo de Documento</span><span class="th-help-badge" title="Categoría formal del documento (Carta, Ficha Técnica, Consulta, Solicitud, Informe, etc.).">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Especialidad</span><span class="th-help-badge" title="Disciplina técnica de la ingeniería a la que corresponde la materia de la carta (Estructuras, Sanitarias, etc.).">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Flujo (Emisor ➔ Destino)</span><span class="th-help-badge" title="Trazabilidad del envío: indica quién originó el documento (Emisor) y hacia qué entidad o área fue dirigido (Destino).">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Responsable de Respuesta</span><span class="th-help-badge" title="Área o entidad responsable de atender el requerimiento (en cartas recibidas: especialista interno de obra; en cartas emitidas: contraparte externa).">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Asunto</span><span class="th-help-badge" title="Resumen o materia principal de la carta y etiqueta de intención técnica detectada por el sistema.">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Referencia</span><span class="th-help-badge" title="Documentos antecedentes, cartas previas o expediente relacionado citado en el texto de la carta.">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Plazo / Semáforo</span><span class="th-help-badge" title="Semáforo de control de tiempos: En plazo (verde), Por vencer / Alerta (amarillo) o Vencido con días de atraso (rojo).">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Estado de Trámite</span><span class="th-help-badge" title="Situación actual del documento en el flujo contractual (Abierto, Para Respuesta, En Proceso, Cerrado, Absuelto, etc.).">?</span></div></th>
+          <th><div style="display:inline-flex;align-items:center;gap:2px"><span>Observación</span><span class="th-help-badge" title="Notas adicionales, comentarios de seguimiento o historial registrado por el equipo de obra.">?</span></div></th>
+          <th class="col-acc" style="text-align:right"><div style="display:inline-flex;align-items:center;justify-content:flex-end;gap:2px"><span>Acciones</span><span class="th-help-badge" title="Opciones para responder, ver detalle, editar o eliminar el registro (según permisos de usuario).">?</span></div></th>
         </tr></thead><tbody id="tableBody"></tbody></table>
       </div>
     </div>
@@ -542,7 +638,10 @@
     <div class="table-card cartas-main-card">
       <div class="cartas-card-head" style="align-items:center;padding:14px 20px">
         <div class="cartas-card-head-title" style="display:flex;align-items:center;gap:8px">
-          <span class="cartas-count-badge" style="font-size:12.5px;padding:4px 10px"><strong id="usersCountInline">0</strong> usuarios registrados</span>
+          <span class="cartas-count-badge" style="font-size:12.5px;padding:4px 10px;display:inline-flex;align-items:center;gap:6px">
+            <span><strong id="usersCountInline">0</strong> usuarios registrados</span>
+            <span class="th-help-badge" title="Listado y administración de cuentas con acceso al sistema: administradores con control total e ingenieros con vista enfocada.">?</span>
+          </span>
         </div>
         <div class="cartas-toolbar-actions">
           <button type="button" class="btn-new-carta" id="btnUserNew"><i class="ri-user-add-line"></i> Nuevo usuario</button>
@@ -560,13 +659,48 @@
           <span class="cartas-search-hint" id="usersSearchHint"></span>
         </div>
         <table class="data-table" id="usersTable" style="min-width:980px"><thead><tr>
-          <th style="width:170px">Usuario</th>
-          <th style="width:230px">Nombre y Cargo</th>
-          <th style="width:140px">Rol</th>
-          <th>Especialidades</th>
-          <th style="width:115px">Estado</th>
-          <th style="width:130px">Contraseña</th>
-          <th style="width:180px;text-align:right">Acciones</th>
+          <th style="width:170px">
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span>Usuario</span>
+              <span class="th-help-badge" title="Nombre de usuario o identificador único para iniciar sesión en la plataforma.">?</span>
+            </div>
+          </th>
+          <th style="width:230px">
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span>Nombre y Cargo</span>
+              <span class="th-help-badge" title="Nombre completo del profesional y su cargo técnico dentro de la obra.">?</span>
+            </div>
+          </th>
+          <th style="width:140px">
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span>Rol</span>
+              <span class="th-help-badge" title="Nivel de permisos: Administrador (acceso completo y edición de cartas) o Ingeniero (modo consulta y vista enfocada a sus pendientes).">?</span>
+            </div>
+          </th>
+          <th>
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span>Especialidades</span>
+              <span class="th-help-badge" title="Especialidades técnicas asignadas al usuario. El sistema filtra sus cartas automáticamente a estas áreas.">?</span>
+            </div>
+          </th>
+          <th style="width:115px">
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span>Estado</span>
+              <span class="th-help-badge" title="Estado de la cuenta: Activo (puede iniciar sesión) o Inactivo (acceso revocado al sistema).">?</span>
+            </div>
+          </th>
+          <th style="width:130px">
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span>Contraseña</span>
+              <span class="th-help-badge" title="Gestión de seguridad y credenciales: permite resetear o cambiar la clave de acceso del usuario.">?</span>
+            </div>
+          </th>
+          <th style="width:180px;text-align:right">
+            <div style="display:inline-flex;align-items:center;justify-content:flex-end;gap:4px">
+              <span>Acciones</span>
+              <span class="th-help-badge" title="Opciones para editar datos, reasignar especialidades, cambiar rol o activar/desactivar la cuenta.">?</span>
+            </div>
+          </th>
         </tr></thead><tbody id="usersTableBody"></tbody></table>
       </div>
       <div class="pagination-bar" id="usersPaginationBar" style="border-top:1px solid var(--border);padding:12px 16px 8px;">
@@ -600,15 +734,25 @@
       <form id="configForm" novalidate onsubmit="return false;">
         <!-- SECCIÓN 1: Identidad & Nombres -->
         <div class="user-sec" style="background:#FFFFFF">
-          <div class="user-sec-title"><i class="ri-building-line"></i> Identidad y Nombre del Proyecto</div>
+          <div class="user-sec-title" style="display:flex;align-items:center;gap:6px">
+            <i class="ri-building-line"></i>
+            <span>Identidad y Nombre del Proyecto</span>
+            <span class="th-help-badge" title="Define los nombres oficiales de la obra y el sistema que se muestran en el navegador, encabezados y reportes.">?</span>
+          </div>
           <div class="form-grid">
             <div class="form-group full-width">
-              <label>Nombre Principal del Sistema <span class="req">*</span></label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Nombre Principal del Sistema <span class="req">*</span></span>
+                <span class="th-help-badge" title="Título principal del software (aparece en login, cabecera y pestaña del navegador).">?</span>
+              </label>
               <input type="text" id="cfg_nombre_sistema" required maxlength="100" placeholder="Ej: SistemaGreace, Control de Cartas CGGC" style="font-weight:600;font-size:14px">
               <span style="font-size:11px;color:var(--text-muted);margin-top:3px">Se refleja en la barra lateral superior, en el login, en el splash y en la pestaña del navegador.</span>
             </div>
             <div class="form-group full-width">
-              <label>Subtítulo o Nombre de la Obra / Entidad <span class="req">*</span></label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Subtítulo o Nombre de la Obra / Entidad <span class="req">*</span></span>
+                <span class="th-help-badge" title="Nombre oficial del proyecto u hospital (aparece debajo del logo en el menú lateral y en documentos).">?</span>
+              </label>
               <input type="text" id="cfg_subtitulo_proyecto" required maxlength="180" placeholder="Ej: Hospital Leoncio Prado (PRONIS/MINSA)">
               <span style="font-size:11px;color:var(--text-muted);margin-top:3px">Se muestra debajo del logo en el menú lateral y en el pie de página de reportes.</span>
             </div>
@@ -617,13 +761,19 @@
 
         <!-- SECCIÓN 2: Logo Principal y Favicon con Restricciones Estrictas -->
         <div class="user-sec" style="background:#FFFFFF">
-          <div class="user-sec-title"><i class="ri-image-line"></i> Logos Institucionales y Favicon</div>
+          <div class="user-sec-title" style="display:flex;align-items:center;gap:6px">
+            <i class="ri-image-line"></i>
+            <span>Logos Institucionales y Favicon</span>
+            <span class="th-help-badge" title="Imágenes y logotipos del sistema: logo institucional para inicio de sesión, ícono de pestaña y membrete oficial de exportación Word.">?</span>
+          </div>
           
           <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px">
             <!-- Logo Principal -->
             <div style="background:#FAF9F6;border:1px solid var(--border);border-radius:10px;padding:16px">
               <div style="font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">
-                <i class="ri-image-2-line" style="color:var(--accent)"></i> Logo del Panel y Login
+                <i class="ri-image-2-line" style="color:var(--accent)"></i>
+                <span>Logo del Panel y Login</span>
+                <span class="th-help-badge" title="Logo visual que se muestra en el menú lateral y en la ventana de login (PNG, JPG, WEBP, SVG máx 1.5MB).">?</span>
               </div>
               <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.4">
                 Aparece en la esquina superior del menú y en la ventana de inicio de sesión.
@@ -660,7 +810,9 @@
             <!-- Favicon de Pestaña -->
             <div style="background:#FAF9F6;border:1px solid var(--border);border-radius:10px;padding:16px">
               <div style="font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">
-                <i class="ri-global-line" style="color:var(--teal)"></i> Ícono de Pestaña (Favicon)
+                <i class="ri-global-line" style="color:var(--teal)"></i>
+                <span>Ícono de Pestaña (Favicon)</span>
+                <span class="th-help-badge" title="Ícono en miniatura que se visualiza en la pestaña del navegador web (ICO, PNG, SVG máx 256KB).">?</span>
               </div>
               <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.4">
                 El ícono pequeño que se muestra en la pestaña del navegador junto al título.
@@ -697,7 +849,9 @@
             <!-- Membrete de Carta Word (.docx) -->
             <div style="background:#FAF9F6;border:1px solid var(--border);border-radius:10px;padding:16px;grid-column:1/-1">
               <div style="font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">
-                <i class="ri-file-word-2-line" style="color:#185A9D;font-size:16px"></i> Membrete Oficial para Cartas Word (.docx)
+                <i class="ri-file-word-2-line" style="color:#185A9D;font-size:16px"></i>
+                <span>Membrete Oficial para Cartas Word (.docx)</span>
+                <span class="th-help-badge" title="Banner gráfico con los logos de las empresas consorciadas que se estampa automáticamente en el encabezado de todas las cartas generadas en Word.">?</span>
               </div>
               <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.4">
                 Imagen con los logotipos y nombre institucional de la empresa que se estampa en la parte superior de todas las cartas descargadas en Word.
@@ -732,35 +886,60 @@
 
         <!-- SECCIÓN 3: Plazos contractuales y SLA unificado -->
         <div class="user-sec" style="background:#FFFFFF;margin-bottom:0">
-          <div class="user-sec-title"><i class="ri-timer-line"></i> Plazos de Respuesta y Semáforos</div>
+          <div class="user-sec-title" style="display:flex;align-items:center;gap:6px">
+            <i class="ri-timer-line"></i>
+            <span>Plazos de Respuesta y Semáforos</span>
+            <span class="th-help-badge" title="Reglas contractuales del proyecto: define los días máximos para contestar y recalcula automáticamente los semáforos rojo y amarillo.">?</span>
+          </div>
           <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;line-height:1.4">
             Configura los días límite contractuales. Los semáforos y alertas rojas/amarillas se calculan automáticamente a partir de estos valores.
           </p>
 
-          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">1. Plazos para que nos respondan (Cartas Emitidas)</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:4px">
+            <span>1. Plazos para que nos respondan (Cartas Emitidas)</span>
+            <span class="th-help-badge" title="Días contractuales que tienen la Supervisión, Entidad o Entidades externas para contestar las cartas enviadas por el Consorcio.">?</span>
+          </div>
           <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));margin-bottom:18px">
             <div class="form-group">
-              <label>Supervisión (hábiles)</label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Supervisión (hábiles)</span>
+                <span class="th-help-badge" title="Plazo en días hábiles para que la Supervisión emita su pronunciamiento técnico.">?</span>
+              </label>
               <input type="number" id="cfg_plazo_sup_dias" min="1" max="99999" value="5" required style="font-weight:700">
             </div>
             <div class="form-group">
-              <label>Entidad PRONIS (calendario)</label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Entidad PRONIS (calendario)</span>
+                <span class="th-help-badge" title="Plazo en días calendario para que la Entidad (PRONIS/MINSA) conteste trámites o ampliaciones de plazo.">?</span>
+              </label>
               <input type="number" id="cfg_plazo_entidad_dias" min="1" max="99999" value="15" required style="font-weight:700">
             </div>
             <div class="form-group">
-              <label>Municipalidad (calendario)</label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Municipalidad (calendario)</span>
+                <span class="th-help-badge" title="Plazo en días calendario para autorizaciones o gestiones ante la Municipalidad.">?</span>
+              </label>
               <input type="number" id="cfg_plazo_muni_dias" min="1" max="99999" value="15" required style="font-weight:700">
             </div>
             <div class="form-group">
-              <label>Junta Disputas (calendario)</label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Junta Disputas (calendario)</span>
+                <span class="th-help-badge" title="Plazo en días calendario para trámites o controversias ante la Junta de Resolución de Disputas (JRD).">?</span>
+              </label>
               <input type="number" id="cfg_plazo_jrd_dias" min="1" max="99999" value="15" required style="font-weight:700">
             </div>
           </div>
 
-          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">2. Plazo para responder nosotros (Cartas Recibidas)</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:4px">
+            <span>2. Plazo para responder nosotros (Cartas Recibidas)</span>
+            <span class="th-help-badge" title="Días contractuales internos que tiene la Residencia de Obra para atender y contestar cartas remitidas por la Supervisión o PRONIS.">?</span>
+          </div>
           <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));margin-bottom:18px">
             <div class="form-group">
-              <label>Residencia / Nosotros (hábiles)</label>
+              <label style="display:flex;align-items:center;gap:4px">
+                <span>Residencia / Nosotros (hábiles)</span>
+                <span class="th-help-badge" title="Tiempo límite en días hábiles para que el equipo de obra elabore y remita la carta de respuesta oficial.">?</span>
+              </label>
               <input type="number" id="cfg_plazo_ro_dias" min="1" max="99999" value="5" required style="font-weight:700">
               <span style="font-size:10.5px;color:var(--text-muted)">Tiempo máximo interno para responder</span>
             </div>
@@ -771,15 +950,18 @@
           <input type="hidden" id="cfg_dias_por_vencer" value="3">
 
           <div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:4px">
-            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">
-              3. Alertas y Semáforos Calculados Automáticamente
+            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;display:flex;align-items:center;gap:4px">
+              <span>3. Alertas y Semáforos Calculados Automáticamente</span>
+              <span class="th-help-badge" title="Resumen dinámico de las reglas del semáforo resultantes de los plazos contractuales configurados arriba.">?</span>
             </div>
             
             <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:12px">
               <!-- Tarjeta Alerta Roja -->
               <div style="background:#FFF5F5;border:1px solid #FED7D7;border-radius:8px;padding:12px 14px">
                 <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--rose);margin-bottom:4px">
-                  <i class="ri-error-warning-fill" style="font-size:15px"></i> Carta Vencida (Rojo)
+                  <i class="ri-error-warning-fill" style="font-size:15px"></i>
+                  <span>Carta Vencida (Rojo)</span>
+                  <span class="th-help-badge" title="Indica cartas que ya superaron el plazo máximo de atención y requieren respuesta urgente inmediata.">?</span>
                 </div>
                 <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="cfg_preview_vencida">≥ 15 días</div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Se activa al superar el plazo contractual máximo</div>
@@ -788,7 +970,9 @@
               <!-- Tarjeta Alerta Amarilla -->
               <div style="background:#FFFDF5;border:1px solid #FEEBC8;border-radius:8px;padding:12px 14px">
                 <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#C05621;margin-bottom:4px">
-                  <i class="ri-alert-fill" style="font-size:15px"></i> Por Vencer (Amarillo)
+                  <i class="ri-alert-fill" style="font-size:15px"></i>
+                  <span>Por Vencer (Amarillo)</span>
+                  <span class="th-help-badge" title="Alerta preventiva para cartas próximas a vencer en los siguientes días.">?</span>
                 </div>
                 <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="cfg_preview_por_vencer">≥ 3 días</div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Alerta preventiva antes del vencimiento</div>
@@ -797,7 +981,9 @@
               <!-- Tarjeta Hilos -->
               <div style="background:#F0F7FF;border:1px solid #BEE3F8;border-radius:8px;padding:12px 14px">
                 <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#2B6CB0;margin-bottom:4px">
-                  <i class="ri-discuss-line" style="font-size:15px"></i> Hilos de Conversación
+                  <i class="ri-discuss-line" style="font-size:15px"></i>
+                  <span>Hilos de Conversación</span>
+                  <span class="th-help-badge" title="Ciclo operativo estándar para considerar un trámite en curso dentro de la línea de tiempo.">?</span>
                 </div>
                 <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="cfg_preview_hilos">5 días hábiles</div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Ciclo interno de atención de trámites</div>
@@ -808,7 +994,11 @@
 
         <!-- SECCIÓN 4: Respaldo y Carga de Datos Excel -->
         <div class="user-sec" id="cfgMaintenanceSec" style="background:#FFFFFF;margin-top:20px;border:1px dashed #D0CBC0">
-          <div class="user-sec-title" style="color:var(--text-secondary)"><i class="ri-file-excel-2-line"></i> Respaldo y Carga de Datos (Excel)</div>
+          <div class="user-sec-title" style="color:var(--text-secondary);display:flex;align-items:center;gap:6px">
+            <i class="ri-file-excel-2-line"></i>
+            <span>Respaldo y Carga de Datos (Excel)</span>
+            <span class="th-help-badge" title="Módulo de seguridad de datos: descarga el libro Excel maestro completo de 6 hojas o carga un archivo nuevo para sincronizar la base de datos.">?</span>
+          </div>
           <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;line-height:1.4">
             Descarga una copia de seguridad completa o sube un archivo Excel para actualizar la base de datos del sistema.
           </p>
@@ -817,7 +1007,9 @@
             <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
               <div style="flex:1;min-width:280px">
                 <div style="font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:var(--text-primary)">
-                  <i class="ri-file-excel-2-fill" style="color:#107C41;font-size:18px"></i> Libro de Control de Cartas
+                  <i class="ri-file-excel-2-fill" style="color:#107C41;font-size:18px"></i>
+                  <span>Libro de Control de Cartas</span>
+                  <span class="th-help-badge" title="Estructura oficial en Excel con las 6 hojas de correspondencia y vinculación automática de trámites.">?</span>
                 </div>
                 <p style="font-size:12px;color:var(--text-secondary);margin:0 0 10px;line-height:1.4">
                   Exporta todas las cartas en las 6 hojas oficiales o carga un nuevo archivo desde tu computadora.
@@ -1014,7 +1206,7 @@
 
           <!-- 9. Carta Padre (Buscador interactivo del sistema) -->
           <div class="form-group full-width" style="grid-column:1/-1">
-            <label><i class="ri-git-branch-line" style="color:var(--accent);margin-right:5px"></i>Carta Padre <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(dejar en blanco si es la primera carta; si es respuesta o réplica, busca y selecciona la carta inicial)</span></label>
+            <label id="labelCartaPadre"><i class="ri-git-branch-line" style="color:var(--accent);margin-right:5px"></i><span>Carta Padre</span> <span class="padre-instruction" style="font-size:11px;font-weight:normal;color:var(--text-muted)">(dejar en blanco si es la primera carta; si es respuesta o réplica, busca y selecciona la carta inicial)</span></label>
             
             <div class="carta-padre-widget">
               <!-- Vista cuando hay Carta Padre seleccionada -->
@@ -1336,19 +1528,23 @@
           <div class="form-group">
             <label>Rol asignado <span class="req">*</span></label>
             <select id="uf_rol" style="font-weight:600">
-              <option value="ingeniero">👷 Ingeniero Especialista (solo lectura de sus especialidades)</option>
-              <option value="residente">📋 Residente de Obra (consulta todas las cartas; no registra)</option>
-              <option value="admin">🔑 Administrador (único que crea, edita, responde y cierra hilos)</option>
+              <option value="ingeniero">👷 Ingeniero Especialista (vista enfocada a sus pendientes y especialidades)</option>
+              <option value="admin">🔑 Administrador (control total: crear, editar, responder y cerrar trámites)</option>
             </select>
             <div class="user-role-desc" id="uf_rolDesc"></div>
           </div>
 
           <div class="form-group" id="uf_espsWrap" style="margin-top:12px">
-            <label>Especialidades asignadas <span class="req">*</span></label>
-            <select id="uf_esps" multiple size="10" style="font-weight:600;width:100%;min-height:168px;padding:8px;border:1px solid var(--border);border-radius:8px;background:#fff">
-            </select>
+            <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span><i class="ri-tools-line" style="color:var(--accent);margin-right:5px"></i>Especialidad(es) asignada(s) <span class="req">*</span> <span style="font-size:11px;font-weight:normal;color:var(--text-muted)">(haz clic para seleccionar una o varias)</span></span>
+              <span id="uf_esp_count_badge" style="font-size:11.5px;font-weight:700;color:var(--accent)">0 seleccionadas</span>
+            </label>
+            <input type="hidden" id="uf_esps">
+            <div class="esp-chip-picker" id="uf_esp_chips_container" style="max-height:140px;overflow-y:auto;padding:8px;background:#FAFAF8;border:1px solid var(--border);border-radius:8px;display:flex;flex-wrap:wrap;gap:6px">
+              <!-- Chips generados dinámicamente -->
+            </div>
             <span style="font-size:11px;color:var(--text-muted);margin-top:6px;display:block;line-height:1.45">
-              Catálogo oficial del proyecto. Use <strong>Ctrl+clic</strong> (o Cmd+clic en Mac) para asignar más de una especialidad al ingeniero.
+              Catálogo oficial del proyecto. Haz clic en una o varias especialidades para asignarlas al ingeniero.
             </span>
           </div>
         </div>

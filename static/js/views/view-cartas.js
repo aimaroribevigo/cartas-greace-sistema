@@ -1,6 +1,14 @@
 function showView(view){
-  if(!['reportes','cartas','pendientes','saldos','usuarios','configuracion'].includes(view))view='reportes';
-  if(['usuarios','configuracion'].includes(view)&&!(CURRENT_USER&&CURRENT_USER.can_manage_users))view='reportes';
+  const isIng = CURRENT_USER && CURRENT_USER.rol === 'ingeniero';
+  if(isIng){
+    view = 'pendientes';
+  }
+  if(['usuarios','configuracion'].includes(view)&&!(CURRENT_USER&&CURRENT_USER.can_manage_users)){
+    view = isIng ? 'pendientes' : 'reportes';
+  }
+  if(!['reportes','cartas','pendientes','saldos','usuarios','configuracion'].includes(view)){
+    view = isIng ? 'pendientes' : 'reportes';
+  }
   currentView=view;
   document.body.classList.toggle('view-reportes',view==='reportes');
   document.body.classList.toggle('view-cartas',view==='cartas');
@@ -19,10 +27,10 @@ function showView(view){
     configuracion:'Configuración General del Sistema'
   };
   const subs={
-    reportes:'Indicadores del Control de Cartas HLP: bandejas, estados, plazos, especialidades y deuda de respuesta.',
-    pendientes:'Resumen arriba (228 / 175). Abajo: matriz, hilos y acciones según Yo debo / Me deben / Traslados.',
-    saldos:'Totales alineados al Excel (175 / 228 / -53). Sin filtros globales: el balance debe verse completo.',
-    cartas:'Gestión operativa: aquí sí aplican los filtros de la barra (bandeja, deuda, especialidad, plazo…).',
+    reportes:'Indicadores del Control de Cartas: bandejas, estados, plazos, especialidades y deuda de respuesta.',
+    pendientes:'Gestión de cartas clasificadas por atención: Debemos responder, Esperando a contraparte y Trámites atendidos.',
+    saldos:'Balance consolidado de cartas emitidas y recibidas por especialidad según registros oficiales.',
+    cartas:'Registro integral y búsqueda operativa de cartas con historial de trámites y antecedentes.',
     usuarios:'Administración de cuentas: roles, especialidades, alta/baja y reset de contraseña.',
     configuracion:'Personaliza la identidad visual, nombres de la obra, logos institucionales y reglas de alerta.'
   };
@@ -202,33 +210,74 @@ function getCatalogoEspecialidadesList(){
   return (CATALOGO.especialidades&&CATALOGO.especialidades.length)?CATALOGO.especialidades:CATALOGO_ESP_FALLBACK;
 }
 
+let ufSelectedEspecialidades = new Set();
+
 function populateUserEspSelect(selectedList){
-  const sel=document.getElementById('uf_esps');
-  if(!sel)return;
-  const catalog=getCatalogoEspecialidadesList();
-  sel.innerHTML=catalog.map(e=>`<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
-  const wanted=new Set();
-  (selectedList||[]).forEach(raw=>{
-    const n=normalizeEspSelectValue(raw)||String(raw||'').trim().toUpperCase();
-    if(n&&n!=='SIN ESPECIALIDAD')wanted.add(n);
+  const container = document.getElementById('uf_esp_chips_container');
+  if(!container) return;
+  
+  ufSelectedEspecialidades = new Set();
+  (selectedList || []).forEach(raw => {
+    const n = normalizeEspSelectValue(raw) || String(raw || '').trim().toUpperCase();
+    if(n && n !== 'SIN ESPECIALIDAD' && n !== 'MIXTA'){
+      ufSelectedEspecialidades.add(n);
+    }
   });
-  Array.from(sel.options).forEach(opt=>{
-    if(wanted.has(opt.value))opt.selected=true;
+
+  const catalog = [...getCatalogoEspecialidadesList()];
+  ufSelectedEspecialidades.forEach(selectedEsp => {
+    const inCatalog = catalog.some(c => c.toUpperCase() === selectedEsp.toUpperCase());
+    if(!inCatalog && selectedEsp){
+      catalog.push(selectedEsp);
+    }
   });
-  wanted.forEach(v=>{
-    if(Array.from(sel.options).some(o=>o.value===v))return;
-    const opt=document.createElement('option');
-    opt.value=v;
-    opt.textContent=v+' (histórico)';
-    opt.selected=true;
-    sel.appendChild(opt);
+
+  container.innerHTML = catalog.map(esp => {
+    const norm = normalizeEspSelectValue(esp) || esp.toUpperCase();
+    const isActive = ufSelectedEspecialidades.has(norm) || ufSelectedEspecialidades.has(esp.toUpperCase());
+    return `<button type="button" class="esp-chip-btn${isActive ? ' active' : ''}" data-esp="${escapeHtml(norm || esp)}">
+      <i class="${isActive ? 'ri-checkbox-circle-fill' : 'ri-add-line'}"></i>
+      <span>${escapeHtml(esp)}</span>
+    </button>`;
+  }).join('');
+
+  container.querySelectorAll('.esp-chip-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const esp = btn.dataset.esp;
+      if(ufSelectedEspecialidades.has(esp)){
+        ufSelectedEspecialidades.delete(esp);
+        btn.classList.remove('active');
+        const icon = btn.querySelector('i');
+        if(icon) icon.className = 'ri-add-line';
+      } else {
+        ufSelectedEspecialidades.add(esp);
+        btn.classList.add('active');
+        const icon = btn.querySelector('i');
+        if(icon) icon.className = 'ri-checkbox-circle-fill';
+      }
+      updateUserEspState();
+    });
   });
+
+  updateUserEspState();
+}
+
+function updateUserEspState(){
+  const countBadge = document.getElementById('uf_esp_count_badge');
+  const hiddenInput = document.getElementById('uf_esps');
+  const arr = Array.from(ufSelectedEspecialidades);
+  if(hiddenInput){
+    hiddenInput.value = arr.join(', ');
+  }
+  if(countBadge){
+    const n = arr.length;
+    countBadge.textContent = n ? `${n} seleccionada${n === 1 ? '' : 's'}` : '0 seleccionadas';
+  }
 }
 
 function getUserEspSelections(){
-  const sel=document.getElementById('uf_esps');
-  if(!sel)return [];
-  return Array.from(sel.selectedOptions).map(o=>o.value.trim()).filter(Boolean);
+  return Array.from(ufSelectedEspecialidades);
 }
 
 function getCartaEspecialidades(c){
@@ -647,13 +696,56 @@ async function copyDocToClipboard(text, btn, event){
   }
 }
 
+function cleanAreaLabel(raw){
+  if(!raw)return '';
+  let s=String(raw).trim();
+  if(!s)return '';
+  const CANONICAL=[
+    'ESPECIALISTA ESTRUCTURAS','ESPECIALISTA ARQUITECTURA','ESPECIALISTA SANITARIAS',
+    'ESPECIALISTA ELECTRICAS','ESPECIALISTA GEOTECNIA','ESPECIALISTA BIM',
+    'ESPECIALISTA TOPOGRAFIA','ESPECIALISTA MEDIO AMBIENTE','ESPECIALISTA ADM. CONTRATOS',
+    'ESPECIALISTA COSTOS','ESPECIALISTA COMUNICACIONES','ESPECIALISTA PRODUCCION',
+    'ESPECIALISTA CAMPO','SSOMA / CALIDAD','EQUIPAMIENTO','RESIDENCIA','OFICINA TECNICA'
+  ];
+  const upper=s.toUpperCase();
+  if(CANONICAL.includes(upper))return upper;
+
+  if(/\b(ESTR|EST\.)/i.test(s)&&!/INST/i.test(s))return 'ESPECIALISTA ESTRUCTURAS';
+  if(/\bARQ/i.test(s))return 'ESPECIALISTA ARQUITECTURA';
+  if(/\b(IISS|SANITAR)/i.test(s))return 'ESPECIALISTA SANITARIAS';
+  if(/\b(IIEE|ELECT)/i.test(s))return 'ESPECIALISTA ELECTRICAS';
+  if(/\bGEOT/i.test(s))return 'ESPECIALISTA GEOTECNIA';
+  if(/\b(SSOMA|CAL\b|CALIDAD)/i.test(s))return 'SSOMA / CALIDAD';
+  if(/\bBIM\b/i.test(s))return 'ESPECIALISTA BIM';
+  if(/\b(MECAN|EQUIP)/i.test(s))return 'EQUIPAMIENTO';
+  if(/\bCOSTOS/i.test(s))return 'ESPECIALISTA COSTOS';
+  if(/\b(ADM|CONTRAT)/i.test(s))return 'ESPECIALISTA ADM. CONTRATOS';
+  if(/\bCOMUNIC/i.test(s))return 'ESPECIALISTA COMUNICACIONES';
+  if(/\b(PRODUC|PODUC)/i.test(s))return 'ESPECIALISTA PRODUCCION';
+  if(/\b(M\.?\s*AMB|AMBIENT)/i.test(s))return 'ESPECIALISTA MEDIO AMBIENTE';
+  if(/\bTOPO/i.test(s))return 'ESPECIALISTA TOPOGRAFIA';
+  if(/\b(RO\b|RESID)/i.test(s))return 'RESIDENCIA';
+  if(/\b(OT\b|OFICINA)/i.test(s))return 'OFICINA TECNICA';
+  if(/\bCAMPO\b/i.test(s))return 'ESPECIALISTA CAMPO';
+
+  s=s.replace(/\b(PARA\s+RESPUESTA|RESPUESTA|CERRADO|CERRADA|CERRAD|EN\s+PROCESO|PROCESO|OBSERVADO|OBSERVADA|PENDIENTE\s+\w+|PARA\s+CONOCIMIENTO)\b/gi,'').trim();
+  return s||'';
+}
+
 function yoDeboResponderLabel(c){
-  const area=String(c.area||'').trim();
-  if(area)return area;
+  const rawArea=String(c.area||'').trim();
+  if(rawArea){
+    const cleaned=cleanAreaLabel(rawArea);
+    if(cleaned)return cleaned;
+  }
   const inferred=inferAreaFromEspecialidad(c);
   if(inferred)return inferred;
   const en=String(c.especialidad_norm||c.especialidad||'').trim();
-  if(en&&en!=='SIN ESPECIALIDAD'&&en!=='MIXTA')return en;
+  if(en&&en!=='SIN ESPECIALIDAD'&&en!=='MIXTA'){
+    const cleanedEsp=cleanAreaLabel(en);
+    if(cleanedEsp)return cleanedEsp;
+    return en;
+  }
   return 'Sin asignar';
 }
 
@@ -1033,12 +1125,17 @@ function applyPlazosConfig(stats){
 }
 
 function updateHeroMeta(){
-  document.getElementById('heroCount').textContent=ALL_CARTAS.length;
-  document.getElementById('heroEsp').textContent=new Set(ALL_CARTAS.map(c=>c.especialidad_norm||'SIN ESPECIALIDAD')).size;
-  document.getElementById('heroBandejas').textContent=new Set(ALL_CARTAS.map(c=>c.bandeja).filter(Boolean)).size;
-  const ds=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('heroDate').textContent=ds;
-  document.getElementById('footerDate').textContent=ds;
+  const countEl = document.getElementById('heroCount');
+  if(countEl) countEl.textContent = (ALL_CARTAS.length).toLocaleString('es-PE');
+  const espEl = document.getElementById('heroEsp');
+  if(espEl) espEl.textContent = new Set(ALL_CARTAS.map(c=>c.especialidad_norm||'SIN ESPECIALIDAD')).size;
+  const banEl = document.getElementById('heroBandejas');
+  if(banEl) banEl.textContent = new Set(ALL_CARTAS.map(c=>c.bandeja).filter(Boolean)).size;
+  const ds=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
+  const heroDateEl = document.getElementById('heroDate');
+  if(heroDateEl) heroDateEl.textContent = ds;
+  const footerDateEl = document.getElementById('footerDate');
+  if(footerDateEl) footerDateEl.textContent = ds;
   updateTodayTasksCounts();
 }
 
@@ -1053,6 +1150,11 @@ function updateTodayTasksCounts(){
   if(pEl) pEl.textContent = counts.por_vencer || 0;
   if(pendEl) pendEl.textContent = counts.abiertas || 0;
   if(cEl) cEl.textContent = counts.cerrada || 0;
+
+  const warnLabel = document.querySelector('#cardTodayWarning .today-card-label span');
+  if(warnLabel && typeof POR_VENCER_DIAS !== 'undefined'){
+    warnLabel.innerHTML = `A Punto de Vencer (&le; ${POR_VENCER_DIAS} días)`;
+  }
 }
 
 function filterTodayTasks(type){

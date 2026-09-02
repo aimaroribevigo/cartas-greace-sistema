@@ -51,25 +51,27 @@ function updatePendDetailMeta(){
   const titles={
     debo:'🔴 Nosotros debemos responder — por especialidad y contraparte',
     me_deben:'🟡 Esperando a contraparte — por especialidad y contraparte',
-    respondidos:'🟢 Trámites atendidos / resueltos',
-    comunicacion:'ℹ️ Traslados / comunicación informativa'
+    respondidos:'🟢 Historial de Trámites Atendidos y Resueltos',
+    comunicacion:'ℹ️ Comunicaciones Informativas y Notificaciones'
   };
   const titleEl = document.getElementById('pendMatrixTitle');
   if(titleEl) titleEl.textContent=titles[pendMode]||titles.debo;
   const subEl = document.getElementById('pendMatrixSub');
   if(subEl){
     subEl.textContent=pendMode==='respondidos'
-      ?'Historial de trámites atendidos y resueltos.'
-      :(pendActor==='all'
-        ?'Haz clic en cualquier número para ver las cartas correspondientes'
-        :`Filtrado a contraparte: ${ACTOR_LABELS[pendActor]||pendActor}`);
+      ?'Historial de trámites atendidos, absueltos o concluidos.'
+      :(pendMode==='comunicacion'
+        ?'Documentos informativos, notificaciones y traslados sin obligación de respuesta contractual.'
+        :(pendActor==='all'
+          ?'Haz clic en cualquier número para ver las cartas correspondientes'
+          :`Filtrado a contraparte: ${ACTOR_LABELS[pendActor]||pendActor}`));
   }
   const hilosBlock=document.getElementById('pendHilosBlock');
   const operBlock=document.getElementById('pendOperBlock');
   const matrixCard=document.getElementById('pendMatrixBlock');
   if(hilosBlock)hilosBlock.style.display=(pendMode==='comunicacion'||pendMode==='respondidos')?'none':'';
   if(operBlock)operBlock.style.display='';
-  if(matrixCard)matrixCard.style.display=pendMode==='respondidos'?'none':'';
+  if(matrixCard)matrixCard.style.display=(pendMode==='respondidos'||pendMode==='comunicacion')?'none':'';
   return items;
 }
 
@@ -166,10 +168,6 @@ function updatePendOperPagination(start,shown,total){
   const info=document.getElementById('pendOperPaginationInfo');
   const ctrl=document.getElementById('pendOperPaginationControls');
   if(!bar||!info||!ctrl)return;
-  if(pendMode==='comunicacion'){
-    bar.style.display='none';
-    return;
-  }
   bar.style.display='flex';
   if(!total){
     info.innerHTML='<span style="color:var(--text-muted)">Sin resultados</span>';
@@ -290,6 +288,55 @@ function humanFlujoBadge(c){
   </span>`;
 }
 
+let pendOperSearchQuery = '';
+let pendOperSearchTimer = null;
+
+function setPendOperSearchQuery(q){
+  pendOperSearchQuery = (q || '').trim();
+  const inp = document.getElementById('pendOperQ');
+  if(inp && inp.value !== (q || '')) inp.value = q || '';
+  const clr = document.getElementById('pendOperQClear');
+  if(clr) clr.classList.toggle('visible', !!pendOperSearchQuery);
+  pendOperPage = 1;
+  renderPendOperTable();
+}
+
+function syncPendOperSearchPlaceholder(){
+  const inp = document.getElementById('pendOperQ');
+  if(!inp) return;
+  const placeholders = {
+    debo: 'Buscar en cartas que debemos responder (N° carta, asunto, especialista, entidad…)',
+    me_deben: 'Buscar en cartas esperando contraparte (N° carta, asunto, entidad, firmante…)',
+    respondidos: 'Buscar en trámites atendidos (N° carta, asunto, especialista, contraparte…)',
+    comunicacion: 'Buscar en comunicaciones informativas (N° carta, asunto, especialista, flujo…)'
+  };
+  inp.placeholder = placeholders[pendMode] || 'Buscar en esta tabla por N° carta, asunto, especialista…';
+}
+
+function updatePendOperSearchHintUI(total){
+  const hintWrap = document.getElementById('pendOperSearchHintWrap');
+  const hintEl = document.getElementById('pendOperSearchHint');
+  if(!hintWrap || !hintEl) return;
+  if(pendOperSearchQuery){
+    hintEl.innerHTML = `<i class="ri-search-line"></i> ${total} resultado${total===1?'':'s'} encontrado${total===1?'':'s'} para <strong>"${escapeHtml(pendOperSearchQuery)}"</strong>`;
+    hintWrap.style.display = 'block';
+  } else {
+    hintEl.textContent = '';
+    hintWrap.style.display = 'none';
+  }
+}
+
+function renderThHelp(label, helpText, options={}){
+  const cls = options.className ? ` class="${options.className}"` : '';
+  const style = options.style ? ` style="${options.style}"` : '';
+  const align = options.align || 'left';
+  const helpBadge = helpText
+    ? `<span class="th-help-badge" title="${escapeHtml(helpText)}" style="cursor:help;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.07);color:var(--text-secondary);font-size:10px;font-weight:700;line-height:1;margin-left:4px;flex-shrink:0;transition:all .15s ease;" onmouseover="this.style.background='var(--accent)';this.style.color='#fff';" onmouseout="this.style.background='rgba(0,0,0,0.07)';this.style.color='var(--text-secondary)';">?</span>`
+    : '';
+
+  return `<th${cls}${style}><div style="display:inline-flex;align-items:center;gap:2px;justify-content:${align==='right'?'flex-end':(align==='center'?'center':'flex-start')}"><span>${escapeHtml(label)}</span>${helpBadge}</div></th>`;
+}
+
 function renderPendOperTable(){
   const tbody=document.getElementById('pendOperBody');
   const thead=document.getElementById('pendOperHead');
@@ -297,25 +344,94 @@ function renderPendOperTable(){
   const sub=document.getElementById('pendOperSub');
   const pBar=document.getElementById('pendOperPaginationBar');
   if(!tbody||!thead)return;
+
   if(pendMode==='comunicacion'){
-    tbody.innerHTML='';
-    if(pBar)pBar.style.display='none';
-    return;
-  }
-  if(pendMode==='respondidos'){
     const allItems=pendItemsForMode();
-    if(title)title.textContent='Respondidos — ya no están en pendientes';
-    if(sub)sub.textContent='Cartas cerradas (CERRADO / ABSUELTO) que fueron Yo debo o Me deben. Ordenadas por fecha de documento.';
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Modo</th><th>Contraparte</th><th>Fecha doc.</th><th>Estado cierre</th><th>Especialista / área</th><th>Asunto</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
+    if(title)title.textContent='Comunicaciones Informativas y Notificaciones';
+    if(sub)sub.textContent='Cartas, memorandos y traslados de carácter informativo que no generan obligación contractual de respuesta.';
+    thead.innerHTML=`<tr>
+      ${renderThHelp('N° carta', 'Código y número oficial del documento informativo o memorando.')}
+      ${renderThHelp('Tipo doc.', 'Tipo o categoría formal del documento (Carta, Memorando, Ficha, etc.).')}
+      ${renderThHelp('Especialidad', 'Disciplina técnica de la ingeniería a la que corresponde la materia.')}
+      ${renderThHelp('Fecha doc.', 'Fecha formal de emisión o recepción de la comunicación.')}
+      ${renderThHelp('Flujo / Intercambio', 'Sentido de la comunicación: quién remitió el documento y quién lo recibió.')}
+      ${renderThHelp('Especialista / Área', 'Profesional o área interna asignada para conocimiento y archivo.')}
+      ${renderThHelp('Asunto', 'Materia o contenido informativo comunicado (avisos, certificados, etc.).')}
+      ${renderThHelp('Estado', 'Condición del trámite informativo (Para Conocimiento / Informativo, sin deuda contractual).')}
+      ${renderThHelp('Acciones', 'Acciones para ver el detalle y trazabilidad del documento.', {align:'right', className:'col-acc', style:'text-align:right'})}
+    </tr>`;
     tbody.innerHTML='';
     const total=allItems.length;
+    updatePendOperSearchHintUI(total);
     const totalPages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
     if(pendOperPage>totalPages)pendOperPage=totalPages;
     if(pendOperPage<1)pendOperPage=1;
     const start=(pendOperPage-1)*PEND_OPER_PAGE_SIZE;
     const items=allItems.slice(start,start+PEND_OPER_PAGE_SIZE);
     if(!total){
-      tbody.innerHTML='<tr><td colspan="10" style="color:var(--text-muted);padding:16px">Sin cartas respondidas/cerradas en este filtro</td></tr>';
+      const msg = pendOperSearchQuery
+        ? `No se encontraron documentos informativos que coincidan con <strong>"${escapeHtml(pendOperSearchQuery)}"</strong>.`
+        : `Sin documentos informativos en este filtro`;
+      tbody.innerHTML=`<tr><td colspan="9" style="color:var(--text-muted);padding:24px 16px;text-align:center">${msg}</td></tr>`;
+      updatePendOperPagination(0,0,0);
+      return;
+    }
+    items.forEach((c,idx)=>{
+      const tr=document.createElement('tr');
+      tr.className='row-rendered';
+      tr.style.animationDelay=`${Math.min(idx*10,160)}ms`;
+      const asunto=String(c.asunto||'').slice(0,120)+(String(c.asunto||'').length>120?'…':'');
+      const respLabel=yoDeboResponderLabel(c);
+      
+      tr.innerHTML=`
+        <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
+        <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
+        <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
+        <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
+        <td>${humanFlujoBadge(c)}</td>
+        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">👷 ${escapeHtml(respLabel)}</strong></div></td>
+        <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
+        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'PARA CONOCIMIENTO')}</span></td>
+        <td class="col-acc">
+          <div class="actions-group">
+            <button type="button" class="btn-act btn-act-edit" title="Ver detalle de la carta" onclick="openEditModal(${c.id})"><i class="ri-eye-line"></i></button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    updatePendOperPagination(start,items.length,total);
+    return;
+  }
+
+  if(pendMode==='respondidos'){
+    const allItems=pendItemsForMode();
+    if(title)title.textContent='Historial de Trámites Atendidos y Resueltos';
+    if(sub)sub.textContent='Registro de cartas y trámites que han sido respondidos, absueltos o concluidos exitosamente.';
+    thead.innerHTML=`<tr>
+      ${renderThHelp('N° carta', 'Código y número oficial de la carta o expediente tramitado.')}
+      ${renderThHelp('Tipo doc.', 'Tipo o categoría formal del documento.')}
+      ${renderThHelp('Especialidad', 'Especialidad técnica a la que correspondió el trámite resuelto.')}
+      ${renderThHelp('Atención / Sentido', 'Indica si fue una carta recibida que atendió el Consorcio o una carta emitida que contestó la Contraparte.')}
+      ${renderThHelp('Contraparte', 'Entidad externa con la cual se interactuó y concluyó este trámite (Supervisión, PRONIS, etc.).')}
+      ${renderThHelp('Fecha doc.', 'Fecha en que se originó o recibió el documento.')}
+      ${renderThHelp('Estado de Cierre', 'Estado o condición formal de conclusión del trámite (Cerrado, Absuelto por Supervisor, etc.).')}
+      ${renderThHelp('Especialista a Cargo', 'Profesional o área interna del Consorcio que lideró la atención o seguimiento.')}
+      ${renderThHelp('Asunto', 'Materia o requerimiento que fue atendido y absuelto.')}
+      ${renderThHelp('Acciones', 'Acciones para ver el detalle completo y trazabilidad de la carta.', {align:'right', className:'col-acc', style:'text-align:right'})}
+    </tr>`;
+    tbody.innerHTML='';
+    const total=allItems.length;
+    updatePendOperSearchHintUI(total);
+    const totalPages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
+    if(pendOperPage>totalPages)pendOperPage=totalPages;
+    if(pendOperPage<1)pendOperPage=1;
+    const start=(pendOperPage-1)*PEND_OPER_PAGE_SIZE;
+    const items=allItems.slice(start,start+PEND_OPER_PAGE_SIZE);
+    if(!total){
+      const msg = pendOperSearchQuery
+        ? `No se encontraron trámites atendidos que coincidan con <strong>"${escapeHtml(pendOperSearchQuery)}"</strong>.`
+        : `Sin cartas respondidas/cerradas en este filtro`;
+      tbody.innerHTML=`<tr><td colspan="10" style="color:var(--text-muted);padding:24px 16px;text-align:center">${msg}</td></tr>`;
       updatePendOperPagination(0,0,0);
       return;
     }
@@ -327,15 +443,24 @@ function renderPendOperTable(){
       tr.style.animationDelay=`${Math.min(idx*10,160)}ms`;
       const asunto=String(c.asunto||'').slice(0,120)+(String(c.asunto||'').length>120?'…':'');
       const cp=inferContraparteHistorica(c);
+      const cpName=ACTOR_LABELS[cp]||cp||'Supervisión';
+
+      const sentidoHtml = eraDebo
+        ? `<span class="badge-soft" style="font-size:11px;font-weight:700;background:rgba(42,122,120,.1);color:var(--teal);display:inline-flex;align-items:center;gap:5px"><i class="ri-check-double-line"></i> Atendido por Consorcio</span>`
+        : `<span class="badge-soft" style="font-size:11px;font-weight:700;background:rgba(196,91,62,.1);color:var(--accent);display:inline-flex;align-items:center;gap:5px"><i class="ri-checkbox-circle-line"></i> Respondido por Contraparte</span>`;
+
+      const respLabel=eraDebo?yoDeboResponderLabel(c):(cl.contraparte_label||cpName);
+      const espAreaHtml = `<div><strong style="color:var(--text-primary);font-size:12.5px;">${eraDebo?'👷':'🏛️'} ${escapeHtml(respLabel)}</strong></div>`;
+
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
         <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
         <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
-        <td>${eraDebo?'Yo debía':'Me debían'}</td>
-        <td>${escapeHtml(ACTOR_LABELS[cp]||cp||'—')}</td>
+        <td>${sentidoHtml}</td>
+        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">🏛️ ${escapeHtml(cpName)}</strong></div></td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
-        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'—')}</span></td>
-        <td>${escapeHtml(eraDebo?yoDeboResponderLabel(c):(cl.contraparte_label||'—'))}</td>
+        <td><span class="status-badge ${estadoBadgeClass(c.estado_norm)}">${escapeHtml(c.estado_norm||c.estado||'CERRADO')}</span></td>
+        <td>${espAreaHtml}</td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
         <td class="col-acc">
           <div class="actions-group">
@@ -359,8 +484,8 @@ function renderPendOperTable(){
   });
   if(title){
     title.textContent=pendMode==='me_deben'
-      ?'Listado operativo — Me deben respuesta'
-      :'Listado operativo — Yo debo responder';
+      ?'Listado operativo — Esperando a contraparte'
+      :'Listado operativo — Debemos responder';
   }
   if(sub){
     sub.textContent=pendMode==='me_deben'
@@ -368,19 +493,47 @@ function renderPendOperTable(){
       :'Cartas recibidas: tipo de documento, especialidad, contraparte emisora, especialista interno asignado (área), plazo contractual y atraso.';
   }
   if(pendMode==='me_deben'){
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha envío</th><th>Entidad que debe responder</th><th>Emitida en Obra por</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
+    thead.innerHTML=`<tr>
+      ${renderThHelp('N° carta', 'Código y número oficial de la carta emitida por el Consorcio pendiente de respuesta.')}
+      ${renderThHelp('Tipo doc.', 'Tipo o categoría formal del documento emitido.')}
+      ${renderThHelp('Especialidad', 'Disciplina técnica a la que corresponde la consulta o requerimiento remitido.')}
+      ${renderThHelp('Fecha envío', 'Fecha en la que el Consorcio remitió formalmente la carta a la contraparte.')}
+      ${renderThHelp('Entidad que debe responder', 'Entidad externa obligada contractualmente a emitir pronunciamiento (Supervisión, PRONIS, MPSC).')}
+      ${renderThHelp('Emitida en Obra por', 'Firmante o área del Consorcio que originó el documento (Residencia o Representante Legal).')}
+      ${renderThHelp('Asunto', 'Materia o requerimiento formulado a la contraparte.')}
+      ${renderThHelp('Fecha límite', 'Fecha máxima contractual en la que la contraparte debe remitir su respuesta formal.')}
+      ${renderThHelp('Plazo', 'Semáforo del plazo de respuesta de la contraparte (Al día, En alerta o Vencido).')}
+      ${renderThHelp('Estado', 'Estado del trámite en seguimiento (Pendiente Supervisión, Pendiente Entidad, etc.).')}
+      ${renderThHelp('Acciones', 'Acciones para registrar la respuesta de la contraparte o ver detalle de la carta.', {align:'right', className:'col-acc', style:'text-align:right'})}
+    </tr>`;
   }else{
-    thead.innerHTML='<tr><th>N° carta</th><th>Tipo doc.</th><th>Especialidad</th><th>Fecha doc.</th><th>Entidad Emisora (Externa)</th><th>Especialista a Cargo (En Obra)</th><th>Asunto</th><th>Fecha límite</th><th>Plazo</th><th>Estado</th><th class="col-acc" style="text-align:right">Acciones</th></tr>';
+    thead.innerHTML=`<tr>
+      ${renderThHelp('N° carta', 'Código y número oficial del documento recibido que requiere respuesta.')}
+      ${renderThHelp('Tipo doc.', 'Tipo o categoría formal del documento (Carta, Consulta, Ficha Técnica, etc.).')}
+      ${renderThHelp('Especialidad', 'Disciplina técnica a la que corresponde la materia del requerimiento recibido.')}
+      ${renderThHelp('Fecha doc.', 'Fecha formal de emisión o recepción del documento recibido.')}
+      ${renderThHelp('Entidad Emisora (Externa)', 'Entidad externa o contraparte que remitió el requerimiento (Supervisión, PRONIS, MPSC).')}
+      ${renderThHelp('Especialista a Cargo (En Obra)', 'Profesional o área interna de Residencia asignada para elaborar la respuesta técnica.')}
+      ${renderThHelp('Asunto', 'Resumen o materia principal del requerimiento recibido.')}
+      ${renderThHelp('Fecha límite', 'Fecha límite contractual para emitir la respuesta oficial antes de incurrir en atraso.')}
+      ${renderThHelp('Plazo', 'Semáforo de vencimiento contractual interno (En plazo, Por vencer o Vencido).')}
+      ${renderThHelp('Estado', 'Situación del trámite en el flujo de gestión (Abierto, Para Respuesta, En Proceso, etc.).')}
+      ${renderThHelp('Acciones', 'Acciones para emitir respuesta técnica o ver detalle de la carta.', {align:'right', className:'col-acc', style:'text-align:right'})}
+    </tr>`;
   }
   tbody.innerHTML='';
   const total=allItems.length;
+  updatePendOperSearchHintUI(total);
   const totalPages=Math.max(1,Math.ceil(total/PEND_OPER_PAGE_SIZE));
   if(pendOperPage>totalPages)pendOperPage=totalPages;
   if(pendOperPage<1)pendOperPage=1;
   const start=(pendOperPage-1)*PEND_OPER_PAGE_SIZE;
   const items=allItems.slice(start,start+PEND_OPER_PAGE_SIZE);
   if(!total){
-    tbody.innerHTML='<tr><td colspan="11" style="color:var(--text-muted);padding:16px">Sin cartas en este modo'+(pendActor!=='all'?' y contraparte':'')+'</td></tr>';
+    const msg = pendOperSearchQuery
+      ? `No se encontraron cartas que coincidan con <strong>"${escapeHtml(pendOperSearchQuery)}"</strong> en este modo.`
+      : `Sin cartas en este modo${(pendActor!=='all'?' y contraparte':'')}`;
+    tbody.innerHTML=`<tr><td colspan="11" style="color:var(--text-muted);padding:24px 16px;text-align:center">${msg}</td></tr>`;
     updatePendOperPagination(0,0,0);
     return;
   }
@@ -404,8 +557,8 @@ function renderPendOperTable(){
         <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
         <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
-        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">⏳ ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</strong></div><div style="font-size:10px;color:var(--text-muted);margin-top:1px;">⏱️ Plazo: ${escapeHtml(plazo.regla_label||'15 días calendario')}</div></td>
-        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">✍️ ${escapeHtml(emitidorCartaLabel(c))}</strong></div><div style="font-size:10px;color:var(--text-muted);margin-top:1px;">Firmante consorcio</div></td>
+        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">⏳ ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</strong></div></td>
+        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">✍️ ${escapeHtml(emitidorCartaLabel(c))}</strong></div></td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
         <td style="white-space:nowrap">${limiteFmt}</td>
         <td>${pendPlazoBadgeHtml(plazo)}</td>
@@ -420,15 +573,15 @@ function renderPendOperTable(){
       const respLabel=yoDeboResponderLabel(c);
       const isAssigned = respLabel !== 'Sin asignar';
       const areaHtml = isAssigned
-        ? `<div><strong style="color:var(--text-primary);font-size:12.5px;">👷 ${escapeHtml(respLabel)}</strong></div><div style="font-size:10px;color:var(--text-muted);margin-top:1px;">⏱️ Plazo: ${escapeHtml(plazo.regla_label||'5 días hábiles')}</div>`
-        : `<div><span style="color:var(--rose);font-weight:700;font-size:11.5px;"><i class="ri-alert-line"></i> Sin asignar en obra</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:1px;">⏱️ Plazo: ${escapeHtml(plazo.regla_label||'5 días hábiles')}</div>`;
+        ? `<div><strong style="color:var(--text-primary);font-size:12.5px;">👷 ${escapeHtml(respLabel)}</strong></div>`
+        : `<div><span style="color:var(--rose);font-weight:700;font-size:11.5px;"><i class="ri-alert-line"></i> Sin asignar en obra</span></div>`;
 
       tr.innerHTML=`
         <td class="cell-doc">${escapeHtml(c.n_documento||'—')}</td>
         <td style="font-weight:600;color:var(--text-secondary)">${escapeHtml(getTipoDocumentoDisplay(c))}</td>
         <td>${escapeHtml(getEspecialidadDisplay(c))}</td>
         <td style="white-space:nowrap">${fmtDate(c.fecha)||'—'}</td>
-        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">🏛️ ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</strong></div><div style="font-size:10px;color:var(--text-muted);margin-top:1px;">Remite requerimiento</div></td>
+        <td><div><strong style="color:var(--text-primary);font-size:12.5px;">🏛️ ${escapeHtml(cl.contraparte_label||ACTOR_LABELS[cl.contraparte]||'Supervisión')}</strong></div></td>
         <td>${areaHtml}</td>
         <td class="cell-asunto" title="${escapeHtml(c.asunto||'')}">${escapeHtml(asunto||'—')}</td>
         <td style="white-space:nowrap">${limiteFmt}</td>
@@ -474,6 +627,7 @@ function applyPendSelection(mode,actor,options={}){
   if(options.resetHiloExpand!==false)hiloExpanded=null;
   syncPendChipStates();
   updatePendDetailMeta();
+  syncPendOperSearchPlaceholder();
   renderPendMatrix();
   renderPendOperTable();
   refreshHilosAsync();
@@ -500,9 +654,11 @@ function renderActorChips(containerId, byActor, mode){
 }
 
 function pendItemsForMode(){
+  let items = [];
   if(pendMode==='respondidos'){
-    return ALL_CARTAS.filter(c=>{
+    items = ALL_CARTAS.filter(c=>{
       const est=(c.estado_norm||c.estado||'').toUpperCase();
+      if(est==='PARA CONOCIMIENTO'||est==='INFORMATIVO'||est==='SOLO COMUNICACION'||est==='ANULADA'||est==='C. ANULADA') return false;
       if(!CLOSED_PEND_STATES.has(est))return false;
       const eraDebo=cartaEraPendienteDebo(c);
       const eraMe=cartaEraPendienteMeDeben(c);
@@ -513,23 +669,57 @@ function pendItemsForMode(){
       }
       return true;
     }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
+  } else if(pendMode==='comunicacion'){
+    items = ALL_CARTAS.filter(c=>{
+      const cl=classif(c);
+      const est=(c.estado_norm||c.estado||'').toUpperCase();
+      const isCom = cl.naturaleza==='comunicacion' || cl.solo_comunicacion || est==='PARA CONOCIMIENTO' || est==='INFORMATIVO' || est==='SOLO COMUNICACION' || est==='ANULADA' || est==='C. ANULADA';
+      if(!isCom)return false;
+      if(pendActor!=='all'){
+        const cp=cl.contraparte||inferContraparteHistorica(c);
+        if(cp!==pendActor)return false;
+      }
+      return true;
+    }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
+  } else {
+    items = ALL_CARTAS.filter(c=>{
+      const cl=classif(c);
+      if(pendMode==='debo'){
+        if(cl.deuda!=='debo')return false;
+        return isPendContraparte(cl);
+      }
+      if(pendMode==='me_deben'){
+        if(cl.deuda!=='me_deben')return false;
+        return isPendContraparte(cl);
+      }
+      return false;
+    }).filter(c=>{
+      if(pendActor==='all')return true;
+      return classif(c).contraparte===pendActor;
+    });
   }
-  return ALL_CARTAS.filter(c=>{
-    const cl=classif(c);
-    if(pendMode==='comunicacion')return cl.naturaleza==='comunicacion'||cl.solo_comunicacion;
-    if(pendMode==='debo'){
-      if(cl.deuda!=='debo')return false;
-      return isPendContraparte(cl);
-    }
-    if(pendMode==='me_deben'){
-      if(cl.deuda!=='me_deben')return false;
-      return isPendContraparte(cl);
-    }
-    return false;
-  }).filter(c=>{
-    if(pendActor==='all')return true;
-    return classif(c).contraparte===pendActor;
-  });
+
+  if(pendOperSearchQuery){
+    const qLower = pendOperSearchQuery.toLowerCase();
+    const qTokens = qLower.split(/\s+/).filter(Boolean);
+    items = items.filter(c=>{
+      const cl = classif(c);
+      const cp = inferContraparteHistorica(c);
+      const cpLabel = ACTOR_LABELS[cp] || cp || '';
+      const doc = String(c.n_documento||'').toLowerCase();
+      const asunto = String(c.asunto||'').toLowerCase();
+      const esp = String(c.especialidad_norm || c.especialidad || '').toLowerCase();
+      const resp = String(yoDeboResponderLabel(c) || '').toLowerCase();
+      const emisor = String(c.receptor || '').toLowerCase();
+      const dest = String(c.dirigido_a || '').toLowerCase();
+      const est = String(c.estado_norm || c.estado || '').toLowerCase();
+      const tipo = String(getTipoDocumentoDisplay(c) || '').toLowerCase();
+      const fullSearchStr = `${doc} ${asunto} ${esp} ${resp} ${cpLabel.toLowerCase()} ${emisor} ${dest} ${est} ${tipo}`;
+      return qTokens.every(tok => fullSearchStr.includes(tok));
+    });
+  }
+
+  return items;
 }
 
 function renderPendientesSkeleton(){
@@ -593,6 +783,22 @@ function renderPendientesSkeleton(){
   }
 }
 
+function updatePendCardHints(){
+  const ro = PLAZO_RESPUESTA?.residente?.dias || 5;
+  const sup = PLAZO_RESPUESTA?.supervisor?.dias || 5;
+  const ent = PLAZO_RESPUESTA?.entidad?.dias || 15;
+  
+  const hintDebo = document.querySelector('.pend-card.debo .hint');
+  const hintMe = document.querySelector('.pend-card.me_deben .hint');
+  
+  if(hintDebo){
+    hintDebo.textContent = `Recibidas abiertas de las 4 contrapartes. Plazo interno: ${ro} días hábiles. Cierre al responder.`;
+  }
+  if(hintMe){
+    hintMe.textContent = `Emitidas abiertas hacia las 4 contrapartes. Sup. ${sup} hábiles; Entidad ${ent} calendario tras traslado.`;
+  }
+}
+
 function renderPendientes(){
   const p=PENDIENTES||{};
   const counts=p.counts||{debo:0,me_deben:0,comunicacion:0};
@@ -600,6 +806,7 @@ function renderPendientes(){
   document.getElementById('pendMeDebenCount').textContent=counts.me_deben||0;
   renderActorChips('pendDeboActors',(p.debo&&p.debo.by_actor)||{},'debo');
   renderActorChips('pendMeDebenActors',(p.me_deben&&p.me_deben.by_actor)||{},'me_deben');
+  updatePendCardHints();
   syncPendChipStates();
   updatePendDetailMeta();
   renderPendMatrix();
@@ -768,5 +975,35 @@ function updateAll(){
   updateTable();
   if(currentView==='pendientes')renderPendientes();
   if(currentView==='saldos')renderSaldos();
+}
+
+function initPendOperSearchEvents(){
+  const qInput = document.getElementById('pendOperQ');
+  const qClr = document.getElementById('pendOperQClear');
+  if(!qInput) return;
+  qInput.addEventListener('input', (e)=>{
+    const val = e.target.value || '';
+    qClr?.classList.toggle('visible', !!val.trim());
+    clearTimeout(pendOperSearchTimer);
+    pendOperSearchTimer = setTimeout(()=>{
+      pendOperSearchQuery = val.trim();
+      pendOperPage = 1;
+      renderPendOperTable();
+    }, 150);
+  });
+  qClr?.addEventListener('click', ()=>{
+    qInput.value = '';
+    qClr.classList.remove('visible');
+    pendOperSearchQuery = '';
+    pendOperPage = 1;
+    renderPendOperTable();
+    qInput.focus();
+  });
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initPendOperSearchEvents);
+} else {
+  initPendOperSearchEvents();
 }
 

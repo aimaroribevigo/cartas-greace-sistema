@@ -23,9 +23,8 @@ function syncUserFormRol(){
   if(espsWrap)espsWrap.style.display=rol==='ingeniero'?'':'none';
   if(rol==='ingeniero')populateUserEspSelect(getUserEspSelections());
   const descs={
-    ingeniero:'<strong>👷 Ingeniero Especialista:</strong> Solo lectura de las cartas de sus especialidades. No crea, edita ni cierra trámites.',
-    residente:'<strong>📋 Residente de Obra:</strong> Consulta todas las bandejas y especialidades. El ciclo de cartas (crear, responder, cerrar hilo) lo maneja solo el Administrador.',
-    admin:'<strong>🔑 Administrador:</strong> Único operador del ciclo: crea la carta, registra la respuesta (nueva carta con antecedentes → hilo), corrige errores de tipado y cierra el hilo completo.'
+    ingeniero:'<strong>👷 Ingeniero Especialista:</strong> Acceso exclusivo y enfocado en la vista de Pendientes para consultar y dar seguimiento a sus especialidades asignadas.',
+    admin:'<strong>🔑 Administrador:</strong> Control total del sistema: gestión y creación de cartas, respuestas oficiales, administración de usuarios, copias de seguridad y configuración.'
   };
   if(descEl)descEl.innerHTML=descs[rol]||'';
 }
@@ -92,7 +91,7 @@ async function handleUserSave(){
   if (nombre.length > 100) { showToast('El nombre y cargo no pueden superar los 100 caracteres', 'error'); return; }
   if (rol === 'ingeniero' && !espsList.length) {
     showToast('Seleccione al menos una especialidad del catálogo para el ingeniero', 'error');
-    document.getElementById('uf_esps')?.focus();
+    document.getElementById('uf_esp_chips_container')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
   if (espsList.length > 12) { showToast('Máximo 12 especialidades por usuario', 'error'); return; }

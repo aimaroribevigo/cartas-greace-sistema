@@ -9,6 +9,7 @@ from pathlib import Path
 import openpyxl
 
 from core.normalizers import infer_estado_from_row, normalize_especialidad, normalize_estado
+from services.backfill_cartas import fix_areas_responsables
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_EXCEL = BASE_DIR / "Control_de_Cartas_2025_HLP_Mejorado.xlsx"
@@ -591,6 +592,10 @@ def import_excel_to_db(conn, excel_path: Path | None = None, force: bool = False
             print(f"[import] {ban_key}: {len(batch)} filas", flush=True)
 
         cur.execute("SET FOREIGN_KEY_CHECKS=1")
+        try:
+            fix_areas_responsables(conn, dry_run=False)
+        except Exception as e:
+            print(f"[import] Advertencia al normalizar áreas responsables: {e}", flush=True)
 
     conn.commit()
     return {

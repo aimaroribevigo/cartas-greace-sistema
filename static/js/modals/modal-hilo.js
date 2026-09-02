@@ -43,7 +43,9 @@ async function executeSwitchCarta(){
   try{
     await openEditModal(id);
     const c=ALL_CARTAS.find(x=>x.id===id);
-    showToast('Editando: '+(c?.n_documento||('ID '+id)),'info');
+    const canEdit=CURRENT_USER&&(CURRENT_USER.can_edit_cartas||CURRENT_USER.can_edit_formal);
+    const verb = canEdit ? 'Editando' : 'Mostrando';
+    showToast(verb+': '+(c?.n_documento||('ID '+id)),'info');
   }catch(e){
     showToast(e.message||'No se pudo abrir la carta','error');
   }
@@ -195,6 +197,9 @@ document.getElementById('f_bandeja')?.addEventListener('change',updateBandejaHin
 document.getElementById('f_especialidad')?.addEventListener('change',()=>suggestAreaFromEspecialidad(true));
 
 function previewRefCarta(id){
+  if(editingId && id === editingId && !document.getElementById('cartaModal')?.classList.contains('hidden')){
+    return;
+  }
   const c=ALL_CARTAS.find(x=>x.id===id);
   if(!c){showToast('Carta no encontrada','error');return;}
   const cl=classif(c);
@@ -1013,8 +1018,24 @@ document.getElementById('loginForm').addEventListener('submit',async(e)=>{
     }
     hidePwdGate();
     hideLoginGate();
-    showToast('Bienvenido, '+(d.user.nombre||d.user.username),'success');
+
+    if(d.user && d.user.rol === 'ingeniero'){
+      showView('pendientes');
+    }
+
     await loadData();
+
+    if(d.user && d.user.rol === 'ingeniero'){
+      const esps = (d.user.especialidades||[]).join(', ') || 'tu especialidad';
+      const deboCount = (PENDIENTES&&PENDIENTES.counts&&PENDIENTES.counts.debo) || 0;
+      if(deboCount > 0){
+        showToast(`👋 ¡Bienvenido Ing. ${d.user.nombre}! Tienes ${deboCount} carta(s) por responder en ${esps}`, 'info');
+      } else {
+        showToast(`👋 ¡Bienvenido Ing. ${d.user.nombre}! Estás al día en ${esps}`, 'success');
+      }
+    } else {
+      showToast('Bienvenido, '+(d.user.nombre||d.user.username),'success');
+    }
   }catch(ex){err.textContent=ex.message||'Error';}
   finally{btn.disabled=false;btn.textContent='Entrar';}
 });
