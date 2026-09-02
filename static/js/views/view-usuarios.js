@@ -17,57 +17,83 @@ function closeUserModal(cb){
   },160);
 }
 function syncUserFormRol(){
-  const rol=document.getElementById('uf_rol').value;
-  const espsWrap=document.getElementById('uf_espsWrap');
-  const descEl=document.getElementById('uf_rolDesc');
-  if(espsWrap)espsWrap.style.display=rol==='ingeniero'?'':'none';
-  if(rol==='ingeniero')populateUserEspSelect(getUserEspSelections());
-  const descs={
-    ingeniero:'<strong>👷 Ingeniero Especialista:</strong> Acceso exclusivo y enfocado en la vista de Pendientes para consultar y dar seguimiento a sus especialidades asignadas.',
-    admin:'<strong>🔑 Administrador:</strong> Control total del sistema: gestión y creación de cartas, respuestas oficiales, administración de usuarios, copias de seguridad y configuración.'
+  const rolSel = document.getElementById('uf_rol');
+  const rol = rolSel ? rolSel.value : 'ingeniero';
+  const espsWrap = document.getElementById('uf_espsWrap');
+  const descEl = document.getElementById('uf_rolDesc');
+  if(espsWrap) espsWrap.style.display = (rol === 'ingeniero') ? '' : 'none';
+  const descs = {
+    ingeniero: '<strong>👷 Ingeniero Especialista:</strong> Acceso exclusivo y enfocado en la vista de Pendientes para consultar y dar seguimiento a sus especialidades asignadas.',
+    admin: '<strong>🔑 Administrador:</strong> Control total del sistema: gestión y creación de cartas, respuestas oficiales, administración de usuarios, copias de seguridad y configuración.'
   };
-  if(descEl)descEl.innerHTML=descs[rol]||'';
+  if(descEl) descEl.innerHTML = descs[rol] || '';
 }
 
 function openUserModal(user){
-  editingUserId=user?user.id:null;
-  const isEdit=!!user;
-  document.getElementById('userModalTitle').textContent=isEdit?(`Editar Usuario: ${user.username}`):'Nuevo Usuario';
-  const sub=document.getElementById('userModalSub');
-  if(sub)sub.textContent=isEdit
-    ?'Modifica los datos, rol o restablece la contraseña de esta cuenta'
-    :'Registra una nueva cuenta de acceso al sistema con su rol y especialidad';
-  document.getElementById('btnUserSave').textContent=isEdit?'Actualizar datos':'Crear usuario';
-  document.getElementById('uf_id').value=isEdit?user.id:'';
+  editingUserId = user ? user.id : null;
+  const isEdit = !!user;
   
-  const uname=document.getElementById('uf_username');
-  uname.value=isEdit?user.username:'';
-  uname.readOnly=isEdit;
+  const titleEl = document.getElementById('userModalTitle');
+  if(titleEl) titleEl.textContent = isEdit ? (`Editar Usuario: ${user.username}`) : 'Nuevo Usuario';
   
-  document.getElementById('uf_nombre').value=isEdit?user.nombre:'';
-  document.getElementById('uf_rol').value=isEdit?user.rol:'ingeniero';
-  populateUserEspSelect(isEdit?(user.especialidades||[]):[]);
+  const subEl = document.getElementById('userModalSub');
+  if(subEl) subEl.textContent = isEdit
+    ? 'Modifica los datos, rol o restablece la contraseña de esta cuenta'
+    : 'Registra una nueva cuenta de acceso al sistema con su rol y especialidad';
+    
+  const btnSave = document.getElementById('btnUserSave');
+  if(btnSave) btnSave.textContent = isEdit ? 'Actualizar datos' : 'Crear usuario';
   
-  const pwdInp=document.getElementById('uf_password');
-  const pwdResetInp=document.getElementById('uf_password_reset');
-  if(pwdInp){pwdInp.value='';pwdInp.type='password';}
-  if(pwdResetInp){pwdResetInp.value='';pwdResetInp.type='password';}
-  document.querySelectorAll('.btn-toggle-pwd').forEach(btn=>{
-    btn.innerHTML='<i class="ri-eye-line"></i>';
+  const ufId = document.getElementById('uf_id');
+  if(ufId) ufId.value = isEdit ? user.id : '';
+  
+  const uname = document.getElementById('uf_username');
+  if(uname){
+    uname.value = isEdit ? user.username : '';
+    uname.readOnly = isEdit;
+  }
+  
+  const nombreEl = document.getElementById('uf_nombre');
+  if(nombreEl) nombreEl.value = isEdit ? (user.nombre || '') : '';
+  
+  const rolEl = document.getElementById('uf_rol');
+  if(rolEl) rolEl.value = isEdit ? (user.rol === 'admin' ? 'admin' : 'ingeniero') : 'ingeniero';
+  
+  populateUserEspSelect(isEdit ? (user.especialidades || []) : []);
+  
+  const pwdInp = document.getElementById('uf_password');
+  const pwdResetInp = document.getElementById('uf_password_reset');
+  if(pwdInp){ pwdInp.value = ''; pwdInp.type = 'password'; }
+  if(pwdResetInp){ pwdResetInp.value = ''; pwdResetInp.type = 'password'; }
+  
+  document.querySelectorAll('.btn-toggle-pwd').forEach(btn => {
+    btn.innerHTML = '<i class="ri-eye-line"></i>';
   });
   
-  document.getElementById('uf_must').checked=true;
-  document.getElementById('uf_must_reset').checked=true;
+  const mustEl = document.getElementById('uf_must');
+  if(mustEl) mustEl.checked = true;
+  const mustResetEl = document.getElementById('uf_must_reset');
+  if(mustResetEl) mustResetEl.checked = true;
   
-  document.getElementById('uf_usernameWrap').style.display=isEdit?'none':'';
-  const nombreWrap=document.getElementById('uf_nombreWrap');
-  if(nombreWrap)nombreWrap.className=isEdit?'form-group full-width':'form-group';
+  const unameWrap = document.getElementById('uf_usernameWrap');
+  if(unameWrap) unameWrap.style.display = isEdit ? 'none' : '';
   
-  document.getElementById('uf_pwdCreateWrap').style.display=isEdit?'none':'';
-  document.getElementById('uf_pwdResetWrap').style.display=isEdit?'':'none';
+  const nombreWrap = document.getElementById('uf_nombreWrap');
+  if(nombreWrap) nombreWrap.className = isEdit ? 'form-group full-width' : 'form-group';
+  
+  const pwdCreateWrap = document.getElementById('uf_pwdCreateWrap');
+  if(pwdCreateWrap) pwdCreateWrap.style.display = isEdit ? 'none' : '';
+  
+  const pwdResetWrap = document.getElementById('uf_pwdResetWrap');
+  if(pwdResetWrap) pwdResetWrap.style.display = isEdit ? '' : 'none';
   
   syncUserFormRol();
   showUserModal();
+}
+
+const ufRolEl = document.getElementById('uf_rol');
+if(ufRolEl){
+  ufRolEl.addEventListener('change', syncUserFormRol);
 }
 
 document.querySelectorAll('.btn-toggle-pwd').forEach(btn=>{
